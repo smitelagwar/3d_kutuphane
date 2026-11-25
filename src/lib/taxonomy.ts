@@ -81,26 +81,54 @@ export const PRODUCT_GROUP_ORDER: ProductGroupMeta[] = [
   { id: 'komodin-sifonyer', label: 'Komodin, Şifonyer & Makyaj', category: 'Yatak Odası' },
   { id: 'genc-cocuk-odasi', label: 'Genç, Ranza & Duvar Yatağı', category: 'Yatak Odası' },
 
-  // Yemek & Mutfak (5 groups)
+  // Çocuk & Oyun (4 dedicated Turkish kids & baby toy/playroom groups)
+  { id: 'bebek-kucuk-oyuncak', label: 'Bebek & Montessori Oyuncakları', category: 'Çocuk & Oyun' },
+  { id: 'cocuk-oyuncaklari', label: 'Çocuk Oyuncakları & Peluş', category: 'Çocuk & Oyun' },
+  { id: 'oyun-cadiri-mutfak', label: 'Oyun Çadırı, Mutfak & Bebek Evi', category: 'Çocuk & Oyun' },
+  { id: 'cocuk-calisma-kitaplik', label: 'Çocuk Kitaplığı, Oyuncak Dolabı & Masa', category: 'Çocuk & Oyun' },
+
+  // Yemek & Mutfak (4 groups)
   { id: 'mutfak-dolabi-ada', label: 'Mutfak Dolabı & Ada', category: 'Yemek & Mutfak' },
-  { id: 'ankastre-beyaz-esya', label: 'Ankastre & Beyaz Eşya', category: 'Yemek & Mutfak' },
   { id: 'yemek-masasi', label: 'Yemek & Mutfak Masası', category: 'Yemek & Mutfak' },
   { id: 'sandalye-tabure', label: 'Sandalye & Bar Taburesi', category: 'Yemek & Mutfak' },
   { id: 'mutfak-konsol-dolap', label: 'Konsol, Vitrin & Kiler', category: 'Yemek & Mutfak' },
 
-  // Mimari & Çalışma (7 groups)
-  { id: 'ic-kapi-surgu', label: 'İç, Dış & Çelik Kapı', category: 'Mimari & Çalışma' },
-  { id: 'priz-elektrik-tesisat', label: 'Elektrik, Priz, Sigorta & Diafon', category: 'Mimari & Çalışma' },
+  // Mutfak Ankastre (6 dedicated Turkish built-in kitchen appliance groups)
+  { id: 'ankastre-setler', label: "3'lü & 4'lü Ankastre Setler", category: 'Mutfak Ankastre' },
+  { id: 'ankastre-firin-mikrodalga', label: 'Ankastre Fırın & Mikrodalga', category: 'Mutfak Ankastre' },
+  { id: 'ankastre-ocak', label: 'İndüksiyon & Gazlı Ankastre Ocak', category: 'Mutfak Ankastre' },
+  { id: 'ankastre-davlumbaz', label: 'Eğimli Cam, Ada & Gömme Davlumbaz', category: 'Mutfak Ankastre' },
+  { id: 'ankastre-bulasik-buzdolabi', label: 'Ankastre Bulaşık & Buzdolabı', category: 'Mutfak Ankastre' },
+  { id: 'ankastre-kahve-sarap', label: 'Ankastre Kahve & Şarap Soğutucu', category: 'Mutfak Ankastre' },
+
+  // Antre & Giriş (4 dedicated Turkish apartment & villa entryway groups)
+  { id: 'vestiyer-portmanto', label: 'Vestiyer, Portmanto & Askılık', category: 'Antre & Giriş' },
+  { id: 'celik-villa-kapisi', label: 'Çelik Kapı, Villa Pivot & Giriş', category: 'Antre & Giriş' },
+  { id: 'ayakkabilik-puf-bank', label: 'Ayakkabılık, Düşer Kapaklı & Bank', category: 'Antre & Giriş' },
+  { id: 'dresuar-boy-aynasi', label: 'Dresuar, LED Boy Aynası & Çıta', category: 'Antre & Giriş' },
+
+  // Mimari & Çalışma (8 groups)
+  { id: 'ic-kapi-surgu', label: 'İç Oda & Sürgü Kapı', category: 'Mimari & Çalışma' },
   { id: 'mekanik-dogalgaz-isitma', label: 'Kombi, Kalorifer, Doğalgaz & Tesisat', category: 'Mimari & Çalışma' },
   { id: 'pencere-perde', label: 'Pencere, Jaluzi & Perde', category: 'Mimari & Çalışma' },
   { id: 'merdiven-yapi', label: 'Asansör, Merdiven & Yapı', category: 'Mimari & Çalışma' },
   { id: 'calisma-ofis', label: 'Çalışma Masası & Ofis', category: 'Mimari & Çalışma' },
-  { id: 'antre-vestiyer', label: 'Antre, Vestiyer & Portmanto', category: 'Mimari & Çalışma' },
+  { id: 'laptop-bilgisayar', label: 'Laptop, Bilgisayar & Teknoloji', category: 'Mimari & Çalışma' },
+  { id: 'kalemlik-kirtasiye', label: 'Kalemlik & Masaüstü Kırtasiye', category: 'Mimari & Çalışma' },
+  { id: 'ders-kitaplari-defter', label: 'Ders Kitapları, Roman & Defter', category: 'Mimari & Çalışma' },
 
-  // Aydınlatma (3 groups)
-  { id: 'avize-sarkit', label: 'Avize, Sarkıt & Ray Spot', category: 'Aydınlatma' },
+  // Elektrik Tesisatı (4 groups)
+  { id: 'sigorta-dagitim-panosu', label: 'Sigorta Kutusu (Sıva Altı / Sıva Üstü)', category: 'Elektrik Tesisatı' },
+  { id: 'otomat-salter-koruma', label: 'Otomatlar, Kaçak Akım & Parafudr', category: 'Elektrik Tesisatı' },
+  { id: 'zayif-akim-data-pano', label: 'Data / Multimedia Zayıf Akım & Rack', category: 'Elektrik Tesisatı' },
+  { id: 'priz-anahtar-sayac', label: 'Priz, Anahtar, Diafon & Sayaç', category: 'Elektrik Tesisatı' },
+
+  // Aydınlatma (5 groups)
+  { id: 'alcipan-spot-ray', label: 'Alçıpan Spot, Downlight & Ray LED', category: 'Aydınlatma' },
+  { id: 'serit-led-lineer', label: 'Şerit LED, Gizli Işık & Lineer Profil', category: 'Aydınlatma' },
+  { id: 'avize-sarkit', label: 'Avize & Modern Sarkıt', category: 'Aydınlatma' },
+  { id: 'lambader-aplik', label: 'Lambader & Duvar Apliği', category: 'Aydınlatma' },
   { id: 'masa-lambasi-abajur', label: 'Masa Lambası & Abajur', category: 'Aydınlatma' },
-  { id: 'lambader-aplik', label: 'Lambader & Aplik', category: 'Aydınlatma' },
 
   // Dekor & Bitki (2 groups)
   { id: 'ic-mekan-bitkisi', label: 'İç Mekan Bitkisi', category: 'Dekor & Bitki' },
@@ -108,7 +136,7 @@ export const PRODUCT_GROUP_ORDER: ProductGroupMeta[] = [
 
   // Dış Cephe (2 groups)
   { id: 'pergola-bahce-oturma', label: 'Pergola, Kamelya & Oturma', category: 'Dış Cephe' },
-  { id: 'dis-mekan-peyzaj', label: 'Dış Aydınlatma & Peyzaj', category: 'Dış Cephe' },
+  { id: 'dis-mekan-peyzaj', label: 'Dış Cephe, Tesisat & Peyzaj', category: 'Dış Cephe' },
 ];
 
 const GROUP_BY_ID = new Map<string, ProductGroupMeta>(
@@ -223,8 +251,12 @@ export function classifyAssetGroup(asset: ArchitecturalAsset): ProductGroupMeta 
       return GROUP_BY_ID.get('klozet-pisuvar')!;
     }
 
-    // 4. Küvet vs Duşakabin ('Küvet Üstü Cam Duş Paneli' is a shower screen -> Duşakabin; 'Küveti' -> Küvet!)
-    if (asset.subCategory === 'Duşakabin & Küvet' || /dusakabin|kuvet|dus paneli|dus teknesi/.test(nameNorm)) {
+    // 4. Küvet vs Duşakabin & Lineer Duş Süzgeci
+    if (
+      asset.archetype === 'tr_linear_floor_drain' ||
+      asset.subCategory === 'Duşakabin & Küvet' ||
+      /dusakabin|kuvet|dus paneli|dus teknesi|yer suzgeci|lineer.*suzgec/.test(nameNorm)
+    ) {
       if (/kuvet|jakuzi|bathtub/.test(nameNorm) && !/dus paneli|cam panel|katlanir cam|dusakabin/.test(nameNorm)) {
         return GROUP_BY_ID.get('kuvet')!;
       }
@@ -289,15 +321,19 @@ export function classifyAssetGroup(asset: ArchitecturalAsset): ProductGroupMeta 
       return GROUP_BY_ID.get('puf-sedir')!;
     }
     if (
+      asset.archetype === 'tr_tall_filled_bookcase' ||
+      asset.archetype === 'tr_arched_fluted_bookcase' ||
+      /kitaplik|kitaplig|raf\b|rafi\b|raf unite/.test(nameNorm)
+    ) {
+      return GROUP_BY_ID.get('kitaplik-raf')!;
+    }
+    if (
       asset.archetype === 'tr_modern_fireplace' ||
       /tv unite|tv sehpa|televizyon|smart tv|led tv|salon tv|tasarim tv|konsol|dresuar|sideboard|vitrin|dolap|somine|piyano/.test(
         nameNorm,
       )
     ) {
       return GROUP_BY_ID.get('tv-unitesi-konsol')!;
-    }
-    if (/kitaplik|kitaplig|raf\b|rafi\b|raf unite/.test(nameNorm)) {
-      return GROUP_BY_ID.get('kitaplik-raf')!;
     }
     if (/sehpa|zigon|komodin/.test(nameNorm)) {
       return GROUP_BY_ID.get('orta-zigon-sehpa')!;
@@ -321,6 +357,34 @@ export function classifyAssetGroup(asset: ArchitecturalAsset): ProductGroupMeta 
     return GROUP_BY_ID.get('cift-kisilik-yatak')!;
   }
 
+  if (asset.category === 'Çocuk & Oyun') {
+    if (
+      asset.archetype === 'tr_kids_teepee_play_tent' ||
+      asset.archetype === 'tr_wooden_kids_play_kitchen' ||
+      asset.archetype === 'tr_wooden_dollhouse_3story' ||
+      /cadir|oyun mutfag|bebek evi/.test(nameNorm)
+    ) {
+      return GROUP_BY_ID.get('oyun-cadiri-mutfak')!;
+    }
+    if (
+      asset.archetype === 'tr_montessori_kids_bookshelf' ||
+      asset.archetype === 'tr_kids_toy_storage_organizer' ||
+      /kitapli[kg]|oyuncak dolab|yazi.*tahta|cizim tahta|sovale|resim/.test(nameNorm)
+    ) {
+      return GROUP_BY_ID.get('cocuk-calisma-kitaplik')!;
+    }
+    if (
+      asset.archetype === 'tr_montessori_rainbow_blocks' ||
+      asset.archetype === 'tr_toddler_wooden_abacus_xylophone' ||
+      /bebek|gokkusagi|abakus|ksilofon|sallanan.*at|halka.*kule|alfabe.*kup|yapi blok|matruska|tren|ordek|oyuncak ucak|kucuk cocuk/.test(
+        nameNorm,
+      )
+    ) {
+      return GROUP_BY_ID.get('bebek-kucuk-oyuncak')!;
+    }
+    return GROUP_BY_ID.get('cocuk-oyuncaklari')!;
+  }
+
   if (asset.category === 'Yemek & Mutfak') {
     if (/sandalye|tabure|bar sandalye|bench/.test(nameNorm)) {
       return GROUP_BY_ID.get('sandalye-tabure')!;
@@ -330,21 +394,91 @@ export function classifyAssetGroup(asset: ArchitecturalAsset): ProductGroupMeta 
     }
     if (
       asset.archetype === 'tr_pullout_kitchen_faucet' ||
-      (/evye|eviye|batarya/.test(nameNorm) && !/bulasik/.test(nameNorm))
+      (/evye|eviye|batarya/.test(nameNorm) && !/bulasik/.test(nameNorm)) ||
+      /mutfak adas|alt mutfak|ust mutfak|mutfak dolab|tezgah|studyo mutfak|servis bar/.test(nameNorm)
     ) {
-      return GROUP_BY_ID.get('mutfak-dolabi-ada')!;
-    }
-    if (
-      /buzdolab|bulasik|ankastre|firin|ocak|davlumbaz|mikrodalga|kahve|espresso|sarap|beyaz esya|induksiyon/.test(
-        nameNorm,
-      )
-    ) {
-      return GROUP_BY_ID.get('ankastre-beyaz-esya')!;
-    }
-    if (/mutfak adas|alt mutfak|ust mutfak|mutfak dolab|tezgah|studyo mutfak/.test(nameNorm)) {
       return GROUP_BY_ID.get('mutfak-dolabi-ada')!;
     }
     return GROUP_BY_ID.get('mutfak-konsol-dolap')!;
+  }
+
+  if (asset.category === 'Mutfak Ankastre') {
+    if (
+      asset.archetype === 'tr_bosch_ankastre_set_3' ||
+      asset.archetype === 'tr_siemens_ankastre_set_3' ||
+      asset.archetype === 'tr_vestel_rustik_set_3' ||
+      /ankastre set/.test(nameNorm)
+    ) {
+      return GROUP_BY_ID.get('ankastre-setler')!;
+    }
+    if (
+      asset.archetype === 'tr_angled_glass_hood' ||
+      asset.archetype === 'tr_island_t_hood_90' ||
+      asset.archetype === 'tr_recessed_cabinet_hood' ||
+      /davlumbaz|aspirat/.test(nameNorm) && !/davlumbazli.*ocak/.test(nameNorm)
+    ) {
+      return GROUP_BY_ID.get('ankastre-davlumbaz')!;
+    }
+    if (
+      asset.archetype === 'tr_induction_hob_60' ||
+      asset.archetype === 'tr_gas_glass_hob_60' ||
+      asset.archetype === 'tr_wok_gas_hob_75' ||
+      asset.archetype === 'tr_downdraft_induction_hob' ||
+      /oca[kg]|induksiyon|wok|pisirme yuzeyi/.test(nameNorm)
+    ) {
+      return GROUP_BY_ID.get('ankastre-ocak')!;
+    }
+    if (
+      asset.archetype === 'tr_bosch_serie8_oven' ||
+      asset.archetype === 'tr_siemens_iq700_oven' ||
+      asset.archetype === 'tr_vestel_builtin_oven' ||
+      asset.archetype === 'tr_branded_builtin_oven' ||
+      asset.archetype === 'tr_builtin_microwave' ||
+      /firin|mikrodalga/.test(nameNorm)
+    ) {
+      return GROUP_BY_ID.get('ankastre-firin-mikrodalga')!;
+    }
+    if (
+      asset.archetype === 'tr_builtin_coffee_machine' ||
+      /kahve|espresso|sarap/.test(nameNorm)
+    ) {
+      return GROUP_BY_ID.get('ankastre-kahve-sarap')!;
+    }
+    return GROUP_BY_ID.get('ankastre-bulasik-buzdolabi')!;
+  }
+
+  if (asset.category === 'Antre & Giriş') {
+    if (
+      asset.archetype === 'tr_armored_steel_door' ||
+      asset.archetype === 'tr_villa_pivot_steel_door' ||
+      asset.archetype === 'tr_double_villa_steel_door' ||
+      asset.archetype === 'tr_door_number_bell_plate' ||
+      /celik.*kapi|pivot.*kapi|villa.*kapi|kapi numarasi|zil plakasi/.test(nameNorm)
+    ) {
+      return GROUP_BY_ID.get('celik-villa-kapisi')!;
+    }
+    if (
+      asset.archetype === 'tr_entryway_console_mirror_set' ||
+      asset.archetype === 'tr_arched_led_floor_mirror' ||
+      asset.archetype === 'tr_organic_led_wall_mirror' ||
+      asset.archetype === 'tr_acoustic_slat_coat_panel' ||
+      asset.archetype === 'tr_wall_key_mail_organizer' ||
+      asset.id === 'ph-drawer-cabinet' ||
+      /dresuar|boy aynasi|organik.*ayna|duvar citasi|anahtarlik|konsol dolab/.test(nameNorm)
+    ) {
+      return GROUP_BY_ID.get('dresuar-boy-aynasi')!;
+    }
+    if (
+      asset.archetype === 'tr_flip_drawer_shoe_cabinet' ||
+      asset.archetype === 'tr_entryway_shoe_bench' ||
+      asset.archetype === 'tr_doormat_umbrella_set' ||
+      asset.id === 'ph-shelf-01' ||
+      /ayakkabilik|ayakkabiligi|paspas|semsiyelik|duzenleyici raf/.test(nameNorm) ||
+      (/bank|puf/.test(nameNorm) && !/portmanto|vestiyer/.test(nameNorm))
+    ) {
+      return GROUP_BY_ID.get('ayakkabilik-puf-bank')!;
+    }
+    return GROUP_BY_ID.get('vestiyer-portmanto')!;
   }
 
   if (asset.category === 'Mimari & Çalışma') {
@@ -356,15 +490,6 @@ export function classifyAssetGroup(asset: ArchitecturalAsset): ProductGroupMeta 
       return GROUP_BY_ID.get('merdiven-yapi')!;
     }
     if (
-      asset.archetype === 'tr_schuko_socket' ||
-      asset.archetype === 'tr_fuse_box' ||
-      asset.archetype === 'tr_video_intercom' ||
-      asset.archetype === 'tr_tv_data_socket' ||
-      /priz|schuko|komutator|duvar anahtari|sigorta|diafon|interkom|rj45|uydu/.test(nameNorm)
-    ) {
-      return GROUP_BY_ID.get('priz-elektrik-tesisat')!;
-    }
-    if (
       asset.archetype === 'tr_condensing_boiler' ||
       asset.archetype === 'tr_panel_radiator' ||
       asset.archetype === 'tr_gas_valve_assembly' ||
@@ -374,7 +499,9 @@ export function classifyAssetGroup(asset: ArchitecturalAsset): ProductGroupMeta 
       asset.archetype === 'tr_room_thermostat' ||
       asset.archetype === 'tr_split_ac_unit' ||
       asset.archetype === 'tr_water_meter_group' ||
-      /kombi|radyator|petek|kalorifer|dogalgaz|kollektor|termostat|klima|su sayaci|tesisat/.test(nameNorm)
+      asset.archetype === 'tr_fire_hose_cabinet' ||
+      asset.archetype === 'tr_electric_water_heater' ||
+      /kombi|radyator|petek|kalorifer|dogalgaz|kollektor|termostat|klima|su sayaci|tesisat|yangin dolab|termosifon|sofben/.test(nameNorm)
     ) {
       return GROUP_BY_ID.get('mekanik-dogalgaz-isitma')!;
     }
@@ -384,17 +511,97 @@ export function classifyAssetGroup(asset: ArchitecturalAsset): ProductGroupMeta 
     if (/kapi|surgu|surme|katlanir.*kapi/.test(nameNorm)) {
       return GROUP_BY_ID.get('ic-kapi-surgu')!;
     }
-    if (/portmanto|vestiyer|ayakkabilik|aski|antre/.test(nameNorm)) {
-      return GROUP_BY_ID.get('antre-vestiyer')!;
+    if (
+      asset.archetype === 'tr_modern_ultrabook_laptop' ||
+      asset.archetype === 'tr_laptop_stand_workstation' ||
+      asset.archetype === 'tr_dual_monitor_desk_setup' ||
+      /laptop|dizustu|ultrabook|bilgisayar|monitor|klavye|mouse|yazici|cizim tableti|kulaklik|oyun kolu|oyun konsolu/.test(
+        nameNorm,
+      ) &&
+      !/masasi|masa\b/.test(nameNorm)
+    ) {
+      return GROUP_BY_ID.get('laptop-bilgisayar')!;
+    }
+    if (
+      asset.archetype === 'tr_turkish_textbooks_stack' ||
+      asset.archetype === 'tr_open_textbook_study_set' ||
+      asset.archetype === 'tr_bookends_encyclopedia_row'
+    ) {
+      return GROUP_BY_ID.get('ders-kitaplari-defter')!;
+    }
+    if (
+      asset.archetype === 'tr_pen_holder_stationery_set' ||
+      asset.archetype === 'tr_desk_organizer_tray' ||
+      /kalemlik|kirtasiye|kalem\b|kalem seti|sekreterlik|zimba|calar saat|okuma gozlug|dunya kure|sirt canta|kitap okuma stand|duzenleyici/.test(
+        nameNorm,
+      )
+    ) {
+      return GROUP_BY_ID.get('kalemlik-kirtasiye')!;
+    }
+    if (
+      /ders kitab|kitap|roman|ansiklopedi|defter|bloknot|dergi/.test(nameNorm) &&
+      !/kitaplikli.*masa|calisma masasi|calisma sirasi/.test(nameNorm)
+    ) {
+      return GROUP_BY_ID.get('ders-kitaplari-defter')!;
     }
     return GROUP_BY_ID.get('calisma-ofis')!;
   }
 
+  if (asset.category === 'Elektrik Tesisatı') {
+    if (
+      asset.archetype === 'tr_fuse_box' ||
+      asset.archetype === 'tr_surface_fuse_box' ||
+      /sigorta kutusu|sigorta panosu|dagitim panosu/.test(nameNorm)
+    ) {
+      return GROUP_BY_ID.get('sigorta-dagitim-panosu')!;
+    }
+    if (
+      asset.archetype === 'tr_mcb_breaker_set' ||
+      /otomat|kacak akim|parafudr|salter|din ray/.test(nameNorm)
+    ) {
+      return GROUP_BY_ID.get('otomat-salter-koruma')!;
+    }
+    if (
+      asset.archetype === 'tr_weak_current_panel' ||
+      asset.archetype === 'tr_rack_cabinet_9u' ||
+      /zayif akim|rack kabinet|data.*pano|multimedia/.test(nameNorm)
+    ) {
+      return GROUP_BY_ID.get('zayif-akim-data-pano')!;
+    }
+    return GROUP_BY_ID.get('priz-anahtar-sayac')!;
+  }
+
   if (asset.category === 'Aydınlatma') {
-    if (/avize|sarkit|tavan|vantilator|chandel|pendant/.test(nameNorm) || asset.placement === 'ceiling') {
+    if (
+      asset.archetype === 'tr_magnetic_track_light' ||
+      asset.archetype === 'tr_recessed_spot_round' ||
+      asset.archetype === 'tr_gimbal_double_spot' ||
+      asset.archetype === 'tr_led_downlight_panel' ||
+      /ray spot|alcipan spot|gomme.*spot|kardan|downlight|panel led/.test(nameNorm)
+    ) {
+      return GROUP_BY_ID.get('alcipan-spot-ray')!;
+    }
+    if (
+      asset.archetype === 'tr_cove_led_strip' ||
+      asset.archetype === 'tr_linear_recessed_led' ||
+      /serit led|gizli isik|lineer led|led profil/.test(nameNorm)
+    ) {
+      return GROUP_BY_ID.get('serit-led-lineer')!;
+    }
+    if (
+      asset.archetype === 'tr_tiered_ring_chandelier' ||
+      asset.archetype === 'tr_linear_globe_chandelier' ||
+      asset.archetype === 'tr_cascade_stair_chandelier' ||
+      /avize|sarkit|tavan|vantilator|chandel|pendant/.test(nameNorm) ||
+      asset.placement === 'ceiling'
+    ) {
       return GROUP_BY_ID.get('avize-sarkit')!;
     }
-    if (/lambader|ayakli lamba|aplik|duvar lambasi|fener/.test(nameNorm) || asset.placement === 'wall-mounted') {
+    if (
+      asset.archetype === 'tr_wall_sconce_updown' ||
+      /lambader|ayakli lamba|aplik|duvar lambasi|fener/.test(nameNorm) ||
+      asset.placement === 'wall-mounted'
+    ) {
       return GROUP_BY_ID.get('lambader-aplik')!;
     }
     return GROUP_BY_ID.get('masa-lambasi-abajur')!;
@@ -424,8 +631,12 @@ export function buildTaxonomyTree(assets: ArchitecturalAsset[]): TaxonomyCategor
     'Banyo',
     'Salon',
     'Yatak Odası',
+    'Çocuk & Oyun',
     'Yemek & Mutfak',
+    'Mutfak Ankastre',
+    'Antre & Giriş',
     'Mimari & Çalışma',
+    'Elektrik Tesisatı',
     'Aydınlatma',
     'Dekor & Bitki',
     'Dış Cephe',

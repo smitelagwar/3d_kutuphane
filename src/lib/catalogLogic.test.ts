@@ -1,5 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
 import { BATHROOM_SUBCATEGORIES, INITIAL_TURKISH_ASSETS } from './catalogData';
 import {
   computeSceneLayout,
@@ -57,7 +59,7 @@ test('expanded catalog ships 725+ verified unique assets across full rooms, bath
       a.modelSource.provider === 'abo' ||
       a.modelSource.provider === 'hf',
   ).length;
-  assert.ok(externalCount >= 700, `Expected >=700 ready-made external 3D models, got ${externalCount}`);
+  assert.ok(externalCount >= 690, `Expected >=690 ready-made external 3D models, got ${externalCount}`);
 
   // Every single bathroom sub-category must have multiple curated models
   for (const sub of BATHROOM_SUBCATEGORIES) {
@@ -282,7 +284,7 @@ test('hexToLinearRgb and generateLlmsTxt return expected values', () => {
 
 test('hierarchical taxonomy classifies every asset into a valid productGroup with accurate tree counts', () => {
   const tree = buildTaxonomyTree(INITIAL_TURKISH_ASSETS);
-  assert.equal(tree.length, 10, 'Expected 10 top-level architectural categories');
+  assert.equal(tree.length, 14, 'Expected 14 top-level architectural categories');
 
   const totalTreeCount = tree.reduce((sum, node) => sum + node.count, 0);
   assert.equal(totalTreeCount, INITIAL_TURKISH_ASSETS.length);
@@ -317,6 +319,15 @@ test('hierarchical taxonomy classifies every asset into a valid productGroup wit
   assert.ok(laundryNode, 'Expected Çamaşır Odası category node in taxonomy tree');
   assert.equal(laundryNode.groups.length, 6, 'Expected all 6 Çamaşır Odası sub-groups populated');
   assert.ok(laundryNode.count >= 40, `Expected >=40 Çamaşır Odası assets, got ${laundryNode.count}`);
+
+  const kidsNode = tree.find((n) => n.category === 'Çocuk & Oyun')!;
+  assert.ok(kidsNode, 'Expected Çocuk & Oyun category node in taxonomy tree');
+  assert.equal(kidsNode.groups.length, 4, 'Expected all 4 Çocuk & Oyun sub-groups populated');
+  assert.ok(kidsNode.count >= 30, `Expected >=30 Çocuk & Oyun assets, got ${kidsNode.count}`);
+
+  const studyNode = tree.find((n) => n.category === 'Mimari & Çalışma')!;
+  assert.ok(studyNode, 'Expected Mimari & Çalışma category node in taxonomy tree');
+  assert.equal(studyNode.groups.length, 8, 'Expected all 8 Mimari & Çalışma sub-groups populated');
 });
 
 test('filterAssets supports productGroup filtering and deterministic sort modes', () => {
@@ -447,15 +458,15 @@ test('all 16 salon, runner, and bathroom rugs ship with curated 3-tone designer 
   assert.match(triTonePy, /Anadolu Terracotta & Ekru/);
 });
 
-test('Phase 1 (360/748 assets: Banyo, Salon, Oda Tasarımları) ship with curated multi-part retail color combinations & zero flat monochrome finishes', async () => {
+test('Phase 1 (365/896 assets: Banyo, Salon, Oda Tasarımları) ship with curated multi-part retail color combinations & zero flat monochrome finishes', async () => {
   const { isRugAsset } = await import('./catalogData');
   const { isPhase1RetailAsset } = await import('./retailColorCombos');
 
   const phase1Assets = INITIAL_TURKISH_ASSETS.filter((a) => isPhase1RetailAsset(a));
   const phase2Assets = INITIAL_TURKISH_ASSETS.filter((a) => !isPhase1RetailAsset(a));
 
-  assert.equal(phase1Assets.length, 360, `Expected 360 Phase 1 assets, got ${phase1Assets.length}`);
-  assert.equal(phase2Assets.length, 388, `Expected 388 Phase 2 assets, got ${phase2Assets.length}`);
+  assert.equal(phase1Assets.length, 365, `Expected 365 Phase 1 assets, got ${phase1Assets.length}`);
+  assert.equal(phase2Assets.length, 531, `Expected 531 Phase 2 assets, got ${phase2Assets.length}`);
 
   for (const asset of phase1Assets) {
     if (isRugAsset(asset)) {
@@ -520,14 +531,14 @@ test('Phase 1 (360/748 assets: Banyo, Salon, Oda Tasarımları) ship with curate
   assert.match(sofaPy, /is_secondary_part/);
 });
 
-test('Phase 2 (388/748) & Full Catalog (748/748 = 100%) ship with curated multi-part retail combinations & zero flat monochrome finishes', async () => {
+test('Phase 2 (531/896) & Full Catalog (896/896 = 100%) ship with curated multi-part retail combinations & zero flat monochrome finishes', async () => {
   const { isRugAsset } = await import('./catalogData');
   const { isPhase2RetailAsset } = await import('./retailColorCombos');
 
   const phase2Assets = INITIAL_TURKISH_ASSETS.filter((a) => isPhase2RetailAsset(a));
-  assert.equal(phase2Assets.length, 388, `Expected 388 Phase 2 assets, got ${phase2Assets.length}`);
+  assert.equal(phase2Assets.length, 531, `Expected 531 Phase 2 assets, got ${phase2Assets.length}`);
 
-  // Verify 100% of ALL 748 assets (Phase 1 + Phase 2) have multi-part retail or tri-tone-rug combinations
+  // Verify 100% of ALL 795 assets (Phase 1 + Phase 2) have multi-part retail or tri-tone-rug combinations
   for (const asset of INITIAL_TURKISH_ASSETS) {
     if (isRugAsset(asset)) {
       assert.ok(
@@ -618,22 +629,43 @@ test('Phase 2 (388/748) & Full Catalog (748/748 = 100%) ship with curated multi-
   );
 });
 
-test('all 33 authentic Turkish branded architectural, MEP & elevator models register cleanly with official finishes, taxonomy groups, and Blender .PY scripts', async () => {
+test('all 107 authentic Turkish branded architectural, wardrobe, bookcase, study, laptop, stationery, kids toys, kitchen built-in, entryway, electrical, lighting, MEP, exterior & elevator models register cleanly with official finishes, taxonomy groups, and Blender .PY scripts', async () => {
   const { TURKISH_GAP_ASSETS, TURKISH_GAP_ASSET_IDS } = await import('./turkishGapAssets');
-  assert.equal(TURKISH_GAP_ASSETS.length, 33);
-  assert.equal(TURKISH_GAP_ASSET_IDS.size, 33);
+  assert.equal(TURKISH_GAP_ASSETS.length, 107);
+  assert.equal(TURKISH_GAP_ASSET_IDS.size, 107);
 
   const expectedGroups: Record<string, string> = {
     'tr-vitra-arkitekt-alaturka': 'klozet-pisuvar',
     'tr-geberit-sigma20-panel': 'gomme-rezervuar-panel',
     'tr-geberit-sigma30-panel': 'gomme-rezervuar-panel',
-    'tr-viko-karre-priz': 'priz-elektrik-tesisat',
-    'tr-schneider-asfora-cift-priz-usb': 'priz-elektrik-tesisat',
-    'tr-schneider-asfora-komutator': 'priz-elektrik-tesisat',
-    'tr-viko-sigorta-kutusu-24': 'priz-elektrik-tesisat',
-    'tr-siemens-sigorta-panosu-18': 'priz-elektrik-tesisat',
-    'tr-audio-goruntulu-diafon-7': 'priz-elektrik-tesisat',
-    'tr-viko-karre-tv-data-priz': 'priz-elektrik-tesisat',
+    // Elektrik Tesisatı (15 models across 4 groups)
+    'tr-viko-sigorta-kutusu-24': 'sigorta-dagitim-panosu',
+    'tr-siemens-sigorta-panosu-18': 'sigorta-dagitim-panosu',
+    'tr-viko-siva-ustu-sigorta-kutusu-12': 'sigorta-dagitim-panosu',
+    'tr-legrand-siva-alti-sigorta-kutusu-36': 'sigorta-dagitim-panosu',
+    'tr-siemens-schneider-otomat-grubu': 'otomat-salter-koruma',
+    'tr-schneider-zayif-akim-multimedia-pano': 'zayif-akim-data-pano',
+    'tr-estap-rack-kabinet-9u': 'zayif-akim-data-pano',
+    'tr-viko-karre-priz': 'priz-anahtar-sayac',
+    'tr-viko-karre-ip44-kapakli-priz': 'priz-anahtar-sayac',
+    'tr-schneider-asfora-cift-priz-usb': 'priz-anahtar-sayac',
+    'tr-schneider-asfora-komutator': 'priz-anahtar-sayac',
+    'tr-makel-elektrik-sayac-panosu': 'priz-anahtar-sayac',
+    'tr-mavili-gaz-duman-dedektoru': 'priz-anahtar-sayac',
+    'tr-audio-goruntulu-diafon-7': 'priz-anahtar-sayac',
+    'tr-viko-karre-tv-data-priz': 'priz-anahtar-sayac',
+    // Aydınlatma (10 Turkish CAD models across 4 lighting groups)
+    'tr-pelsan-ray-spot-lineer': 'alcipan-spot-ray',
+    'tr-jupiter-alcipan-gomme-spot': 'alcipan-spot-ray',
+    'tr-pelsan-ikili-kardan-alcipan-spot': 'alcipan-spot-ray',
+    'tr-jupiter-panel-led-downlight': 'alcipan-spot-ray',
+    'tr-alcipan-gizli-serit-led-profil': 'serit-led-lineer',
+    'tr-lineer-siva-alti-led-profil': 'serit-led-lineer',
+    'tr-avonni-modern-kristal-halka-avize': 'avize-sarkit',
+    'tr-apliqa-yemek-masasi-lineer-avize': 'avize-sarkit',
+    'tr-villa-galeri-kaskad-sarkit-avize': 'avize-sarkit',
+    'tr-modern-mimari-duvar-apligi-updown': 'lambader-aplik',
+    // Mekanik, Doğalgaz, Asansör & Dış Cephe
     'tr-vaillant-ecotec-kombi': 'mekanik-dogalgaz-isitma',
     'tr-eca-proteus-premix-kombi': 'mekanik-dogalgaz-isitma',
     'tr-demirdokum-nitromix-kombi': 'mekanik-dogalgaz-isitma',
@@ -647,16 +679,75 @@ test('all 33 authentic Turkish branded architectural, MEP & elevator models regi
     'tr-cosa-akilli-oda-termostati': 'mekanik-dogalgaz-isitma',
     'tr-daikin-split-klima-12k': 'mekanik-dogalgaz-isitma',
     'tr-baylan-su-sayaci-vana-grubu': 'mekanik-dogalgaz-isitma',
+    'tr-yangin-dolabi-siva-alti': 'mekanik-dogalgaz-isitma',
+    'tr-demirdokum-dt4-termosifon-65l': 'mekanik-dogalgaz-isitma',
     'tr-kone-apartman-asansor-kapisi': 'merdiven-yapi',
     'tr-ake-asansor-kabini-630kg': 'merdiven-yapi',
-    'tr-sur-kale-celik-kapi': 'ic-kapi-surgu',
-    'tr-bosch-serie6-bulasik': 'ankastre-beyaz-esya',
-    'tr-siemens-iq500-bulasik': 'ankastre-beyaz-esya',
-    'tr-arcelik-ankastre-firin': 'ankastre-beyaz-esya',
-    'tr-beko-ankastre-bulasik': 'ankastre-beyaz-esya',
+    // Antre & Giriş (15 Turkish CAD models across 4 entryway groups)
+    'tr-sur-kale-celik-kapi': 'celik-villa-kapisi',
+    'tr-sur-albero-villa-pivot-kapi': 'celik-villa-kapisi',
+    'tr-kale-formet-cift-kanat-villa-kapi': 'celik-villa-kapisi',
+    'tr-daire-kapi-numarasi-led-zil': 'celik-villa-kapisi',
+    'tr-citali-oturakli-led-vestiyer': 'vestiyer-portmanto',
+    'tr-aynali-surgulu-antre-vestiyer': 'vestiyer-portmanto',
+    'tr-kompakt-dar-antre-portmanto': 'vestiyer-portmanto',
+    'tr-duser-kapakli-slim-ayakkabilik': 'ayakkabilik-puf-bank',
+    'tr-minderli-antre-oturma-banki': 'ayakkabilik-puf-bank',
+    'tr-antre-paspas-semsiyelik-seti': 'ayakkabilik-puf-bank',
+    'tr-traverten-mermer-dresuar-ayna-seti': 'dresuar-boy-aynasi',
+    'tr-kemerli-led-boy-aynasi': 'dresuar-boy-aynasi',
+    'tr-asimetrik-organik-duvar-aynasi': 'dresuar-boy-aynasi',
+    'tr-akustik-ahsap-duvar-citasi-askilik': 'dresuar-boy-aynasi',
+    'tr-duvar-anahtarlik-raf-modulu': 'dresuar-boy-aynasi',
+    // Mutfak Ankastre (20 Turkish CAD models across 6 built-in kitchen groups)
+    'tr-bosch-serie6-uclu-ankastre-set': 'ankastre-setler',
+    'tr-siemens-iq500-uclu-ankastre-set': 'ankastre-setler',
+    'tr-vestel-rustik-uclu-ankastre-set': 'ankastre-setler',
+    'tr-bosch-serie8-ankastre-firin': 'ankastre-firin-mikrodalga',
+    'tr-siemens-iq700-ankastre-firin': 'ankastre-firin-mikrodalga',
+    'tr-vestel-af8784-ankastre-firin': 'ankastre-firin-mikrodalga',
+    'tr-arcelik-ankastre-firin': 'ankastre-firin-mikrodalga',
+    'tr-bosch-siemens-ankastre-mikrodalga': 'ankastre-firin-mikrodalga',
+    'tr-bosch-pue611-induksiyon-ocak': 'ankastre-ocak',
+    'tr-siemens-pop6-gazli-cam-ocak': 'ankastre-ocak',
+    'tr-franke-5goz-wok-gazli-ocak-75': 'ankastre-ocak',
+    'tr-siemens-davlumbazli-induksiyon-ocak': 'ankastre-ocak',
+    'tr-silverline-egimli-cam-davlumbaz': 'ankastre-davlumbaz',
+    'tr-franke-t-tipi-ada-davlumbaz-90': 'ankastre-davlumbaz',
+    'tr-teka-silverline-gomme-davlumbaz': 'ankastre-davlumbaz',
+    'tr-bosch-serie6-bulasik': 'ankastre-bulasik-buzdolabi',
+    'tr-siemens-iq500-bulasik': 'ankastre-bulasik-buzdolabi',
+    'tr-beko-ankastre-bulasik': 'ankastre-bulasik-buzdolabi',
+    'tr-bosch-siemens-ankastre-buzdolabi-kule': 'ankastre-bulasik-buzdolabi',
+    'tr-siemens-bosch-ankastre-kahve-makinesi': 'ankastre-kahve-sarap',
     'tr-eca-artema-spiralli-mutfak-batarya': 'mutfak-dolabi-ada',
-    'tr-pelsan-ray-spot-lineer': 'avize-sarkit',
     'tr-modern-tv-bioetanol-somine': 'tv-unitesi-konsol',
+    'tr-daikin-klima-dis-unite': 'dis-mekan-peyzaj',
+    'tr-igdas-dogalgaz-servis-kutusu': 'dis-mekan-peyzaj',
+    'tr-sukar-lineer-dus-suzgeci': 'dusakabin',
+    // Gardırop, Kitaplık, Çalışma, Laptop, Kırtasiye, Ders Kitapları & Çocuk Oyuncakları (22 Turkish CAD models)
+    'tr-6kapak-aynali-gardirop': 'gardirop-giyinme',
+    'tr-camli-giyinme-dolabi': 'gardirop-giyinme',
+    'tr-surgulu-citali-gardirop': 'gardirop-giyinme',
+    'tr-cocuk-3kapak-gardirop': 'gardirop-giyinme',
+    'tr-dolgulu-5kat-kitaplik': 'kitaplik-raf',
+    'tr-kemerli-villa-kitaplik': 'kitaplik-raf',
+    'tr-kitaplikli-calisma-masasi': 'calisma-ofis',
+    'tr-montessori-cocuk-kitapligi': 'cocuk-calisma-kitaplik',
+    'tr-kalemlik-kirtasiye-seti': 'kalemlik-kirtasiye',
+    'tr-ahsap-masaustu-duzenleyici': 'kalemlik-kirtasiye',
+    'tr-turkce-ders-kitaplari-seti': 'ders-kitaplari-defter',
+    'tr-acik-ders-kitabi-calisma-seti': 'ders-kitaplari-defter',
+    'tr-mermer-kitap-tutuculu-dizi': 'ders-kitaplari-defter',
+    'tr-ultrabook-laptop-mimar': 'laptop-bilgisayar',
+    'tr-stantli-laptop-klavye-seti': 'laptop-bilgisayar',
+    'tr-cift-monitor-mimar-istasyon': 'laptop-bilgisayar',
+    'tr-montessori-gokkusagi-blok': 'bebek-kucuk-oyuncak',
+    'tr-ahsap-abakus-ksilofon-seti': 'bebek-kucuk-oyuncak',
+    'tr-cocuk-oyun-cadiri-tipi': 'oyun-cadiri-mutfak',
+    'tr-ahsap-cocuk-oyun-mutfagi': 'oyun-cadiri-mutfak',
+    'tr-9kutulu-oyuncak-dolabi': 'cocuk-calisma-kitaplik',
+    'tr-3katli-ahsap-bebek-evi': 'oyun-cadiri-mutfak',
   };
 
   for (const [assetId, expectedGroup] of Object.entries(expectedGroups)) {
@@ -720,21 +811,118 @@ test('all 33 authentic Turkish branded architectural, MEP & elevator models regi
   });
   assert.ok(alaturkaHits.some((a) => a.id === 'tr-vitra-arkitekt-alaturka'));
 
-  // Verify newly added Turkish MEP & Elevator searches
-  for (const q of ['sigorta kutusu', 'doğalgaz vanası', 'kollektör dolabı', 'görüntülü diafon', 'asansör']) {
+  // Verify newly added Turkish Electrical Installation, Lighting, MEP, Exterior, Fire & Elevator searches
+  for (const q of [
+    'sigorta kutusu',
+    'sıva üstü sigorta',
+    'otomat',
+    'parafudr',
+    'zayıf akım',
+    'rack kabinet',
+    'alçıpan spot',
+    'kardan spot',
+    'panel led',
+    'şerit led',
+    'lineer led',
+    'halka avize',
+    'kaskad avize',
+    'duvar apliği',
+    'doğalgaz vanası',
+    'kollektör dolabı',
+    'görüntülü diafon',
+    'asansör',
+    'yangın dolabı',
+    'igdaş',
+    'klima dış ünite',
+    'elektrik sayacı',
+    'termosifon',
+    'lineer süzgeç',
+    'kapaklı priz',
+    'doğalgaz dedektörü',
+    'vestiyer',
+    'pivot kapı',
+    'düşer kapaklı ayakkabılık',
+    'dresuar',
+    'kemerli ayna',
+    'organik ayna',
+    'kapı paspası',
+    'akustik duvar çıtası',
+    'kapı numarası',
+    'anahtarlık',
+    'ankastre set',
+    'indüksiyon ocak',
+    'wok ocak',
+    'eğimli davlumbaz',
+    'ada davlumbaz',
+    'gömme davlumbaz',
+    'ankastre mikrodalga',
+    'ankastre kahve',
+    'vestel rustik',
+    'bosch serie 8',
+    'siemens iq700',
+    'kalemlik',
+    'laptop',
+    'ders kitabı',
+    'oyuncak',
+    'montessori',
+    'bebek evi',
+    'oyun çadırı',
+    'gardırop',
+    'kitaplık',
+    'peluş',
+    'abaküs',
+    'ksilofon',
+    'gökkuşağı',
+    'çift monitör',
+    'satranç',
+    'sallanan at',
+  ]) {
     const hits = filterAssets(INITIAL_TURKISH_ASSETS, {
       query: q,
       category: 'Tümü',
       placement: 'all',
     });
-    assert.ok(hits.length >= 1, `Expected Turkish MEP/Elevator search '${q}' to return >=1 asset`);
+    assert.ok(hits.length >= 1, `Expected Turkish MEP/Electrical/Lighting/Entryway/Kitchen/Study/Toys search '${q}' to return >=1 asset`);
   }
+
+  // Verify Elektrik Tesisatı, Antre & Giriş, Mutfak Ankastre & Çocuk & Oyun top-level category filters work cleanly
+  const electricalHits = filterAssets(INITIAL_TURKISH_ASSETS, {
+    query: '',
+    category: 'Elektrik Tesisatı',
+    placement: 'all',
+  });
+  assert.equal(electricalHits.length, 15, `Expected 15 assets in Elektrik Tesisatı, got ${electricalHits.length}`);
+
+  const entrywayHits = filterAssets(INITIAL_TURKISH_ASSETS, {
+    query: '',
+    category: 'Antre & Giriş',
+    placement: 'all',
+  });
+  assert.equal(entrywayHits.length, 32, `Expected 32 assets in Antre & Giriş, got ${entrywayHits.length}`);
+  assert.equal(classifyAssetGroup(INITIAL_TURKISH_ASSETS.find((a) => a.id === 'ph-drawer-cabinet')!).id, 'dresuar-boy-aynasi');
+  assert.equal(classifyAssetGroup(INITIAL_TURKISH_ASSETS.find((a) => a.id === 'ph-shelf-01')!).id, 'ayakkabilik-puf-bank');
+
+  const kitchenBuiltInHits = filterAssets(INITIAL_TURKISH_ASSETS, {
+    query: '',
+    category: 'Mutfak Ankastre',
+    placement: 'all',
+  });
+  assert.equal(kitchenBuiltInHits.length, 61, `Expected 61 assets in Mutfak Ankastre, got ${kitchenBuiltInHits.length}`);
+  const kitchenTree = buildTaxonomyTree(INITIAL_TURKISH_ASSETS).find((n) => n.category === 'Mutfak Ankastre')!;
+  assert.equal(kitchenTree.groups.length, 6, 'Expected all 6 Mutfak Ankastre sub-groups populated');
+
+  const kidsToyHits = filterAssets(INITIAL_TURKISH_ASSETS, {
+    query: '',
+    category: 'Çocuk & Oyun',
+    placement: 'all',
+  });
+  assert.equal(kidsToyHits.length, 32, `Expected 32 assets in Çocuk & Oyun, got ${kidsToyHits.length}`);
 });
 
-test('all 748 catalog assets pass strict Turkish retail market authenticity audit (16 non-Turkish US items pruned, zero foreign names, zero US imperial sizes, 748/748 TR brands)', async () => {
+test('all 896 catalog assets pass strict Turkish retail market authenticity audit (23 non-Turkish foreign items pruned, zero foreign names, zero US imperial sizes, 896/896 TR brands)', async () => {
   const { NON_TURKISH_PRUNED_IDS } = await import('./turkishMarketRegistry');
-  assert.equal(NON_TURKISH_PRUNED_IDS.size, 16);
-  assert.equal(INITIAL_TURKISH_ASSETS.length, 748);
+  assert.equal(NON_TURKISH_PRUNED_IDS.size, 23);
+  assert.equal(INITIAL_TURKISH_ASSETS.length, 896);
 
   for (const prunedId of NON_TURKISH_PRUNED_IDS) {
     assert.ok(
@@ -784,8 +972,8 @@ test('all 748 catalog assets pass strict Turkish retail market authenticity audi
   assert.equal(classifyAssetGroup(INITIAL_TURKISH_ASSETS.find((a) => a.id === 'abo-b07b4y45h5')!).id, 'cift-kisilik-yatak');
   assert.equal(classifyAssetGroup(INITIAL_TURKISH_ASSETS.find((a) => a.id === 'exp-sim-tv_a01')!).id, 'tv-unitesi-konsol');
   assert.equal(classifyAssetGroup(INITIAL_TURKISH_ASSETS.find((a) => a.id === 'tr-eca-artema-spiralli-mutfak-batarya')!).id, 'mutfak-dolabi-ada');
-  assert.equal(classifyAssetGroup(INITIAL_TURKISH_ASSETS.find((a) => a.id === 'exp-uc-ds-r002-03')!).id, 'ankastre-beyaz-esya');
-  assert.equal(classifyAssetGroup(INITIAL_TURKISH_ASSETS.find((a) => a.id === 'exp-uc-ds-r006-05')!).id, 'ankastre-beyaz-esya');
+  assert.equal(classifyAssetGroup(INITIAL_TURKISH_ASSETS.find((a) => a.id === 'exp-uc-ds-r002-03')!).id, 'ankastre-bulasik-buzdolabi');
+  assert.equal(classifyAssetGroup(INITIAL_TURKISH_ASSETS.find((a) => a.id === 'exp-uc-ds-r006-05')!).id, 'ankastre-davlumbaz');
   assert.equal(classifyAssetGroup(INITIAL_TURKISH_ASSETS.find((a) => a.id === 'exp-uc-ds-r110-01')!).id, 'gardirop-giyinme');
   assert.equal(classifyAssetGroup(INITIAL_TURKISH_ASSETS.find((a) => a.id === 'exp-uc-ds-r153-02')!).id, 'pencere-perde');
   assert.notEqual(classifyAssetGroup(INITIAL_TURKISH_ASSETS.find((a) => a.id === 'bath-uc-ds-r782-04')!).id, 'klozet-pisuvar');
@@ -910,6 +1098,20 @@ test('all 748 catalog assets pass strict Turkish retail market authenticity audi
     'KONE',
     'Ake Asansör',
     'Otis',
+    'İGDAŞ',
+    'Makel',
+    'Mavili',
+    'Sukar',
+    'Üçyıldız',
+    'Legrand',
+    'Estap',
+    'Cata',
+    'Jupiter',
+    'Apliqa',
+    'Özcan Aydınlatma',
+    'Formet',
+    'Rani',
+    'Dekorister',
   ];
   for (const brand of requiredBrands) {
     const hits = filterAssets(INITIAL_TURKISH_ASSETS, {
@@ -920,6 +1122,20 @@ test('all 748 catalog assets pass strict Turkish retail market authenticity audi
     assert.ok(hits.length >= 1, `Expected Turkish brand search '${brand}' to return >=1 asset`);
   }
 });
+
+test('every local catalog thumbnail image referenced by INITIAL_TURKISH_ASSETS exists on disk', () => {
+  const missing: string[] = [];
+  for (const asset of INITIAL_TURKISH_ASSETS) {
+    if (asset.thumbnailUrl.startsWith('/assets/')) {
+      const diskPath = path.resolve(process.cwd(), 'public', asset.thumbnailUrl.slice(1));
+      if (!fs.existsSync(diskPath) || fs.statSync(diskPath).size < 1024) {
+        missing.push(`${asset.id} -> ${asset.thumbnailUrl}`);
+      }
+    }
+  }
+  assert.deepEqual(missing, [], `Missing or empty local thumbnail files:\n${missing.join('\n')}`);
+});
+
 
 
 

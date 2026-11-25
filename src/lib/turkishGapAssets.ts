@@ -11,6 +11,22 @@ import type {
 } from './catalogTypes';
 import { ARCHITECTURAL_PBR_PATTERNS } from './expandedInteriorAssets';
 import { TURKISH_MEP_ASSETS, TURKISH_MEP_ASSET_IDS } from './turkishMepAssets';
+import {
+  TURKISH_ELECTRICAL_LIGHTING_ASSETS,
+  TURKISH_ELECTRICAL_LIGHTING_ASSET_IDS,
+} from './turkishElectricalLightingAssets';
+import {
+  TURKISH_ENTRYWAY_ASSETS,
+  TURKISH_ENTRYWAY_ASSET_IDS,
+} from './turkishEntrywayAssets';
+import {
+  TURKISH_KITCHEN_BUILTIN_ASSETS,
+  TURKISH_KITCHEN_BUILTIN_ASSET_IDS,
+} from './turkishKitchenBuiltInAssets';
+import {
+  TURKISH_HOME_STUDY_TOYS_ASSETS,
+  TURKISH_HOME_STUDY_TOYS_ASSET_IDS,
+} from './turkishHomeStudyToysAssets';
 
 function makeFinish(params: {
   id: string;
@@ -827,6 +843,10 @@ export const TURKISH_GAP_ASSET_IDS = new Set<string>([
   'tr-pelsan-ray-spot-lineer',
   'tr-modern-tv-bioetanol-somine',
   ...TURKISH_MEP_ASSET_IDS,
+  ...TURKISH_ELECTRICAL_LIGHTING_ASSET_IDS,
+  ...TURKISH_ENTRYWAY_ASSET_IDS,
+  ...TURKISH_KITCHEN_BUILTIN_ASSET_IDS,
+  ...TURKISH_HOME_STUDY_TOYS_ASSET_IDS,
 ]);
 
 export const TURKISH_GAP_ASSETS: ArchitecturalAsset[] = [
@@ -966,7 +986,7 @@ export const TURKISH_GAP_ASSETS: ArchitecturalAsset[] = [
     slug: 'viko-karre-avrupa-tipi-schuko-priz',
     name: 'Viko Karre Avrupa Tipi (Type F Schuko) Topraklı Tekli Priz',
     brandStyle: 'Viko Panasonic Karre · Türkiye Standart Priz',
-    category: 'Mimari & Çalışma',
+    category: 'Elektrik Tesisatı',
     archetype: 'tr_schuko_socket',
     placement: 'wall-mounted',
     dimensionsCm: { width: 9, depth: 4, height: 9, mountHeight: 40 },
@@ -1009,7 +1029,7 @@ export const TURKISH_GAP_ASSETS: ArchitecturalAsset[] = [
     slug: 'schneider-asfora-ciftli-schuko-priz-usb',
     name: 'Schneider Electric Asfora Çiftli Avrupa Tipi (Schuko) Priz + USB-C',
     brandStyle: 'Schneider Electric Asfora · Modern İç Mimari',
-    category: 'Mimari & Çalışma',
+    category: 'Elektrik Tesisatı',
     archetype: 'tr_schuko_socket',
     placement: 'wall-mounted',
     dimensionsCm: { width: 16, depth: 4, height: 9, mountHeight: 40 },
@@ -1056,7 +1076,7 @@ export const TURKISH_GAP_ASSETS: ArchitecturalAsset[] = [
     slug: 'schneider-asfora-ikili-komutator-anahtar',
     name: 'Schneider Electric Asfora İkili Komütatör Duvar Anahtarı',
     brandStyle: 'Schneider Electric Asfora · Aydınlatma Kontrol',
-    category: 'Mimari & Çalışma',
+    category: 'Elektrik Tesisatı',
     archetype: 'tr_schuko_socket',
     placement: 'wall-mounted',
     dimensionsCm: { width: 9, depth: 3, height: 9, mountHeight: 110 },
@@ -1102,7 +1122,7 @@ export const TURKISH_GAP_ASSETS: ArchitecturalAsset[] = [
     slug: 'bosch-serie6-ankastre-bulasik-makinesi',
     name: 'Bosch Serie 6 Yarı Ankastre Bulaşık Makinesi (SMS/SMI 60 cm)',
     brandStyle: 'Bosch Serie 6 · Almanya / Türkiye Lider Beyaz Eşya',
-    category: 'Yemek & Mutfak',
+    category: 'Mutfak Ankastre',
     archetype: 'tr_branded_dishwasher',
     placement: 'floor',
     dimensionsCm: { width: 60, depth: 60, height: 85 },
@@ -1143,7 +1163,7 @@ export const TURKISH_GAP_ASSETS: ArchitecturalAsset[] = [
     slug: 'siemens-iq500-ankastre-bulasik-makinesi',
     name: 'Siemens iQ500 Ankastre Bulaşık Makinesi (SN55 60 cm)',
     brandStyle: 'Siemens iQ500 · DarkSteel & Mavi LED Seri',
-    category: 'Yemek & Mutfak',
+    category: 'Mutfak Ankastre',
     archetype: 'tr_branded_dishwasher',
     placement: 'floor',
     dimensionsCm: { width: 60, depth: 60, height: 85 },
@@ -1188,7 +1208,7 @@ export const TURKISH_GAP_ASSETS: ArchitecturalAsset[] = [
     slug: 'arcelik-9620-ankastre-cam-firin',
     name: 'Arçelik 9620 Serisi Ankastre Cam Fırın (60×60 cm)',
     brandStyle: 'Arçelik Ankastre · Türkiye Lider Ev Teknolojisi',
-    category: 'Yemek & Mutfak',
+    category: 'Mutfak Ankastre',
     archetype: 'tr_branded_builtin_oven',
     placement: 'floor',
     dimensionsCm: { width: 60, depth: 57, height: 60 },
@@ -1236,7 +1256,7 @@ export const TURKISH_GAP_ASSETS: ArchitecturalAsset[] = [
     slug: 'beko-bm6046-ankastre-bulasik-makinesi',
     name: 'Beko BM 6046 Serisi Ankastre Bulaşık Makinesi (60 cm)',
     brandStyle: 'Beko · Türkiye & Avrupa Ankastre Seri',
-    category: 'Yemek & Mutfak',
+    category: 'Mutfak Ankastre',
     archetype: 'tr_branded_dishwasher',
     placement: 'floor',
     dimensionsCm: { width: 60, depth: 60, height: 85 },
@@ -1533,7 +1553,7 @@ export const TURKISH_GAP_ASSETS: ArchitecturalAsset[] = [
     slug: 'sur-kale-modern-celik-dis-kapi',
     name: 'Sur / Kale Modern Villa & Daire Çelik Dış Kapısı (95×210 cm)',
     brandStyle: 'Sur Çelik Kapı / Kale Kilit · Türkiye Güvenlik Kapısı',
-    category: 'Mimari & Çalışma',
+    category: 'Antre & Giriş',
     archetype: 'tr_armored_steel_door',
     placement: 'floor',
     dimensionsCm: { width: 95, depth: 14, height: 210 },
@@ -1657,4 +1677,16 @@ export const TURKISH_GAP_ASSETS: ArchitecturalAsset[] = [
 
   // 17–30. Türkiye Elektrik, Doğalgaz, Isıtma/Sıhhi Tesisat, Klima & EN 81-20 Asansör Grubu (14 Model)
   ...TURKISH_MEP_ASSETS,
+
+  // 42–55. Türkiye Elektrik Tesisatı (Sigorta Kutuları, Otomatlar, Zayıf Akım) & Alçıpan Spot / Şerit LED / Avize (14 Model)
+  ...TURKISH_ELECTRICAL_LIGHTING_ASSETS,
+
+  // 56–69. Türkiye Daire & Villa Girişi / Antre Koleksiyonu (Vestiyer, Villa Pivot Kapı, Dresuar, LED Boy Aynası, Ayakkabılık — 14 Model)
+  ...TURKISH_ENTRYWAY_ASSETS,
+
+  // 70–85. Türkiye Mutfak Ankastre Koleksiyonu (Bosch, Siemens, Vestel, Franke, Silverline, Teka — 16 Model)
+  ...TURKISH_KITCHEN_BUILTIN_ASSETS,
+
+  // 86–107. Ev İçi Gardırop, Kitaplık, Kalemlik, Ders Kitapları, Laptop & Çocuk/Bebek Oyuncakları (22 Model)
+  ...TURKISH_HOME_STUDY_TOYS_ASSETS,
 ];

@@ -32,8 +32,12 @@ export const PHASE_1_RETAIL_CATEGORIES: ReadonlySet<AssetCategory> = new Set<Ass
 export const PHASE_2_RETAIL_CATEGORIES: ReadonlySet<AssetCategory> = new Set<AssetCategory>([
   'Çamaşır Odası',
   'Yatak Odası',
+  'Çocuk & Oyun',
   'Yemek & Mutfak',
+  'Mutfak Ankastre',
+  'Antre & Giriş',
   'Mimari & Çalışma',
+  'Elektrik Tesisatı',
   'Aydınlatma',
   'Dekor & Bitki',
   'Dış Cephe',
@@ -2101,12 +2105,16 @@ export function getRetailFinishesForAsset(
     case 'komodin-sifonyer':
       return withOriginalPbr(asset, SALON_TABLE_CONSOLE_COMBOS, 'table_console');
 
-    // ── PHASE 2: YEMEK & MUTFAK ──
-    case 'ankastre-beyaz-esya':
-      if (/evye|lavabo/.test(lowerName) && !/buzdolab|fırın|ocak|davlumbaz|bulaşık|mikrodalga/.test(lowerName)) {
-        return withOriginalPbr(asset, BANYO_FAUCET_SHOWER_COMBOS, 'faucet_hardware');
-      }
+    // ── PHASE 2: MUTFAK ANKASTRE ──
+    case 'ankastre-setler':
+    case 'ankastre-firin-mikrodalga':
+    case 'ankastre-ocak':
+    case 'ankastre-davlumbaz':
+    case 'ankastre-bulasik-buzdolabi':
+    case 'ankastre-kahve-sarap':
       return withOriginalPbr(asset, APPLIANCE_RETAIL_COMBOS, 'appliance');
+
+    // ── PHASE 2: YEMEK & MUTFAK ──
 
     case 'mutfak-dolabi-ada':
       return withOriginalPbr(asset, KITCHEN_CABINET_COMBOS, 'vanity');
@@ -2139,7 +2147,18 @@ export function getRetailFinishesForAsset(
       }
       return withOriginalPbr(asset, ARCH_DOOR_WINDOW_COMBOS, 'arch_door_window');
 
-    case 'antre-vestiyer':
+    // ── PHASE 2: ANTRE & GİRİŞ ──
+    case 'celik-villa-kapisi':
+      return withOriginalPbr(asset, ARCH_DOOR_WINDOW_COMBOS, 'arch_door_window');
+
+    case 'ayakkabilik-puf-bank':
+      if (/bank|puf|kadife|minder/.test(lowerName) && !/ayakkab/.test(lowerName)) {
+        return withOriginalPbr(asset, SALON_SEATING_COMBOS, 'seating');
+      }
+      return withOriginalPbr(asset, SALON_TABLE_CONSOLE_COMBOS, 'table_console');
+
+    case 'vestiyer-portmanto':
+    case 'dresuar-boy-aynasi':
       return withOriginalPbr(asset, SALON_TABLE_CONSOLE_COMBOS, 'table_console');
 
     case 'calisma-ofis':
@@ -2151,7 +2170,32 @@ export function getRetailFinishesForAsset(
       }
       return withOriginalPbr(asset, SALON_TABLE_CONSOLE_COMBOS, 'table_console');
 
+    case 'laptop-bilgisayar':
+      return withOriginalPbr(asset, APPLIANCE_RETAIL_COMBOS, 'appliance');
+
+    case 'kalemlik-kirtasiye':
+    case 'ders-kitaplari-defter':
+      return withOriginalPbr(asset, DECOR_OBJECT_COMBOS, 'bath_accessory');
+
+    // ── PHASE 2: ÇOCUK & OYUN ──
+    case 'bebek-kucuk-oyuncak':
+    case 'cocuk-oyuncaklari':
+      return withOriginalPbr(asset, DECOR_OBJECT_COMBOS, 'bath_accessory');
+
+    case 'oyun-cadiri-mutfak':
+    case 'cocuk-calisma-kitaplik':
+      return withOriginalPbr(asset, SALON_TABLE_CONSOLE_COMBOS, 'table_console');
+
+    // ── PHASE 2: ELEKTRİK TESİSATI ──
+    case 'sigorta-dagitim-panosu':
+    case 'otomat-salter-koruma':
+    case 'zayif-akim-data-pano':
+    case 'priz-anahtar-sayac':
+      return withOriginalPbr(asset, APPLIANCE_RETAIL_COMBOS, 'appliance');
+
     // ── PHASE 2: AYDINLATMA ──
+    case 'alcipan-spot-ray':
+    case 'serit-led-lineer':
     case 'avize-sarkit':
     case 'lambader-aplik':
     case 'masa-lambasi-abajur':

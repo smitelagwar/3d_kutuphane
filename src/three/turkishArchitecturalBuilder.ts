@@ -8,6 +8,22 @@ import type {
 import type { BuiltAssetModel } from './assetMeshBuilder';
 import { createWoodGrainTexture } from './proceduralTextures';
 import { buildTurkishMepModel, isTurkishMepArchetype } from './turkishMepBuilder';
+import {
+  buildTurkishElectricalLightingMesh,
+  isTurkishElectricalLightingArchetype,
+} from './turkishElectricalLightingBuilder';
+import {
+  buildTurkishEntrywayMesh,
+  isTurkishEntrywayArchetype,
+} from './turkishEntrywayBuilder';
+import {
+  buildTurkishKitchenBuiltInMesh,
+  isTurkishKitchenBuiltInArchetype,
+} from './turkishKitchenBuiltInBuilder';
+import {
+  buildTurkishHomeStudyToysMesh,
+  isTurkishHomeStudyToysArchetype,
+} from './turkishHomeStudyToysBuilder';
 
 const TURKISH_GAP_ARCHETYPES = new Set<AssetArchetype>([
   'tr_alaturka_squat_toilet',
@@ -24,7 +40,14 @@ const TURKISH_GAP_ARCHETYPES = new Set<AssetArchetype>([
 ]);
 
 export function isTurkishGapArchetype(archetype: AssetArchetype): boolean {
-  return TURKISH_GAP_ARCHETYPES.has(archetype) || isTurkishMepArchetype(archetype);
+  return (
+    TURKISH_GAP_ARCHETYPES.has(archetype) ||
+    isTurkishMepArchetype(archetype) ||
+    isTurkishElectricalLightingArchetype(archetype) ||
+    isTurkishEntrywayArchetype(archetype) ||
+    isTurkishKitchenBuiltInArchetype(archetype) ||
+    isTurkishHomeStudyToysArchetype(archetype)
+  );
 }
 
 function getLuminance(hex: string): number {
@@ -667,6 +690,18 @@ export function buildTurkishGapMesh(
 ): BuiltAssetModel {
   if (isTurkishMepArchetype(asset.archetype)) {
     return buildTurkishMepModel(asset, finish, options);
+  }
+  if (isTurkishElectricalLightingArchetype(asset.archetype)) {
+    return buildTurkishElectricalLightingMesh(asset, finish, options);
+  }
+  if (isTurkishEntrywayArchetype(asset.archetype)) {
+    return buildTurkishEntrywayMesh(asset, finish, options);
+  }
+  if (isTurkishKitchenBuiltInArchetype(asset.archetype)) {
+    return buildTurkishKitchenBuiltInMesh(asset, finish, options);
+  }
+  if (isTurkishHomeStudyToysArchetype(asset.archetype)) {
+    return buildTurkishHomeStudyToysMesh(asset, finish, options);
   }
 
   const group = new THREE.Group();

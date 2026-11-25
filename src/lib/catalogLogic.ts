@@ -852,6 +852,468 @@ function buildArchetypePythonBody(
     parts.append(add_part(col, "Paslanmaz_Tutamak", "cylinder", (0, ${(d / 2 - 0.095).toFixed(3)}, 0.92), (0.038, 0.038, ${(w - 0.24).toFixed(3)}), mat_accent, 0.0, (0, math.radians(90), 0)))
     parts.append(add_part(col, "COP_Kumanda_Paneli", "cube", (${(w / 2 - 0.062).toFixed(3)}, -0.18, 1.15), (0.022, 0.22, 1.68), mat_glass, 0.002))`;
 
+    case 'tr_ac_outdoor_unit':
+      return `    # Daikin / Arçelik Inverter Split Klima Dış Ünitesi & Duvar Konsolu
+    parts.append(add_part(col, "Klima_Dis_Govde", "cube", (0, 0, ${(h * 0.55).toFixed(3)}), (${(w * 0.94).toFixed(3)}, ${(d * 0.84).toFixed(3)}, ${(h * 0.86).toFixed(3)}), mat_primary, 0.008))
+    parts.append(add_part(col, "Fan_Izgara_Halkasi", "cylinder", (${(-w * 0.16).toFixed(3)}, ${(-d * 0.44).toFixed(3)}, ${(h * 0.55).toFixed(3)}), (0.40, 0.40, 0.025), mat_secondary, 0.0, (math.radians(90), 0, 0)))
+    parts.append(add_part(col, "Duvar_Konsol_Sol", "cube", (${(-w * 0.32).toFixed(3)}, 0, 0.065), (0.042, ${d}, 0.036), mat_accent, 0.002))
+    parts.append(add_part(col, "Duvar_Konsol_Sag", "cube", (${(w * 0.32).toFixed(3)}, 0, 0.065), (0.042, ${d}, 0.036), mat_accent, 0.002))`;
+
+    case 'tr_gas_service_box':
+      return `    # İGDAŞ / BaşkentGaz Dış Cephe Sarı Doğalgaz Servis Kutusu
+    parts.append(add_part(col, "Beton_Kaide", "cube", (0, 0, 0.11), (${(w + 0.04).toFixed(3)}, ${(d + 0.04).toFixed(3)}, 0.22), mat_secondary, 0.004))
+    parts.append(add_part(col, "IGDAS_Sari_Kutu", "cube", (0, 0, 0.48), (${w}, ${d}, 0.52), mat_primary, 0.006))
+    parts.append(add_part(col, "Kolon_Yukseltme_Borusu", "cylinder", (${(-w * 0.24).toFixed(3)}, 0.03, ${(h - 0.06).toFixed(3)}), (0.038, 0.038, 0.18), mat_primary, 0.0))`;
+
+    case 'tr_fire_hose_cabinet':
+      return `    # TS EN 671-1 Sıva Altı Apartman Yangın Dolabı (Hortum Makarası + 6 kg KKT Tüp)
+    parts.append(add_part(col, "Yangin_Dolap_Kasa", "cube", (0, 0.01, ${(h / 2).toFixed(3)}), (${w}, ${d}, ${h}), mat_primary, 0.004))
+    parts.append(add_part(col, "Temperli_Gozetleme_Cami", "cube", (0, ${(-d / 2 + 0.008).toFixed(3)}, ${(h / 2).toFixed(3)}), (${(w - 0.12).toFixed(3)}, 0.008, ${(h - 0.14).toFixed(3)}), mat_glass, 0.001))
+    parts.append(add_part(col, "Hortum_Makarasi", "cylinder", (${(-w * 0.17).toFixed(3)}, 0, ${(h * 0.52).toFixed(3)}), (0.44, 0.44, 0.09), mat_secondary, 0.0, (math.radians(90), 0, 0)))
+    parts.append(add_part(col, "KKT_6kg_Yangin_Tupu", "cylinder", (${(w * 0.3).toFixed(3)}, 0, 0.31), (0.156, 0.156, 0.48), mat_secondary, 0.0))`;
+
+    case 'tr_ip44_lidded_socket':
+      return `    # Viko Karre IP44 Kapaklı Banyo & Balkon Topraklı Prizi (Type F Schuko)
+    parts.append(add_part(col, "IP44_Conta", "cube", (0, 0.002, ${(h / 2).toFixed(3)}), (${(w + 0.004).toFixed(3)}, 0.005, ${(h + 0.004).toFixed(3)}), mat_secondary, 0.001))
+    parts.append(add_part(col, "Karre_Cerceve", "cube", (0, -0.008, ${(h / 2).toFixed(3)}), (${w}, 0.014, ${h}), mat_primary, 0.002))
+    parts.append(add_part(col, "IP44_Koruma_Kapagi", "cube", (0, -0.028, ${(h / 2).toFixed(3)}), (${(w * 0.76).toFixed(3)}, 0.009, ${(h * 0.72).toFixed(3)}), mat_glass, 0.002, (math.radians(-14), 0, 0)))`;
+
+    case 'tr_electric_meter_panel':
+      return `    # Makel / Luna 3 Fazlı Dijital Elektrik Sayacı & Apartman Panosu
+    parts.append(add_part(col, "Sayac_Pano_Kasa", "cube", (0, 0.02, ${(h / 2).toFixed(3)}), (${w}, ${(d * 0.86).toFixed(3)}, ${h}), mat_primary, 0.004))
+    parts.append(add_part(col, "Makel_3Faz_Sayac", "cube", (0, -0.01, ${(h * 0.6).toFixed(3)}), (${(w * 0.62).toFixed(3)}, 0.072, ${(h * 0.5).toFixed(3)}), mat_secondary, 0.003))
+    parts.append(add_part(col, "Ana_Salter_3x40A", "cube", (-0.04, -0.01, ${(h * 0.21).toFixed(3)}), (0.088, 0.056, 0.084), mat_accent, 0.002))`;
+
+    case 'tr_gas_smoke_detector':
+      return `    # Mavili Maxlogic / Teknim İGDAŞ Doğalgaz Kaçak Alarmı & Duman Dedektörü
+    parts.append(add_part(col, "Dogalgaz_Alarm_Govde", "cube", (0, -0.02, 0.08), (${(w * 0.82).toFixed(3)}, ${(d * 0.72).toFixed(3)}, ${(h * 0.64).toFixed(3)}), mat_primary, 0.005))
+    parts.append(add_part(col, "Optik_Duman_Dedektoru", "cylinder", (0, -0.02, ${(h - 0.048).toFixed(3)}), (0.10, 0.10, 0.042), mat_secondary, 0.0, (math.radians(90), 0, 0)))`;
+
+    case 'tr_electric_water_heater':
+      return `    # DemirDöküm DT4 Titanium / Baymak 65L Elektrikli Termosifon
+    parts.append(add_part(col, "Termosifon_Kazan", "cylinder", (0, 0, ${(h * 0.5).toFixed(3)}), (${w}, ${d}, ${(h * 0.72).toFixed(3)}), mat_primary, 0.0))
+    parts.append(add_part(col, "Dijital_Ekran", "cube", (0, ${(-d / 2).toFixed(3)}, ${(h * 0.34).toFixed(3)}), (0.15, 0.022, 0.072), mat_glass, 0.002))
+    parts.append(add_part(col, "Emniyet_Ventili_Soguk", "cylinder", (0.06, 0, 0.07), (0.028, 0.028, 0.12), mat_accent, 0.0))`;
+
+    case 'tr_linear_floor_drain':
+      return `    # Sukar / Geberit CleanLine 60 cm Paslanmaz Çelik Lineer Duş Yer Süzgeci
+    parts.append(add_part(col, "ABS_Sifon_Govde", "cube", (0, 0, ${(h * 0.36).toFixed(3)}), (0.16, 0.09, ${(h * 0.72).toFixed(3)}), mat_secondary, 0.003))
+    parts.append(add_part(col, "Yalitim_Flansi", "cube", (0, 0, ${(h - 0.016).toFixed(3)}), (${(w + 0.032).toFixed(3)}, ${d}, 0.004), mat_accent, 0.001))
+    parts.append(add_part(col, "AISI304_Lineer_Izgara", "cube", (0, 0, ${(h - 0.006).toFixed(3)}), (${w}, ${(d * 0.66).toFixed(3)}, 0.01), mat_primary, 0.001))`;
+
+    case 'tr_surface_fuse_box':
+      return `    # Viko by Panasonic 12'li Sıva Üstü IP40 Sigorta Kutusu (TS EN 60670)
+    parts.append(add_part(col, "Siva_Ustu_Kasa", "cube", (0, 0, ${(h / 2).toFixed(3)}), (${w}, ${(d * 0.85).toFixed(3)}, ${h}), mat_primary, 0.006))
+    parts.append(add_part(col, "DIN_Ray_Otomat_Grubu", "cube", (0, ${(-d * 0.25).toFixed(3)}, ${(h * 0.5).toFixed(3)}), (${(w * 0.78).toFixed(3)}, 0.048, 0.078), mat_secondary, 0.002))
+    parts.append(add_part(col, "Fume_Seffaf_Kapak", "cube", (0, ${(-d * 0.48).toFixed(3)}, ${(h * 0.48).toFixed(3)}), (${(w * 0.92).toFixed(3)}, 0.012, ${(h * 0.72).toFixed(3)}), mat_glass, 0.003))`;
+
+    case 'tr_mcb_breaker_set':
+      return `    # Siemens 5SL6 / Schneider Acti9 DIN Rayı Otomat, Kaçak Akım & Parafudr Grubu
+    parts.append(add_part(col, "DIN_Rayi_35mm", "cube", (0, 0.025, ${(h / 2).toFixed(3)}), (${(w * 1.04).toFixed(3)}, 0.012, 0.035), mat_secondary, 0.001))
+    parts.append(add_part(col, "Kacak_Akim_RCCB_30mA", "cube", (${(-w * 0.34).toFixed(3)}, -0.01, ${(h / 2).toFixed(3)}), (0.036, ${(d * 0.82).toFixed(3)}, ${h}), mat_primary, 0.002))
+    parts.append(add_part(col, "Tip2_Parafudr_SPD", "cube", (${(-w * 0.16).toFixed(3)}, -0.01, ${(h / 2).toFixed(3)}), (0.036, ${(d * 0.82).toFixed(3)}, ${h}), mat_accent, 0.002))
+    parts.append(add_part(col, "C16_C25_Otomat_Dizisi", "cube", (${(w * 0.18).toFixed(3)}, -0.01, ${(h / 2).toFixed(3)}), (${(w * 0.54).toFixed(3)}, ${(d * 0.82).toFixed(3)}, ${h}), mat_primary, 0.002))`;
+
+    case 'tr_weak_current_panel':
+      return `    # Schneider / Legrand Sıva Altı Data & Multimedia Zayıf Akım Panosu
+    parts.append(add_part(col, "Zayif_Akim_Kasa", "cube", (0, 0.03, ${(h / 2).toFixed(3)}), (${w}, ${d}, ${h}), mat_primary, 0.004))
+    parts.append(add_part(col, "RJ45_Patch_Panel_8Port", "cube", (0, -0.01, ${(h * 0.78).toFixed(3)}), (${(w * 0.74).toFixed(3)}, 0.042, 0.06), mat_secondary, 0.002))
+    parts.append(add_part(col, "FTTH_Modem_Router", "cube", (0, -0.01, ${(h * 0.44).toFixed(3)}), (${(w * 0.62).toFixed(3)}, 0.038, 0.14), mat_accent, 0.003))
+    parts.append(add_part(col, "Menfezli_Kapak", "cube", (0, -0.032, ${(h / 2).toFixed(3)}), (${(w * 0.94).toFixed(3)}, 0.008, ${(h * 0.94).toFixed(3)}), mat_primary, 0.002))`;
+
+    case 'tr_rack_cabinet_9u':
+      return `    # Estap / Canovate 9U 19" Duvar Tipi Data & Kamera Rack Kabineti
+    parts.append(add_part(col, "Rack_Celik_Govde", "cube", (0, 0, ${(h / 2).toFixed(3)}), (${w}, ${d}, ${h}), mat_primary, 0.005))
+    parts.append(add_part(col, "PoE_Switch_Patch_1U", "cube", (0, ${(-d * 0.15).toFixed(3)}, ${(h * 0.65).toFixed(3)}), (${(w * 0.82).toFixed(3)}, 0.24, 0.14), mat_secondary, 0.002))
+    parts.append(add_part(col, "Temperli_Cam_Kapi", "cube", (0, ${(-d / 2 - 0.006).toFixed(3)}, ${(h / 2).toFixed(3)}), (${(w * 0.86).toFixed(3)}, 0.012, ${(h * 0.88).toFixed(3)}), mat_glass, 0.002))`;
+
+    case 'tr_recessed_spot_round':
+      return `    # Jupiter / Cata LED Alçıpan Gömme Yuvarlak Hareketli Spot (Ø9.5 cm)
+    parts.append(add_part(col, "Alcipan_Flans_Halka", "cylinder", (0, 0, 0.005), (${w}, ${d}, 0.008), mat_primary, 0.001))
+    parts.append(add_part(col, "Aluminyum_Sogutucu", "cylinder", (0, 0, ${(h * 0.56).toFixed(3)}), (${(w * 0.72).toFixed(3)}, ${(d * 0.72).toFixed(3)}, ${(h * 0.84).toFixed(3)}), mat_secondary, 0.002))
+    parts.append(add_part(col, "COB_LED_Lens", "cylinder", (0, 0, 0.012), (${(w * 0.44).toFixed(3)}, ${(d * 0.44).toFixed(3)}, 0.008), mat_accent, 0.0))`;
+
+    case 'tr_gimbal_double_spot':
+      return `    # Pelsan / Jupiter İkili Kardan (Gimbal) Çerçevesiz Alçıpan Spot (2×12W)
+    parts.append(add_part(col, "Alcipan_Ikili_Kasa", "cube", (0, 0, ${(h * 0.52).toFixed(3)}), (${w}, ${d}, ${h}), mat_primary, 0.003))
+    parts.append(add_part(col, "Sol_Kardan_Kafa", "cylinder", (${(-w * 0.24).toFixed(3)}, 0, 0.032), (0.092, 0.092, 0.056), mat_secondary, 0.002, (0.2, 0.14, 0)))
+    parts.append(add_part(col, "Sag_Kardan_Kafa", "cylinder", (${(w * 0.24).toFixed(3)}, 0, 0.032), (0.092, 0.092, 0.056), mat_secondary, 0.002, (-0.18, -0.16, 0)))`;
+
+    case 'tr_led_downlight_panel':
+      return `    # Cata / ACK / Jupiter Slim 18W Alçıpan Gömme Panel LED Downlight (Ø22 cm)
+    parts.append(add_part(col, "Slim_Dis_Cerceve", "cylinder", (0, 0, 0.008), (${w}, ${d}, 0.014), mat_primary, 0.001))
+    parts.append(add_part(col, "Opal_LED_Difuzor", "cylinder", (0, 0, 0.002), (${(w * 0.86).toFixed(3)}, ${(d * 0.86).toFixed(3)}, 0.004), mat_accent, 0.0))
+    parts.append(add_part(col, "LED_Surucu_Driver", "cube", (0.04, 0, ${(h * 0.72).toFixed(3)}), (0.088, 0.038, 0.024), mat_secondary, 0.002))`;
+
+    case 'tr_cove_led_strip':
+      return `    # Cata / ACK 24V COB Şerit LED + Alüminyum Köşe Kanal Profili (200 cm)
+    parts.append(add_part(col, "Aluminyum_LED_Kanal", "cube", (0, 0, ${(h / 2).toFixed(3)}), (${w}, ${d}, ${h}), mat_primary, 0.001))
+    parts.append(add_part(col, "Opal_COB_LED_Difuzor", "cube", (0, ${(-d * 0.2).toFixed(3)}, ${(h * 0.7).toFixed(3)}), (${(w - 0.01).toFixed(3)}, ${(d * 0.65).toFixed(3)}, ${(h * 0.45).toFixed(3)}), mat_accent, 0.0))
+    parts.append(add_part(col, "Slim_24V_LED_Trafo", "cube", (${(w * 0.32).toFixed(3)}, 0.04, ${(h * 0.6).toFixed(3)}), (0.18, 0.042, 0.028), mat_secondary, 0.002))`;
+
+    case 'tr_linear_recessed_led':
+      return `    # Pelsan / Jupiter Sıva Altı (Trimless) Gömme Mimari Lineer LED Profil (180 cm)
+    parts.append(add_part(col, "Aluminyum_Siva_Alti_Profil", "cube", (0, 0, ${(h * 0.52).toFixed(3)}), (${w}, ${d}, ${h}), mat_primary, 0.001))
+    parts.append(add_part(col, "Kesintisiz_Opal_Difuzor", "cube", (0, 0, 0.004), (${(w - 0.012).toFixed(3)}, ${(d * 0.62).toFixed(3)}, 0.008), mat_accent, 0.0))`;
+
+    case 'tr_tiered_ring_chandelier':
+      return `    # Avonni 3 Katlı Modern LED Halka & Kristal Çubuklu Salon Avizesi (Ø80 cm)
+    parts.append(add_part(col, "Tavan_Rozeti", "cylinder", (0, 0, ${(h - 0.024).toFixed(3)}), (0.28, 0.28, 0.044), mat_primary, 0.003))
+    parts.append(add_part(col, "Ust_LED_Halka_80cm", "cylinder", (0, 0, ${(h * 0.42).toFixed(3)}), (${w}, ${d}, 0.032), mat_primary, 0.004))
+    parts.append(add_part(col, "Orta_LED_Halka_60cm", "cylinder", (0, 0, ${(h * 0.26).toFixed(3)}), (${(w * 0.74).toFixed(3)}, ${(d * 0.74).toFixed(3)}, 0.030), mat_accent, 0.004))
+    parts.append(add_part(col, "Alt_LED_Halka_40cm", "cylinder", (0, 0, ${(h * 0.10).toFixed(3)}), (${(w * 0.5).toFixed(3)}, ${(d * 0.5).toFixed(3)}, 0.028), mat_primary, 0.004))`;
+
+    case 'tr_linear_globe_chandelier':
+      return `    # Apliqa 6 Küreli Opal Cam Modern Lineer Yemek Masası & Ada Avizesi (120 cm)
+    parts.append(add_part(col, "Lineer_Tavan_Rozeti", "cube", (0, 0, ${(h - 0.018).toFixed(3)}), (0.58, 0.08, 0.032), mat_primary, 0.003))
+    parts.append(add_part(col, "Ana_Yatay_Bar", "cylinder", (0, 0, ${(h * 0.24).toFixed(3)}), (0.022, 0.022, ${(w * 0.88).toFixed(3)}), mat_primary, 0.0, (0, math.radians(90), 0)))
+    parts.append(add_part(col, "Opal_Cam_Kure_Grubu", "cube", (0, 0, ${(h * 0.24).toFixed(3)}), (${w}, ${d}, 0.18), mat_accent, 0.04))`;
+
+    case 'tr_cascade_stair_chandelier':
+      return `    # Özcan / Avonni 9'lu Villa Galeri Boşluğu & Merdiven Kaskad Sarkıt Avize (220 cm)
+    parts.append(add_part(col, "Galeri_Tavan_Rozeti", "cylinder", (0, 0, ${(h - 0.024).toFixed(3)}), (${(w * 0.84).toFixed(3)}, ${(d * 0.84).toFixed(3)}, 0.045), mat_primary, 0.004))
+    parts.append(add_part(col, "Spiral_Sarkit_Silindir_Grubu", "cylinder", (0, 0, ${(h * 0.42).toFixed(3)}), (${(w * 0.72).toFixed(3)}, ${(d * 0.72).toFixed(3)}, ${(h * 0.74).toFixed(3)}), mat_accent, 0.01))`;
+
+    case 'tr_wall_sconce_updown':
+      return `    # Jupiter / Özcan Çift Yönlü (Up-Down) Mimari LED Duvar Apliği (IP54)
+    parts.append(add_part(col, "Duvar_Montaj_Tabani", "cube", (0, 0.01, ${(h / 2).toFixed(3)}), (0.055, 0.016, 0.12), mat_primary, 0.002))
+    parts.append(add_part(col, "Aluminyum_Silindir_Govde", "cylinder", (0, -0.04, ${(h / 2).toFixed(3)}), (${(w * 0.72).toFixed(3)}, ${(w * 0.72).toFixed(3)}, ${h}), mat_primary, 0.002))
+    parts.append(add_part(col, "Ust_Alt_LED_Lens", "cylinder", (0, -0.04, ${h}), (${(w * 0.56).toFixed(3)}, ${(w * 0.56).toFixed(3)}, 0.01), mat_accent, 0.0))`;
+
+    case 'tr_slatted_bench_vestiyer':
+      return `    # Enza / Kelebek Çıtalı Oturaklı & Gizli LED Antre Vestiyer Portmanto (210x260 cm)
+    parts.append(add_part(col, "Sol_Boy_Dolap_Govde", "cube", (${(-w * 0.25).toFixed(3)}, 0, ${(h * 0.5).toFixed(3)}), (${(w * 0.48).toFixed(3)}, ${d}, ${h}), mat_primary, 0.005))
+    parts.append(add_part(col, "Sag_Oturak_Ayakkabilik", "cube", (${(w * 0.25).toFixed(3)}, 0, 0.24), (${(w * 0.50).toFixed(3)}, ${d}, 0.44), mat_primary, 0.004))
+    parts.append(add_part(col, "Bukle_Oturma_Minderi", "cube", (${(w * 0.25).toFixed(3)}, -0.01, 0.49), (${(w * 0.48).toFixed(3)}, ${(d * 0.92).toFixed(3)}, 0.07), mat_secondary, 0.018))
+    parts.append(add_part(col, "Akustik_Citali_Askilik_Paneli", "cube", (${(w * 0.25).toFixed(3)}, ${(d * 0.42).toFixed(3)}, 1.32), (${(w * 0.48).toFixed(3)}, 0.04, 1.56), mat_secondary, 0.003))
+    parts.append(add_part(col, "Ust_Kopru_Dolabi", "cube", (${(w * 0.25).toFixed(3)}, 0, ${(h - 0.24).toFixed(3)}), (${(w * 0.50).toFixed(3)}, ${d}, 0.48), mat_primary, 0.004))
+    parts.append(add_part(col, "Gizli_LED_Serit", "cube", (${(w * 0.25).toFixed(3)}, ${(d * 0.36).toFixed(3)}, ${(h - 0.49).toFixed(3)}), (${(w * 0.46).toFixed(3)}, 0.02, 0.014), mat_accent, 0.0))`;
+
+    case 'tr_mirrored_sliding_vestiyer':
+      return `    # Kelebek / Doğtaş Boy Aynalı Sürgülü Kapaklı Tam Boy Vestiyer (180x260 cm)
+    parts.append(add_part(col, "Vestiyer_Ana_Karkas", "cube", (0, 0.02, ${(h * 0.5).toFixed(3)}), (${w}, ${(d * 0.92).toFixed(3)}, ${h}), mat_primary, 0.005))
+    parts.append(add_part(col, "Sol_Fume_Ayna_Surgu_Kapak", "cube", (${(-w * 0.245).toFixed(3)}, ${(-d * 0.46).toFixed(3)}, ${(h * 0.51).toFixed(3)}), (${(w * 0.485).toFixed(3)}, 0.026, ${(h * 0.92).toFixed(3)}), mat_glass, 0.002))
+    parts.append(add_part(col, "Sag_Surgu_Kapak", "cube", (${(w * 0.245).toFixed(3)}, ${(-d * 0.43).toFixed(3)}, ${(h * 0.51).toFixed(3)}), (${(w * 0.485).toFixed(3)}, 0.026, ${(h * 0.92).toFixed(3)}), mat_primary, 0.003))
+    parts.append(add_part(col, "Aluminyum_Surgu_Ray_Ust", "cube", (0, ${(-d * 0.45).toFixed(3)}, ${(h - 0.04).toFixed(3)}), (${(w - 0.04).toFixed(3)}, 0.055, 0.035), mat_accent, 0.002))`;
+
+    case 'tr_compact_entry_portmanto':
+      return `    # Rani / Vivense Dar Antre Kompakt Aynalı & Kapaklı Portmanto (120x38x215 cm)
+    parts.append(add_part(col, "Sol_Ayna_Kapakli_Dolap", "cube", (${(-w * 0.25).toFixed(3)}, 0, ${(h * 0.5).toFixed(3)}), (${(w * 0.46).toFixed(3)}, ${d}, ${h}), mat_primary, 0.004))
+    parts.append(add_part(col, "Kapak_Boy_Aynasi", "cube", (${(-w * 0.25).toFixed(3)}, ${(-d * 0.51).toFixed(3)}, ${(h * 0.53).toFixed(3)}), (${(w * 0.34).toFixed(3)}, 0.01, ${(h * 0.72).toFixed(3)}), mat_glass, 0.002))
+    parts.append(add_part(col, "Sag_Alt_Ayakkabilik", "cube", (${(w * 0.24).toFixed(3)}, 0, 0.38), (${(w * 0.50).toFixed(3)}, ${d}, 0.76), mat_primary, 0.004))
+    parts.append(add_part(col, "Askilik_Paneli_ve_Ust_Raf", "cube", (${(w * 0.24).toFixed(3)}, ${(d * 0.42).toFixed(3)}, 1.46), (${(w * 0.50).toFixed(3)}, 0.032, 1.32), mat_secondary, 0.003))`;
+
+    case 'tr_villa_pivot_steel_door':
+      return `    # Sur Albero / Boss Lüks Villa İroko & Antrasit Pivot Çelik Dış Kapı (130x240 cm)
+    parts.append(add_part(col, "Pivot_Celik_Kasa_Sol", "cube", (${(-w * 0.46).toFixed(3)}, 0, ${(h * 0.5).toFixed(3)}), (0.10, ${d}, ${h}), mat_secondary, 0.004))
+    parts.append(add_part(col, "Pivot_Celik_Kasa_Sag", "cube", (${(w * 0.46).toFixed(3)}, 0, ${(h * 0.5).toFixed(3)}), (0.10, ${d}, ${h}), mat_secondary, 0.004))
+    parts.append(add_part(col, "Pivot_Celik_Kasa_Ust", "cube", (0, 0, ${(h - 0.05).toFixed(3)}), (${w}, ${d}, 0.10), mat_secondary, 0.004))
+    parts.append(add_part(col, "Iroko_Zirhli_Pivot_Kanat", "cube", (0, 0, ${(h * 0.49).toFixed(3)}), (${(w - 0.20).toFixed(3)}, 0.095, ${(h - 0.12).toFixed(3)}), mat_primary, 0.004))
+    parts.append(add_part(col, "Tam_Boy_LED_Cekme_Bari", "cylinder", (${(w * 0.31).toFixed(3)}, -0.09, ${(h * 0.49).toFixed(3)}), (0.032, 0.032, ${(h * 0.78).toFixed(3)}), mat_accent, 0.0))`;
+
+    case 'tr_double_villa_steel_door':
+      return `    # Kale / Formet Çift Kanatlı & Sabit Camlı Villa Çelik Dış Kapı (150x230 cm)
+    parts.append(add_part(col, "Cift_Kanat_Celik_Kasa", "cube", (0, 0.01, ${(h * 0.5).toFixed(3)}), (${w}, ${d}, ${h}), mat_secondary, 0.005))
+    parts.append(add_part(col, "Ana_Acilir_Kanat", "cube", (${(-w * 0.15).toFixed(3)}, -0.01, ${(h * 0.49).toFixed(3)}), (${(w * 0.58).toFixed(3)}, 0.085, ${(h - 0.14).toFixed(3)}), mat_primary, 0.004))
+    parts.append(add_part(col, "Sabit_Camli_Yan_Kanat", "cube", (${(w * 0.30).toFixed(3)}, -0.01, ${(h * 0.49).toFixed(3)}), (${(w * 0.30).toFixed(3)}, 0.075, ${(h - 0.14).toFixed(3)}), mat_glass, 0.003))
+    parts.append(add_part(col, "Inox_Cekme_Bari", "cylinder", (${(w * 0.08).toFixed(3)}, -0.09, ${(h * 0.48).toFixed(3)}), (0.028, 0.028, 1.50), mat_accent, 0.0))`;
+
+    case 'tr_door_number_bell_plate':
+      return `    # Dekorister Gizli LED Işıklı Daire Kapı Numarası & Paslanmaz Zil Plakası (26x18 cm)
+    parts.append(add_part(col, "Arka_LED_Difuzor_Pleksi", "cube", (0, 0.006, ${(h * 0.5).toFixed(3)}), (${(w * 0.96).toFixed(3)}, 0.010, ${(h * 0.94).toFixed(3)}), mat_accent, 0.002))
+    parts.append(add_part(col, "On_Kompozit_Plaka", "cube", (0, -0.008, ${(h * 0.5).toFixed(3)}), (${w}, 0.012, ${h}), mat_primary, 0.002))
+    parts.append(add_part(col, "Paslanmaz_Zil_Butonu", "cylinder", (${(w * 0.28).toFixed(3)}, -0.018, ${(h * 0.32).toFixed(3)}), (0.028, 0.028, 0.012), mat_accent, 0.0, (math.radians(90), 0, 0)))`;
+
+    case 'tr_flip_drawer_shoe_cabinet':
+      return `    # Rani / Adore 3'lü Düşer Kapaklı Ultra İnce (24 cm) Antre Ayakkabılık (90x24x126 cm)
+    parts.append(add_part(col, "Ince_Govde_Kasa", "cube", (0, 0, ${(h * 0.54).toFixed(3)}), (${w}, ${d}, ${(h - 0.14).toFixed(3)}), mat_primary, 0.004))
+    parts.append(add_part(col, "Ust_Duser_Kapak_1", "cube", (0, ${(-d * 0.52).toFixed(3)}, ${(h * 0.80).toFixed(3)}), (${(w - 0.03).toFixed(3)}, 0.02, 0.34), mat_primary, 0.003))
+    parts.append(add_part(col, "Orta_Duser_Kapak_2", "cube", (0, ${(-d * 0.52).toFixed(3)}, ${(h * 0.51).toFixed(3)}), (${(w - 0.03).toFixed(3)}, 0.02, 0.34), mat_primary, 0.003))
+    parts.append(add_part(col, "Alt_Duser_Kapak_3_Acik", "cube", (0, ${(-d * 0.62).toFixed(3)}, ${(h * 0.23).toFixed(3)}), (${(w - 0.03).toFixed(3)}, 0.02, 0.34), mat_primary, 0.003, (math.radians(-22), 0, 0)))`;
+
+    case 'tr_entryway_shoe_bench':
+      return `    # Vivense / Mudo Bukle Minderli & 2 Katlı Ayakkabı Raflı Antre Oturma Bankı (105x38x48 cm)
+    parts.append(add_part(col, "Metal_Ahsap_Iskelet", "cube", (0, 0, 0.20), (${w}, ${d}, 0.38), mat_secondary, 0.004))
+    parts.append(add_part(col, "Alt_Ayakkabi_Rafi_1", "cube", (0, 0, 0.11), (${(w - 0.06).toFixed(3)}, ${(d - 0.05).toFixed(3)}, 0.022), mat_accent, 0.002))
+    parts.append(add_part(col, "Ust_Ayakkabi_Rafi_2", "cube", (0, 0, 0.26), (${(w - 0.06).toFixed(3)}, ${(d - 0.05).toFixed(3)}, 0.022), mat_accent, 0.002))
+    parts.append(add_part(col, "Bukle_Oturma_Minderi", "cube", (0, 0, ${(h - 0.045).toFixed(3)}), (${(w - 0.02).toFixed(3)}, ${(d - 0.02).toFixed(3)}, 0.09), mat_primary, 0.024))`;
+
+    case 'tr_doormat_umbrella_set':
+      return `    # Mudo / Madame Coco Doğal Koko Kapı Paspası, Metal Şemsiyelik & Pirinç Çekecek Seti
+    parts.append(add_part(col, "Koko_Kapi_Paspasi", "cube", (-0.16, 0, 0.012), (0.70, 0.45, 0.024), mat_primary, 0.004))
+    parts.append(add_part(col, "Oluklu_Metal_Semsiyelik", "cylinder", (0.36, -0.02, 0.27), (0.24, 0.24, 0.54), mat_secondary, 0.0))
+    parts.append(add_part(col, "Pirinc_Ayakkabi_Cekecegi", "cylinder", (0.39, 0.04, 0.34), (0.018, 0.018, 0.64), mat_accent, 0.0, (0.08, -0.06, 0)))`;
+
+    case 'tr_entryway_console_mirror_set':
+      return `    # Enza / Mudo Traverten & Ceviz Fluted Dresuar + Arka LED Oval Ayna Seti (120x36x205 cm)
+    parts.append(add_part(col, "Traverten_Ust_Tabla", "cube", (0, 0, 0.81), (${w}, ${d}, 0.036), mat_primary, 0.006))
+    parts.append(add_part(col, "Fluted_Ceviz_Cekmece_Govde", "cube", (0, 0, 0.70), (${(w - 0.04).toFixed(3)}, ${(d - 0.02).toFixed(3)}, 0.18), mat_secondary, 0.005))
+    parts.append(add_part(col, "Sol_Silindir_Ayak", "cylinder", (${(-w * 0.36).toFixed(3)}, 0, 0.32), (0.14, 0.14, 0.64), mat_secondary, 0.0))
+    parts.append(add_part(col, "Sag_Silindir_Ayak", "cylinder", (${(w * 0.36).toFixed(3)}, 0, 0.32), (0.14, 0.14, 0.64), mat_secondary, 0.0))
+    parts.append(add_part(col, "Arka_LED_Oval_Ayna", "cylinder", (0, ${(d * 0.44).toFixed(3)}, 1.48), (0.64, 0.028, 1.06), mat_glass, 0.0, (math.radians(90), 0, 0)))`;
+
+    case 'tr_arched_led_floor_mirror':
+      return `    # Dekorister / Mudo Kemerli (Arch) Arka LED Işıklı Antre Boy Aynası (75x185 cm)
+    parts.append(add_part(col, "Metal_Kemerli_Cerceve", "cube", (0, 0, ${(h * 0.5).toFixed(3)}), (${w}, ${d}, ${h}), mat_primary, 0.015))
+    parts.append(add_part(col, "Flotal_Boy_Aynasi_Cam", "cube", (0, -0.016, ${(h * 0.5).toFixed(3)}), (${(w - 0.03).toFixed(3)}, 0.008, ${(h - 0.03).toFixed(3)}), mat_glass, 0.004))
+    parts.append(add_part(col, "Arka_LED_Halo", "cube", (0, 0.014, ${(h * 0.5).toFixed(3)}), (${(w - 0.04).toFixed(3)}, 0.008, ${(h - 0.04).toFixed(3)}), mat_accent, 0.004))`;
+
+    case 'tr_organic_led_wall_mirror':
+      return `    # Dekorister / Vivense Asimetrik Organik Formlu Dokunmatik LED Antre Aynası (80x115 cm)
+    parts.append(add_part(col, "Organik_Arka_LED_Kasa", "cylinder", (0, 0.012, ${(h * 0.5).toFixed(3)}), (${(w * 0.90).toFixed(3)}, 0.018, ${(h * 0.90).toFixed(3)}), mat_accent, 0.0, (math.radians(90), 0, 0)))
+    parts.append(add_part(col, "Flotal_Organik_Ayna_Cam", "cylinder", (0, -0.006, ${(h * 0.5).toFixed(3)}), (${w}, 0.012, ${h}), mat_glass, 0.0, (math.radians(90), 0, 0)))`;
+
+    case 'tr_acoustic_slat_coat_panel':
+      return `    # AGT / Dekorister Akustik Keçeli Ahşap Duvar Çıtası & Gizli LED Antre Askılık (120x240 cm)
+    parts.append(add_part(col, "Akustik_Kece_Taban", "cube", (0, 0.012, ${(h * 0.5).toFixed(3)}), (${w}, 0.012, ${h}), mat_secondary, 0.001))
+    for i in range(18):
+        sx = ${(-w * 0.46).toFixed(3)} + i * ${(w * 0.92 / 17).toFixed(3)}
+        parts.append(add_part(col, f"Ahsap_Cita_{i+1}", "cube", (sx, -0.008, ${(h * 0.5).toFixed(3)}), (0.036, 0.022, ${h}), mat_primary, 0.002))
+    parts.append(add_part(col, "Metal_Askilik_Bari", "cube", (0, -0.032, 1.62), (${(w * 0.82).toFixed(3)}, 0.035, 0.045), mat_accent, 0.002))`;
+
+    case 'tr_wall_key_mail_organizer':
+      return `    # Mudo / Dekorister Masif Ceviz & Metal Kapı Yanı Anahtarlık, Mektupluk & Raf (52x13x24 cm)
+    parts.append(add_part(col, "Masif_Ceviz_Arka_Plaka", "cube", (0, 0.01, ${(h * 0.5).toFixed(3)}), (${w}, 0.02, ${h}), mat_primary, 0.003))
+    parts.append(add_part(col, "Cuzdan_Gozluk_Rafi", "cube", (0, ${(-d * 0.42).toFixed(3)}, ${(h * 0.46).toFixed(3)}), (${(w - 0.02).toFixed(3)}, ${d}, 0.02), mat_primary, 0.002))
+    parts.append(add_part(col, "Metal_Mektupluk_ve_Kanca_Bari", "cube", (0, -0.035, ${(h * 0.22).toFixed(3)}), (${(w * 0.88).toFixed(3)}, 0.04, 0.028), mat_accent, 0.002))`;
+
+    case 'tr_bosch_ankastre_set_3':
+      return `    # Bosch Serie 4/6 3'lü Siyah Cam Ankastre Set (Fırın + Gazlı Cam Ocak + Eğimli Davlumbaz)
+    parts.append(add_part(col, "Ankastre_Alt_Kasa", "cube", (0, 0, 0.45), (${w}, ${d}, 0.86), mat_secondary, 0.003))
+    parts.append(add_part(col, "Bosch_Ankastre_Firin", "cube", (0, ${(-d * 0.04).toFixed(3)}, 0.48), (0.595, 0.56, 0.595), mat_primary, 0.004))
+    parts.append(add_part(col, "Bosch_Firin_Kulp", "cylinder", (0, ${(-d * 0.54).toFixed(3)}, 0.65), (0.014, 0.014, 0.48), mat_accent, 0.0, (0, math.radians(90), 0)))
+    parts.append(add_part(col, "Bosch_Gazli_Cam_Ocak", "cube", (0, 0, 0.90), (0.59, 0.52, 0.045), mat_primary, 0.002))
+    parts.append(add_part(col, "Bosch_Egimli_Cam_Davlumbaz", "cube", (0, ${(-d * 0.12).toFixed(3)}, 1.72), (0.60, 0.34, 0.42), mat_primary, 0.004, (math.radians(32), 0, 0)))
+    parts.append(add_part(col, "Davlumbaz_Baca_Kulesi", "cube", (0, ${(d * 0.28).toFixed(3)}, 2.02), (0.24, 0.22, 0.44), mat_secondary, 0.002))`;
+
+    case 'tr_siemens_ankastre_set_3':
+      return `    # Siemens iQ500 3'lü İndüksiyonlu Siyah Cam Ankastre Set (Fırın + İndüksiyon Ocak + Eğimli Davlumbaz)
+    parts.append(add_part(col, "Ankastre_Alt_Kasa", "cube", (0, 0, 0.45), (${w}, ${d}, 0.86), mat_secondary, 0.003))
+    parts.append(add_part(col, "Siemens_iQ500_Firin", "cube", (0, ${(-d * 0.04).toFixed(3)}, 0.48), (0.595, 0.56, 0.595), mat_primary, 0.004))
+    parts.append(add_part(col, "Siemens_Induksiyon_Ocak", "cube", (0, 0, 0.895), (0.595, 0.52, 0.014), mat_glass, 0.001))
+    parts.append(add_part(col, "Siemens_Egimli_Davlumbaz", "cube", (0, ${(-d * 0.10).toFixed(3)}, 1.74), (0.60, 0.34, 0.42), mat_primary, 0.004, (math.radians(34), 0, 0)))
+    parts.append(add_part(col, "Davlumbaz_Baca_Kulesi", "cube", (0, ${(d * 0.28).toFixed(3)}, 2.04), (0.24, 0.22, 0.44), mat_accent, 0.002))`;
+
+    case 'tr_vestel_rustik_set_3':
+      return `    # Vestel Rustik Country 3'lü Ankastre Set (Analog Saatli Fırın + Rustik Ocak + Piramit Davlumbaz)
+    parts.append(add_part(col, "Rustik_Alt_Kasa", "cube", (0, 0, 0.45), (${w}, ${d}, 0.86), mat_secondary, 0.003))
+    parts.append(add_part(col, "Vestel_Rustik_Firin", "cube", (0, ${(-d * 0.04).toFixed(3)}, 0.48), (0.595, 0.56, 0.595), mat_primary, 0.005))
+    parts.append(add_part(col, "Rustik_Pirinc_Kulp", "cylinder", (0, ${(-d * 0.54).toFixed(3)}, 0.65), (0.016, 0.016, 0.46), mat_accent, 0.0, (0, math.radians(90), 0)))
+    parts.append(add_part(col, "Vestel_Rustik_Emaye_Ocak", "cube", (0, 0, 0.90), (0.59, 0.52, 0.048), mat_primary, 0.003))
+    parts.append(add_part(col, "Vestel_Piramit_Davlumbaz", "cube", (0, 0, 1.68), (0.60, 0.48, 0.28), mat_primary, 0.005))
+    parts.append(add_part(col, "Piramit_Baca_Govde", "cube", (0, ${(d * 0.18).toFixed(3)}, 1.98), (0.24, 0.22, 0.48), mat_primary, 0.003))`;
+
+    case 'tr_bosch_serie8_oven':
+      return `    # Bosch Serie 8 HBG675BB1 Dijital Kontrol Halkalı Ankastre Fırın (60x57x60 cm)
+    parts.append(add_part(col, "Firin_Ankastre_Kasa", "cube", (0, 0.01, ${(h * 0.5).toFixed(3)}), (${(w - 0.02).toFixed(3)}, ${(d - 0.02).toFixed(3)}, ${(h - 0.015).toFixed(3)}), mat_secondary, 0.003))
+    parts.append(add_part(col, "Siyah_Cam_On_Kapak", "cube", (0, ${(-d * 0.48).toFixed(3)}, ${(h * 0.42).toFixed(3)}), (${w}, 0.024, ${(h * 0.78).toFixed(3)}), mat_primary, 0.003))
+    parts.append(add_part(col, "Serie8_TFT_Halka", "cylinder", (0, ${(-d * 0.51).toFixed(3)}, ${(h * 0.89).toFixed(3)}), (0.068, 0.068, 0.014), mat_accent, 0.0, (math.radians(90), 0, 0)))
+    parts.append(add_part(col, "Paslanmaz_Firin_Kulpu", "cylinder", (0, ${(-d * 0.54).toFixed(3)}, ${(h * 0.74).toFixed(3)}), (0.016, 0.016, ${(w * 0.84).toFixed(3)}), mat_accent, 0.0, (0, math.radians(90), 0)))`;
+
+    case 'tr_siemens_iq700_oven':
+      return `    # Siemens iQ700 HB676G0S1 studioLine TFT Ankastre Cam Fırın (60x57x60 cm)
+    parts.append(add_part(col, "iQ700_Ankastre_Kasa", "cube", (0, 0.01, ${(h * 0.5).toFixed(3)}), (${(w - 0.02).toFixed(3)}, ${(d - 0.02).toFixed(3)}, ${(h - 0.015).toFixed(3)}), mat_secondary, 0.003))
+    parts.append(add_part(col, "studioLine_Siyah_Cam_Kapak", "cube", (0, ${(-d * 0.48).toFixed(3)}, ${(h * 0.42).toFixed(3)}), (${w}, 0.024, ${(h * 0.78).toFixed(3)}), mat_primary, 0.003))
+    parts.append(add_part(col, "iQ700_Kontrol_Seridi", "cube", (0, ${(-d * 0.49).toFixed(3)}, ${(h * 0.89).toFixed(3)}), (${w}, 0.02, 0.11), mat_glass, 0.002))
+    parts.append(add_part(col, "Minimal_Bar_Kulp", "cube", (0, ${(-d * 0.54).toFixed(3)}, ${(h * 0.74).toFixed(3)}), (${(w * 0.86).toFixed(3)}, 0.022, 0.018), mat_accent, 0.002))`;
+
+    case 'tr_vestel_builtin_oven':
+      return `    # Vestel AF-8784 ProChef Pop-Up Düğmeli Ankastre Cam Fırın (60x57x60 cm)
+    parts.append(add_part(col, "Vestel_Ankastre_Kasa", "cube", (0, 0.01, ${(h * 0.5).toFixed(3)}), (${(w - 0.02).toFixed(3)}, ${(d - 0.02).toFixed(3)}, ${(h - 0.015).toFixed(3)}), mat_secondary, 0.003))
+    parts.append(add_part(col, "Temperli_Cam_Kapak", "cube", (0, ${(-d * 0.48).toFixed(3)}, ${(h * 0.42).toFixed(3)}), (${w}, 0.024, ${(h * 0.78).toFixed(3)}), mat_primary, 0.003))
+    parts.append(add_part(col, "Sol_PopUp_Dugme", "cylinder", (-0.17, ${(-d * 0.51).toFixed(3)}, ${(h * 0.89).toFixed(3)}), (0.036, 0.036, 0.022), mat_accent, 0.0, (math.radians(90), 0, 0)))
+    parts.append(add_part(col, "Sag_PopUp_Dugme", "cylinder", (0.17, ${(-d * 0.51).toFixed(3)}, ${(h * 0.89).toFixed(3)}), (0.036, 0.036, 0.022), mat_accent, 0.0, (math.radians(90), 0, 0)))
+    parts.append(add_part(col, "Firin_Boru_Kulpu", "cylinder", (0, ${(-d * 0.54).toFixed(3)}, ${(h * 0.74).toFixed(3)}), (0.016, 0.016, ${(w * 0.82).toFixed(3)}), mat_accent, 0.0, (0, math.radians(90), 0)))`;
+
+    case 'tr_builtin_microwave':
+      return `    # Bosch Serie 6 / Siemens iQ500 Çerçeveli Ankastre Mikrodalga Fırın (60x38x38 cm)
+    parts.append(add_part(col, "Mikrodalga_Ankastre_Kasa", "cube", (0, 0.01, ${(h * 0.5).toFixed(3)}), (${(w - 0.03).toFixed(3)}, ${(d - 0.02).toFixed(3)}, ${(h - 0.02).toFixed(3)}), mat_secondary, 0.003))
+    parts.append(add_part(col, "On_Ankastre_Cerceve", "cube", (0, ${(-d * 0.48).toFixed(3)}, ${(h * 0.5).toFixed(3)}), (${w}, 0.022, ${h}), mat_primary, 0.003))
+    parts.append(add_part(col, "Sol_Fume_Cam_Kapak", "cube", (-0.06, ${(-d * 0.50).toFixed(3)}, ${(h * 0.5).toFixed(3)}), (${(w * 0.70).toFixed(3)}, 0.012, ${(h * 0.82).toFixed(3)}), mat_glass, 0.002))`;
+
+    case 'tr_induction_hob_60':
+      return `    # Bosch Serie 6 / Siemens iQ500 60 cm 4 Gözlü Schott Ceran İndüksiyon Ankastre Ocak
+    parts.append(add_part(col, "Alt_Sogutma_Kasasi", "cube", (0, 0, ${(h * 0.36).toFixed(3)}), (${(w - 0.04).toFixed(3)}, ${(d - 0.04).toFixed(3)}, ${(h * 0.70).toFixed(3)}), mat_secondary, 0.002))
+    parts.append(add_part(col, "Schott_Ceran_Cam_Tabla", "cube", (0, 0, ${(h - 0.005).toFixed(3)}), (${w}, ${d}, 0.009), mat_primary, 0.001))`;
+
+    case 'tr_gas_glass_hob_60':
+      return `    # Bosch / Arçelik / Siemens 60 cm 4 Gözlü Doğalgazlı Döküm Izgaralı Cam Ocak
+    parts.append(add_part(col, "Alt_Ankastre_Kasa", "cube", (0, 0, 0.024), (${(w - 0.04).toFixed(3)}, ${(d - 0.04).toFixed(3)}, 0.044), mat_secondary, 0.002))
+    parts.append(add_part(col, "Temperli_Cam_Tabla", "cube", (0, 0, 0.052), (${w}, ${d}, 0.012), mat_primary, 0.002))
+    parts.append(add_part(col, "Dokum_Izgara_Sol", "cube", (-0.145, -0.02, 0.078), (0.24, 0.42, 0.032), mat_secondary, 0.002))
+    parts.append(add_part(col, "Dokum_Izgara_Sag", "cube", (0.145, -0.02, 0.078), (0.24, 0.42, 0.032), mat_secondary, 0.002))`;
+
+    case 'tr_wok_gas_hob_75':
+      return `    # Franke / Bosch 75 cm 5 Gözlü Merkezi Wok Brülörlü Gazlı Ankastre Ocak
+    parts.append(add_part(col, "Alt_Ankastre_Kasa_75", "cube", (0, 0, 0.024), (${(w - 0.05).toFixed(3)}, ${(d - 0.04).toFixed(3)}, 0.044), mat_secondary, 0.002))
+    parts.append(add_part(col, "Genis_Temperli_Tabla_75", "cube", (0, 0, 0.052), (${w}, ${d}, 0.012), mat_primary, 0.002))
+    parts.append(add_part(col, "Merkezi_Wok_Brulor", "cylinder", (0, -0.01, 0.076), (0.135, 0.135, 0.032), mat_accent, 0.0))
+    parts.append(add_part(col, "Uclu_Dokum_Izgara_Grubu", "cube", (0, -0.01, 0.080), (${(w * 0.90).toFixed(3)}, ${(d * 0.78).toFixed(3)}, 0.032), mat_secondary, 0.002))`;
+
+    case 'tr_downdraft_induction_hob':
+      return `    # Siemens iQ500 / Bosch Serie 8 80 cm Dahili Davlumbazlı (Downdraft) İndüksiyon Ocak
+    parts.append(add_part(col, "Downdraft_Motor_Kasasi", "cube", (0, 0, ${(h * 0.46).toFixed(3)}), (${(w - 0.05).toFixed(3)}, ${(d - 0.05).toFixed(3)}, ${(h * 0.90).toFixed(3)}), mat_secondary, 0.003))
+    parts.append(add_part(col, "Schott_Ceran_80cm_Tabla", "cube", (0, 0, ${(h - 0.006).toFixed(3)}), (${w}, ${d}, 0.010), mat_primary, 0.001))
+    parts.append(add_part(col, "Merkezi_Emmis_Izgarasi", "cube", (0, 0, ${(h - 0.002).toFixed(3)}), (0.14, 0.36, 0.016), mat_accent, 0.002))`;
+
+    case 'tr_angled_glass_hood':
+      return `    # Silverline / Bosch 60 cm Eğimli Temperli Cam Duvar Tipi Ankastre Davlumbaz
+    parts.append(add_part(col, "Davlumbaz_Baca_Kulesi", "cube", (0, ${(d * 0.24).toFixed(3)}, ${(h * 0.68).toFixed(3)}), (0.24, 0.22, ${(h * 0.62).toFixed(3)}), mat_secondary, 0.002))
+    parts.append(add_part(col, "Egimli_Cam_On_Panel", "cube", (0, ${(-d * 0.12).toFixed(3)}, ${(h * 0.26).toFixed(3)}), (${w}, 0.035, 0.42), mat_primary, 0.003, (math.radians(32), 0, 0)))`;
+
+    case 'tr_island_t_hood_90':
+      return `    # Franke / Silverline 90 cm Tavandan Askılı T-Tipi Ada Mutfak Davlumbazı
+    parts.append(add_part(col, "Tavan_Flansi", "cube", (0, 0, ${(h - 0.012).toFixed(3)}), (0.36, 0.34, 0.024), mat_primary, 0.002))
+    parts.append(add_part(col, "Dikey_Ada_Baca_Kolonu", "cube", (0, 0, ${(h * 0.56).toFixed(3)}), (0.30, 0.28, ${(h * 0.84).toFixed(3)}), mat_primary, 0.003))
+    parts.append(add_part(col, "Yatay_90cm_Emmis_Kanonu", "cube", (0, 0, 0.045), (${w}, ${d}, 0.085), mat_primary, 0.003))
+    parts.append(add_part(col, "Aluminyum_Yag_Filtreleri", "cube", (0, 0, 0.008), (${(w * 0.82).toFixed(3)}, ${(d * 0.72).toFixed(3)}, 0.012), mat_accent, 0.001))`;
+
+    case 'tr_recessed_cabinet_hood':
+      return `    # Teka / Silverline 55 cm Üst Dolap İçi Gizli Gömme Ankastre Aspiratör Davlumbaz
+    parts.append(add_part(col, "Dolap_Ici_Motor_Kasasi", "cube", (0, 0, ${(h * 0.54).toFixed(3)}), (${(w - 0.04).toFixed(3)}, ${(d - 0.03).toFixed(3)}, ${(h * 0.88).toFixed(3)}), mat_secondary, 0.002))
+    parts.append(add_part(col, "Alt_Gorunen_Cerceve", "cube", (0, 0, 0.012), (${w}, ${d}, 0.022), mat_primary, 0.002))
+    parts.append(add_part(col, "Aluminyum_Filtre_Kaseti", "cube", (0, 0, 0.004), (${(w * 0.72).toFixed(3)}, ${(d * 0.68).toFixed(3)}, 0.010), mat_accent, 0.001))`;
+
+    case 'tr_builtin_coffee_machine':
+      return `    # Siemens iQ700 / Bosch Serie 8 Tam Otomatik Boy Dolap Ankastre Kahve Makinesi (60x45 cm)
+    parts.append(add_part(col, "Ankastre_Kahve_Kasasi", "cube", (0, 0.01, ${(h * 0.5).toFixed(3)}), (${(w - 0.02).toFixed(3)}, ${(d - 0.02).toFixed(3)}, ${(h - 0.02).toFixed(3)}), mat_secondary, 0.003))
+    parts.append(add_part(col, "Siyah_Cam_On_Cephe", "cube", (0, ${(-d * 0.48).toFixed(3)}, ${(h * 0.5).toFixed(3)}), (${w}, 0.024, ${h}), mat_primary, 0.003))
+    parts.append(add_part(col, "Fincan_Demleme_Nisi", "cube", (-0.06, ${(-d * 0.42).toFixed(3)}, ${(h * 0.34).toFixed(3)}), (0.24, 0.14, 0.22), mat_secondary, 0.002))
+    parts.append(add_part(col, "Paslanmaz_Damlama_Izgarasi", "cube", (-0.06, ${(-d * 0.42).toFixed(3)}, ${(h * 0.14).toFixed(3)}), (0.22, 0.12, 0.016), mat_accent, 0.001))`;
+
+    case 'tr_builtin_fridge_column':
+      return `    # Bosch / Siemens 60x185 cm Tam Ankastre Kombi No-Frost Buzdolabı Kulesi
+    parts.append(add_part(col, "Ankastre_Dolap_Karkasi", "cube", (0, 0, ${(h * 0.5).toFixed(3)}), (${w}, ${d}, ${h}), mat_primary, 0.004))
+    parts.append(add_part(col, "Ust_Sogutucu_Kapagi", "cube", (0, ${(-d * 0.51).toFixed(3)}, ${(h * 0.68).toFixed(3)}), (${(w - 0.008).toFixed(3)}, 0.022, ${(h * 0.56).toFixed(3)}), mat_primary, 0.003))
+    parts.append(add_part(col, "Alt_Dondurucu_Kapagi", "cube", (0, ${(-d * 0.51).toFixed(3)}, ${(h * 0.22).toFixed(3)}), (${(w - 0.008).toFixed(3)}, 0.022, ${(h * 0.34).toFixed(3)}), mat_primary, 0.003))
+    parts.append(add_part(col, "Alt_Havalandirma_Baza_Izgara", "cube", (0, ${(-d * 0.46).toFixed(3)}, 0.045), (${(w - 0.04).toFixed(3)}, 0.02, 0.08), mat_secondary, 0.002))`;
+
+    case 'tr_mirrored_6door_wardrobe':
+      return `    # Enza Home / Bellona 240 cm 6 Kapaklı Aynalı & Alt Çekmeceli Gardırop
+    parts.append(add_part(col, "Gardirop_Ana_Karkas", "cube", (0, 0, ${(h * 0.5).toFixed(3)}), (${w}, ${(d - 0.025).toFixed(3)}, ${h}), mat_primary, 0.004))
+    parts.append(add_part(col, "Orta_Aynali_Kapak_Grubu", "cube", (0, ${(-d * 0.505).toFixed(3)}, ${(h * 0.52).toFixed(3)}), (${(w * 0.33).toFixed(3)}, 0.024, ${(h * 0.88).toFixed(3)}), mat_accent, 0.002))
+    parts.append(add_part(col, "Alt_Cekmece_Modulleri", "cube", (0, ${(-d * 0.505).toFixed(3)}, ${(h * 0.14).toFixed(3)}), (${(w * 0.96).toFixed(3)}, 0.024, ${(h * 0.22).toFixed(3)}), mat_secondary, 0.003))`;
+
+    case 'tr_glass_walkin_wardrobe':
+      return `    # Lazzoni / Lineadecor 260 cm Füme Cam Kapaklı & İç Şerit LED Giyinme Dolabı
+    parts.append(add_part(col, "Giyinme_Dolabi_Karkas", "cube", (0, 0.02, ${(h * 0.5).toFixed(3)}), (${w}, ${(d - 0.04).toFixed(3)}, ${h}), mat_secondary, 0.004))
+    parts.append(add_part(col, "Fume_Cam_Aluminyum_Kapaklar", "cube", (0, ${(-d * 0.49).toFixed(3)}, ${(h * 0.51).toFixed(3)}), (${(w - 0.02).toFixed(3)}, 0.024, ${(h - 0.06).toFixed(3)}), mat_accent, 0.002))
+    parts.append(add_part(col, "Ic_Aski_Borusu_ve_Raflar", "cylinder", (0, -0.02, ${(h * 0.72).toFixed(3)}), (0.022, 0.022, ${(w * 0.86).toFixed(3)}), mat_primary, 0.0, (0, math.radians(90), 0)))`;
+
+    case 'tr_sliding_wardrobe_220':
+      return `    # Doğtaş / Kelebek 220 cm Çıtalı Meşe & Füme Aynalı Sürgülü Gardırop
+    parts.append(add_part(col, "Surgulu_Dolap_Karkas", "cube", (0, 0.02, ${(h * 0.5).toFixed(3)}), (${w}, ${(d - 0.05).toFixed(3)}, ${h}), mat_primary, 0.004))
+    parts.append(add_part(col, "Sol_Citali_Surgu_Kapak", "cube", (${(-w * 0.24).toFixed(3)}, ${(-d * 0.48).toFixed(3)}, ${(h * 0.51).toFixed(3)}), (${(w * 0.51).toFixed(3)}, 0.026, ${(h - 0.08).toFixed(3)}), mat_secondary, 0.003))
+    parts.append(add_part(col, "Sag_Aynali_Surgu_Kapak", "cube", (${(w * 0.24).toFixed(3)}, ${(-d * 0.505).toFixed(3)}, ${(h * 0.51).toFixed(3)}), (${(w * 0.51).toFixed(3)}, 0.024, ${(h - 0.08).toFixed(3)}), mat_accent, 0.002))`;
+
+    case 'tr_kids_3door_wardrobe':
+      return `    # Çilek Mobilya 135 cm 3 Kapaklı & Çekmeceli Çocuk Odası Gardırobu
+    parts.append(add_part(col, "Cocuk_Gardirop_Govde", "cube", (0, 0, ${(h * 0.52).toFixed(3)}), (${w}, ${(d - 0.02).toFixed(3)}, ${(h - 0.12).toFixed(3)}), mat_primary, 0.005))
+    parts.append(add_part(col, "Masif_Kayin_Ayak_Bazasi", "cube", (0, 0, 0.06), (${(w - 0.06).toFixed(3)}, ${(d - 0.06).toFixed(3)}, 0.12), mat_secondary, 0.004))
+    parts.append(add_part(col, "Ahsap_Kulplar", "cylinder", (0, ${(-d * 0.51).toFixed(3)}, ${(h * 0.55).toFixed(3)}), (0.04, 0.04, 0.024), mat_accent, 0.0, (math.radians(90), 0, 0)))`;
+
+    case 'tr_tall_filled_bookcase':
+      return `    # Enza Home / Vivense 100x210 cm 5 Katlı Dolu Mimari Kitaplık
+    parts.append(add_part(col, "Kitaplik_Arkalik_ve_Govde", "cube", (0, ${(d * 0.35).toFixed(3)}, ${(h * 0.5).toFixed(3)}), (${w}, 0.022, ${h}), mat_primary, 0.003))
+    for i in range(6):
+        rz = 0.08 + i * ${((h - 0.16) / 5).toFixed(3)}
+        parts.append(add_part(col, f"Kitaplik_Rafi_{i+1}", "cube", (0, 0, rz), (${(w - 0.04).toFixed(3)}, ${(d - 0.02).toFixed(3)}, 0.026), mat_primary, 0.002))
+    parts.append(add_part(col, "Alt_Dolap_Kapaklari", "cube", (0, ${(-d * 0.48).toFixed(3)}, 0.24), (${(w - 0.04).toFixed(3)}, 0.022, 0.36), mat_secondary, 0.003))`;
+
+    case 'tr_arched_fluted_bookcase':
+      return `    # Lazzoni / Mudo Concept 110x220 cm Kemerli Niş & Fluted Kapaklı Villa Kitaplığı
+    parts.append(add_part(col, "Kemerli_Kitaplik_Ana_Govde", "cube", (0, 0.01, ${(h * 0.48).toFixed(3)}), (${w}, ${d}, ${(h * 0.92).toFixed(3)}), mat_primary, 0.005))
+    parts.append(add_part(col, "Ust_Kemer_Tac", "cylinder", (0, 0.01, ${(h * 0.78).toFixed(3)}), (${(w * 0.98).toFixed(3)}, ${(w * 0.98).toFixed(3)}, ${d}), mat_primary, 0.0, (math.radians(90), 0, 0)))
+    parts.append(add_part(col, "Alt_Fluted_Kapak_Grubu", "cube", (0, ${(-d * 0.49).toFixed(3)}, 0.36), (${(w - 0.05).toFixed(3)}, 0.026, 0.64), mat_secondary, 0.003))`;
+
+    case 'tr_study_desk_hutch_set':
+      return `    # Adore / Rani 140 cm Üst Kitaplıklı & Çekmeceli Öğrenci Çalışma Masası
+    parts.append(add_part(col, "Calisma_Masasi_Tablasi", "cube", (0, 0, 0.74), (${w}, ${d}, 0.032), mat_primary, 0.003))
+    parts.append(add_part(col, "Sag_Cekmece_Kesonu", "cube", (${(w * 0.34).toFixed(3)}, 0, 0.37), (0.42, ${(d - 0.06).toFixed(3)}, 0.72), mat_secondary, 0.003))
+    parts.append(add_part(col, "Ust_Kitaplik_Modulu", "cube", (0, ${(d * 0.25).toFixed(3)}, ${(h * 0.76).toFixed(3)}), (${w}, 0.26, ${(h - 0.76).toFixed(3)}), mat_primary, 0.003))`;
+
+    case 'tr_montessori_kids_bookshelf':
+      return `    # Woody / Montessori TR 80 cm Ön Yüzü Görünen Çocuk Kitaplığı
+    parts.append(add_part(col, "Montessori_Yan_Paneller", "cube", (0, 0, ${(h * 0.5).toFixed(3)}), (${w}, ${d}, ${h}), mat_primary, 0.006))
+    for i in range(4):
+        rz = 0.16 + i * 0.20
+        parts.append(add_part(col, f"Kitap_Sergileme_Citas_{i+1}", "cube", (0, ${(-d * 0.42).toFixed(3)}, rz), (${(w - 0.04).toFixed(3)}, 0.02, 0.06), mat_secondary, 0.002))`;
+
+    case 'tr_pen_holder_stationery_set':
+      return `    # Faber-Castell / Gıpta Çok Gözlü Masaüstü Kalemlik & Kırtasiye Seti
+    parts.append(add_part(col, "Kalemlik_Taban_Tepsisi", "cube", (0, 0, 0.014), (${w}, ${d}, 0.028), mat_primary, 0.003))
+    parts.append(add_part(col, "Silindir_Kalemlik_Kabi", "cylinder", (${(-w * 0.22).toFixed(3)}, 0, 0.065), (0.085, 0.085, 0.115), mat_secondary, 0.0))
+    parts.append(add_part(col, "Not_Kagidi_ve_Kalemler", "cube", (${(w * 0.20).toFixed(3)}, 0, 0.036), (0.095, 0.095, 0.055), mat_accent, 0.002))`;
+
+    case 'tr_desk_organizer_tray':
+      return `    # Bino / Mudo Concept Doğal Ahşap Çok Bölmeli Masaüstü Düzenleyici
+    parts.append(add_part(col, "Duzenleyici_Alt_Kasa", "cube", (0, 0, ${(h * 0.35).toFixed(3)}), (${w}, ${d}, ${(h * 0.70).toFixed(3)}), mat_primary, 0.004))
+    parts.append(add_part(col, "Arka_Evrak_Bolmesi", "cube", (0, ${(d * 0.25).toFixed(3)}, ${(h * 0.55).toFixed(3)}), (${(w - 0.02).toFixed(3)}, ${(d * 0.42).toFixed(3)}, ${(h * 0.88).toFixed(3)}), mat_secondary, 0.003))`;
+
+    case 'tr_turkish_textbooks_stack':
+      return `    # MEB / Palme Türkçe Ders Kitapları & Spiralli Defter İstifi
+    for i in range(6):
+        parts.append(add_part(col, f"Ders_Kitabi_{i+1}", "cube", (0, 0, 0.016 + i * 0.030), (${(w * 0.92).toFixed(3)}, ${(d * 0.88).toFixed(3)}, 0.026), mat_primary if i % 2 == 0 else mat_secondary, 0.002, (0, 0, math.radians((i - 2.5) * 4))))`;
+
+    case 'tr_open_textbook_study_set':
+      return `    # Açık Geometri Ders Kitabı, Spiralli Defter, Gönye & Kalem Çalışma Seti
+    parts.append(add_part(col, "Acik_Ders_Kitabi", "cube", (${(-w * 0.16).toFixed(3)}, 0, 0.018), (${(w * 0.52).toFixed(3)}, ${(d * 0.76).toFixed(3)}, 0.032), mat_primary, 0.002))
+    parts.append(add_part(col, "Spiralli_Kareli_Defter", "cube", (${(w * 0.24).toFixed(3)}, 0.02, 0.012), (${(w * 0.34).toFixed(3)}, ${(d * 0.68).toFixed(3)}, 0.020), mat_secondary, 0.002, (0, 0, math.radians(-8))))`;
+
+    case 'tr_bookends_encyclopedia_row':
+      return `    # 14 Ciltlik Mimari & Klasik Roman Kitap Dizisi + Traverten Kitap Tutucu Seti
+    parts.append(add_part(col, "Sol_Traverten_Kitap_Tutucu", "cube", (${(-w * 0.44).toFixed(3)}, 0, ${(h * 0.36).toFixed(3)}), (0.055, ${(d * 0.65).toFixed(3)}, ${(h * 0.72).toFixed(3)}), mat_secondary, 0.004))
+    parts.append(add_part(col, "Sag_Traverten_Kitap_Tutucu", "cube", (${(w * 0.44).toFixed(3)}, 0, ${(h * 0.36).toFixed(3)}), (0.055, ${(d * 0.65).toFixed(3)}, ${(h * 0.72).toFixed(3)}), mat_secondary, 0.004))
+    parts.append(add_part(col, "Kitap_Sirasi_Blok", "cube", (0, 0, ${(h * 0.48).toFixed(3)}), (${(w * 0.76).toFixed(3)}, ${(d * 0.84).toFixed(3)}, ${(h * 0.94).toFixed(3)}), mat_primary, 0.003))`;
+
+    case 'tr_modern_ultrabook_laptop':
+      return `    # Apple / Monster 16" Alüminyum Gövde Türkçe Q Klavyeli Mimari Ultrabook Laptop
+    parts.append(add_part(col, "Laptop_Aluminyum_Alt_Govde", "cube", (0, 0, 0.009), (${w}, ${d}, 0.016), mat_primary, 0.003))
+    parts.append(add_part(col, "Laptop_16Inc_Ekran_Kapagi", "cube", (0, ${(d * 0.46).toFixed(3)}, ${(h * 0.52).toFixed(3)}), (${w}, 0.008, ${(h * 0.92).toFixed(3)}), mat_primary, 0.002, (math.radians(-18), 0, 0)))`;
+
+    case 'tr_laptop_stand_workstation':
+      return `    # Stantlı 16" Laptop, Türkçe Q Klavye, Mouse & Keçe Desk Mat Seti
+    parts.append(add_part(col, "Kece_Desk_Mat", "cube", (0, 0, 0.003), (${w}, ${d}, 0.005), mat_secondary, 0.001))
+    parts.append(add_part(col, "Aluminyum_Laptop_Standi", "cube", (${(-w * 0.14).toFixed(3)}, ${(d * 0.16).toFixed(3)}, 0.11), (0.34, 0.25, 0.18), mat_primary, 0.003))
+    parts.append(add_part(col, "Kablosuz_Klavye_ve_Mouse", "cube", (${(-w * 0.06).toFixed(3)}, ${(-d * 0.24).toFixed(3)}, 0.012), (0.42, 0.13, 0.016), mat_accent, 0.002))`;
+
+    case 'tr_dual_monitor_desk_setup':
+      return `    # LG / Dell Çift 27" 4K CAD & Blender Monitörlü Mimar Çalışma İstasyonu
+    parts.append(add_part(col, "Genis_Desk_Mat", "cube", (0, -0.05, 0.003), (${(w * 0.85).toFixed(3)}, 0.42, 0.005), mat_secondary, 0.001))
+    parts.append(add_part(col, "Sol_27Inc_4K_Monitor", "cube", (${(-w * 0.26).toFixed(3)}, 0.12, ${(h * 0.64).toFixed(3)}), (0.61, 0.025, 0.36), mat_primary, 0.003, (0, 0, math.radians(-10))))
+    parts.append(add_part(col, "Sag_27Inc_4K_Monitor", "cube", (${(w * 0.26).toFixed(3)}, 0.12, ${(h * 0.64).toFixed(3)}), (0.61, 0.025, 0.36), mat_primary, 0.003, (0, 0, math.radians(10))))`;
+
+    case 'tr_montessori_rainbow_blocks':
+      return `    # Woody / Montessori TR 7 Kemerli Doğal Ahşap Gökkuşağı & Denge Blok Seti
+    parts.append(add_part(col, "Gokkusagi_Kemer_Grubu", "cylinder", (${(-w * 0.16).toFixed(3)}, 0, ${(h * 0.44).toFixed(3)}), (${(w * 0.54).toFixed(3)}, ${(w * 0.54).toFixed(3)}, 0.085), mat_primary, 0.0, (math.radians(90), 0, 0)))
+    parts.append(add_part(col, "Ahsap_Denge_Kulesi", "cylinder", (${(w * 0.28).toFixed(3)}, 0, ${(h * 0.45).toFixed(3)}), (0.12, 0.12, ${(h * 0.88).toFixed(3)}), mat_secondary, 0.0))`;
+
+    case 'tr_toddler_wooden_abacus_xylophone':
+      return `    # Woody / Toyzz Shop 5 Sıralı Ahşap Bebek Abaküsü & 8 Tuşlu Ksilofon Seti
+    parts.append(add_part(col, "Ahsap_Bebek_Abakusu", "cube", (${(-w * 0.22).toFixed(3)}, 0.02, ${(h * 0.5).toFixed(3)}), (0.28, 0.08, ${h}), mat_primary, 0.004))
+    parts.append(add_part(col, "8_Tuslu_Ahsap_Ksilofon", "cube", (${(w * 0.22).toFixed(3)}, -0.02, 0.035), (0.30, 0.14, 0.06), mat_secondary, 0.003))`;
+
+    case 'tr_kids_teepee_play_tent':
+      return `    # Mudo Kids / Montessori TR 120x120x160 cm Pamuklu Keten Çocuk Oyun Çadırı (Tipi)
+    parts.append(add_part(col, "Kapitone_Oyun_Minderi", "cube", (0, 0, 0.03), (${w}, ${d}, 0.06), mat_secondary, 0.01))
+    parts.append(add_part(col, "Tipi_Kumas_Cadir_Govdesi", "cylinder", (0, 0, ${(h * 0.46).toFixed(3)}), (${(w * 0.92).toFixed(3)}, ${(d * 0.92).toFixed(3)}, ${(h * 0.86).toFixed(3)}), mat_primary, 0.0))`;
+
+    case 'tr_wooden_kids_play_kitchen':
+      return `    # Woody / Çilek 90 cm Montessori Ahşap Çocuk Oyun Mutfağı
+    parts.append(add_part(col, "Oyun_Mutfagi_Alt_Tezgah", "cube", (0, 0, 0.28), (${w}, ${d}, 0.54), mat_primary, 0.005))
+    parts.append(add_part(col, "Oyun_Mutfagi_Ust_Panel", "cube", (0, ${(d * 0.34).toFixed(3)}, ${(h * 0.72).toFixed(3)}), (${w}, 0.12, ${(h * 0.52).toFixed(3)}), mat_secondary, 0.004))`;
+
+    case 'tr_kids_toy_storage_organizer':
+      return `    # Çilek / Adore 100 cm 9 Sepetli Çocuk Odası Oyuncak Düzenleyici Dolap
+    parts.append(add_part(col, "Oyuncak_Dolabi_Karkas", "cube", (0, 0, ${(h * 0.5).toFixed(3)}), (${w}, ${d}, ${h}), mat_primary, 0.005))
+    for r in range(3):
+        parts.append(add_part(col, f"Oyuncak_Sepet_Sirasi_{r+1}", "cube", (0, -0.02, 0.18 + r * 0.28), (${(w - 0.08).toFixed(3)}, ${(d - 0.06).toFixed(3)}, 0.21), mat_secondary, 0.004))`;
+
+    case 'tr_wooden_dollhouse_3story':
+      return `    # Woody / Toyzz Shop 85x120 cm 3 Katlı Mobilyalı Ahşap Çocuk Bebek Evi
+    parts.append(add_part(col, "Bebek_Evi_3Katli_Govde", "cube", (0, 0, ${(h * 0.40).toFixed(3)}), (${w}, ${d}, ${(h * 0.76).toFixed(3)}), mat_primary, 0.004))
+    parts.append(add_part(col, "Ucgen_Cati_Kat_Blok", "cube", (0, 0, ${(h * 0.86).toFixed(3)}), (${(w * 0.92).toFixed(3)}, ${(d + 0.04).toFixed(3)}, ${(h * 0.26).toFixed(3)}), mat_secondary, 0.005))`;
+
     default:
       return `    # Parametrik Türk mimari varlık kütlesi (${archetype})
     parts.append(add_part(col, "Ana_Baza", "cube", (0, 0, ${(h * 0.08).toFixed(3)}), (${(w * 0.92).toFixed(3)}, ${(d * 0.92).toFixed(3)}, ${(h * 0.16).toFixed(3)}), mat_secondary, 0.015))

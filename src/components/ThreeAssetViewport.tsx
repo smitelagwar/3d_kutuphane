@@ -738,6 +738,7 @@ export const ThreeAssetViewport: React.FC<ThreeAssetViewportProps> = ({
       )}
 
       {/* Minimal top-left architectural readout (no backdrop-blur over WebGL) */}
+      {!(typeof window !== 'undefined' && window.location.search.includes('capture=1')) && (
       <div className="pointer-events-none absolute top-3 left-3 z-10 bg-[#161920]/95 border border-[#323846] rounded-md px-3 py-1.5 max-w-[440px]">
         <p className="text-xs font-medium text-white truncate">{asset.name}</p>
         <p className="text-[11px] font-mono tabular-nums text-[#A1A8B5] truncate">
@@ -747,9 +748,14 @@ export const ThreeAssetViewport: React.FC<ThreeAssetViewportProps> = ({
           <p className="text-[10px] text-[#93C5FD] truncate mt-0.5">{finish.comboSummary}</p>
         )}
       </div>
+      )}
 
       {/* Ultra-compact, collapsible bottom control dock + floating Custom RAL/HEX Palette Popover */}
-      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 w-[calc(100%-24px)] max-w-[1120px] flex flex-col items-center">
+      <div
+        className={`absolute bottom-3 left-1/2 -translate-x-1/2 z-10 w-[calc(100%-24px)] max-w-[1120px] flex flex-col items-center ${
+          typeof window !== 'undefined' && window.location.search.includes('capture=1') ? 'hidden' : ''
+        }`}
+      >
         {/* Custom RAL / HEX Architectural Color Studio Popover (opens neatly above dock) */}
         {paletteOpen && !dockCollapsed && (
           <div

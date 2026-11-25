@@ -3,6 +3,7 @@ import type {
   AssetArchetype,
   AssetCategory,
   AssetDimensionsCm,
+  BathroomSubCategory,
   MaterialFinish,
   MultiPartFinishSpec,
   PlacementType,
@@ -804,12 +805,207 @@ const ELEVATOR_FINISHES: MaterialFinish[] = [
   }),
 ];
 
+const FIRE_CABINET_FINISHES: MaterialFinish[] = [
+  makeFinish({
+    id: 'yangin-ral3000-kirmizi',
+    label: 'RAL 3000 Yangın Kırmızısı · Füme Cam',
+    comboSummary: 'Gövde & Kapak: RAL 3000 Elektrostatik Kırmızı · Hortum & Tüp: TS EN 671-1 Kırmızı · Lans: Pirinç',
+    materialKind: 'metal',
+    comboRole: 'arch_door_window',
+    partFinishes: {
+      primary: { hex: '#C81E1E', roughness: 0.28, metalness: 0.34, partLabel: 'RAL 3000 Kırmızı Çelik Kasa' },
+      secondary: { hex: '#E5E7EB', roughness: 0.32, metalness: 0.2, partLabel: 'İç Makara Şasisi' },
+      accent: { hex: '#D4A847', roughness: 0.24, metalness: 0.92, partLabel: 'Pirinç Lans & Kilit' },
+      glass: { hex: '#1F2937', opacity: 0.36, roughness: 0.08 },
+    },
+  }),
+  makeFinish({
+    id: 'yangin-satine-inox',
+    label: '304 Satine Paslanmaz İnox · Rezidans Tipi',
+    comboSummary: 'Çerçeve & Kapak: 304 Fırçalı Paslanmaz · İç Makara & Tüp: RAL 3000 Kırmızı',
+    materialKind: 'metal',
+    comboRole: 'arch_door_window',
+    partFinishes: {
+      primary: { hex: '#CBD2D9', roughness: 0.24, metalness: 0.9, partLabel: '304 Fırçalı Paslanmaz Kapak' },
+      secondary: { hex: '#B91C1C', roughness: 0.3, metalness: 0.28, partLabel: 'İç Kırmızı Hortum Makarası' },
+      accent: { hex: '#D4A847', roughness: 0.24, metalness: 0.92, partLabel: 'Pirinç Vana & Kulp' },
+      glass: { hex: '#1E293B', opacity: 0.38, roughness: 0.08 },
+    },
+  }),
+  makeFinish({
+    id: 'yangin-mat-antrasit',
+    label: 'RAL 7016 Mat Antrasit · Modern Hol Tipi',
+    comboSummary: 'Dış Kasa: RAL 7016 Mat Antrasit · İç Donanım: Kırmızı Hortum Makarası + 6 kg KKT Tüp',
+    materialKind: 'metal',
+    comboRole: 'arch_door_window',
+    partFinishes: {
+      primary: { hex: '#333942', roughness: 0.38, metalness: 0.44, partLabel: 'Mat Antrasit Çelik Çerçeve' },
+      secondary: { hex: '#DC2626', roughness: 0.3, metalness: 0.25, partLabel: 'Kırmızı Makara & Yangın Tüpü' },
+      accent: { hex: '#D1D5DB', roughness: 0.22, metalness: 0.92, partLabel: 'Krom Kulp & Lans' },
+      glass: { hex: '#111827', opacity: 0.4, roughness: 0.07 },
+    },
+  }),
+  makeFinish({
+    id: 'yangin-ral9003-beyaz',
+    label: 'RAL 9003 Mimari Beyaz · Kırmızı Donanım',
+    comboSummary: 'Dış Çerçeve: RAL 9003 Beyaz · İç Makara & Tüp: Kırmızı · Kulp: Krom',
+    materialKind: 'metal',
+    comboRole: 'arch_door_window',
+    partFinishes: {
+      primary: { hex: '#F1F4F7', roughness: 0.26, metalness: 0.22, partLabel: 'Beyaz Elektrostatik Çerçeve' },
+      secondary: { hex: '#DC2626', roughness: 0.3, metalness: 0.25, partLabel: 'Kırmızı Makara & Tüp' },
+      accent: { hex: '#D4A847', roughness: 0.24, metalness: 0.92, partLabel: 'Pirinç Lans & Kulp' },
+      glass: { hex: '#1F2937', opacity: 0.34, roughness: 0.08 },
+    },
+  }),
+  makeFinish({
+    id: 'yangin-mat-siyah-otel',
+    label: 'RAL 9005 Mat Siyah · Lüks Rezidans Tipi',
+    comboSummary: 'Dış Kasa: RAL 9005 Mat Siyah · İç Makara & Tüp: Kırmızı · Detay: Pirinç Lans',
+    materialKind: 'metal',
+    comboRole: 'arch_door_window',
+    partFinishes: {
+      primary: { hex: '#1E2127', roughness: 0.36, metalness: 0.52, partLabel: 'Mat Siyah Çelik Kasa' },
+      secondary: { hex: '#DC2626', roughness: 0.3, metalness: 0.25, partLabel: 'Kırmızı Hortum & Tüp' },
+      accent: { hex: '#D4A847', roughness: 0.24, metalness: 0.92, partLabel: 'Pirinç Lans & Kulp' },
+      glass: { hex: '#0F172A', opacity: 0.44, roughness: 0.07 },
+    },
+  }),
+];
+
+const GAS_SERVICE_BOX_FINISHES: MaterialFinish[] = [
+  makeFinish({
+    id: 'igdas-sari-standart',
+    label: 'İGDAŞ Standart Sarı (RAL 1021) · Çelik Kutu',
+    comboSummary: 'Kutu: RAL 1021 İGDAŞ Sarısı · Kolon Borusu: Sarı Çelik · Kaide: Beton',
+    materialKind: 'metal',
+    comboRole: 'exterior_outdoor',
+    partFinishes: {
+      primary: { hex: '#EAB308', roughness: 0.34, metalness: 0.28, partLabel: 'RAL 1021 Sarı Çelik Kasa' },
+      secondary: { hex: '#94A3B8', roughness: 0.72, metalness: 0.08, partLabel: 'Beton Zemin Kaidesi' },
+      accent: { hex: '#1E293B', roughness: 0.42, metalness: 0.65, partLabel: 'Üçgen Kilit & Havalandırma' },
+    },
+  }),
+  makeFinish({
+    id: 'igdas-antrasit-villa',
+    label: 'Villa Cephesi Mat Antrasit · Sarı İGDAŞ Şeridi',
+    comboSummary: 'Kutu: RAL 7016 Antrasit Boyalı Çelik · Uyarı Bandı & Boru: İGDAŞ Sarısı',
+    materialKind: 'metal',
+    comboRole: 'exterior_outdoor',
+    partFinishes: {
+      primary: { hex: '#363C46', roughness: 0.38, metalness: 0.35, partLabel: 'Antrasit Cephe Kutusu' },
+      secondary: { hex: '#94A3B8', roughness: 0.72, metalness: 0.08, partLabel: 'Beton Kaide' },
+      accent: { hex: '#EAB308', roughness: 0.34, metalness: 0.2, partLabel: 'İGDAŞ Sarı Uyarı & Boru' },
+    },
+  }),
+  makeFinish({
+    id: 'igdas-gri-galvaniz',
+    label: 'Açık Cephe Grisi (RAL 7035) · Sarı Borulu',
+    comboSummary: 'Kutu: RAL 7035 Açık Gri · İç Boru & Etiket: İGDAŞ Standart Sarı',
+    materialKind: 'metal',
+    comboRole: 'exterior_outdoor',
+    partFinishes: {
+      primary: { hex: '#D8DDE4', roughness: 0.36, metalness: 0.32, partLabel: 'Açık Gri Çelik Kutu' },
+      secondary: { hex: '#8F96A1', roughness: 0.74, metalness: 0.06, partLabel: 'Beton Kaide' },
+      accent: { hex: '#EAB308', roughness: 0.32, metalness: 0.22, partLabel: 'Sarı Doğalgaz Borusu' },
+    },
+  }),
+  makeFinish({
+    id: 'igdas-krem-cephe',
+    label: 'Sıva Uyumlu Krem Bej · İGDAŞ Uyarı Etiketli',
+    comboSummary: 'Kutu: RAL 1015 Krem Bej · Kaide: Beton · Kolon Borusu: İGDAŞ Sarı',
+    materialKind: 'metal',
+    comboRole: 'exterior_outdoor',
+    partFinishes: {
+      primary: { hex: '#E6DEC8', roughness: 0.4, metalness: 0.18, partLabel: 'Krem Bej Cephe Kutusu' },
+      secondary: { hex: '#94A3B8', roughness: 0.74, metalness: 0.06, partLabel: 'Beton Kaide' },
+      accent: { hex: '#1E293B', roughness: 0.42, metalness: 0.65, partLabel: 'Üçgen Kilit & Menteşe' },
+    },
+  }),
+  makeFinish({
+    id: 'igdas-koyu-yesil-bahce',
+    label: 'Bahçe Duvarı Koyu Yeşil · Sarı Borulu',
+    comboSummary: 'Kutu: RAL 6005 Peyzaj Yeşili · Kaide: Beton · Boru: İGDAŞ Sarı',
+    materialKind: 'metal',
+    comboRole: 'exterior_outdoor',
+    partFinishes: {
+      primary: { hex: '#234433', roughness: 0.38, metalness: 0.28, partLabel: 'Peyzaj Yeşili Çelik Kutu' },
+      secondary: { hex: '#94A3B8', roughness: 0.74, metalness: 0.06, partLabel: 'Beton Kaide' },
+      accent: { hex: '#EAB308', roughness: 0.34, metalness: 0.22, partLabel: 'İGDAŞ Sarı Uyarı' },
+    },
+  }),
+];
+
+const LINEAR_DRAIN_FINISHES: MaterialFinish[] = [
+  makeFinish({
+    id: 'suzgec-fircali-inox',
+    label: 'AISI 304 Fırçalı Paslanmaz Çelik · Çizgi Izgara',
+    comboSummary: 'Kapak & Çerçeve: 304 Fırçalı Paslanmaz · Sifon Gövde: Antrasit ABS',
+    materialKind: 'metal',
+    comboRole: 'faucet_hardware',
+    partFinishes: {
+      primary: { hex: '#D5DCE3', roughness: 0.22, metalness: 0.94, partLabel: '304 Fırçalı Paslanmaz Izgara' },
+      secondary: { hex: '#2B313B', roughness: 0.56, metalness: 0.14, partLabel: 'ABS Sifon & Koku Önleyici' },
+      accent: { hex: '#9CA3AF', roughness: 0.26, metalness: 0.9, partLabel: 'Yalıtım Eteği & Flanş' },
+    },
+  }),
+  makeFinish({
+    id: 'suzgec-mat-siyah',
+    label: 'PVD Mat Siyah · Modern Walk-in Duş',
+    comboSummary: 'Kapak & Çerçeve: PVD Mat Siyah Paslanmaz · Sifon: ABS',
+    materialKind: 'metal',
+    comboRole: 'faucet_hardware',
+    partFinishes: {
+      primary: { hex: '#23262D', roughness: 0.38, metalness: 0.78, partLabel: 'PVD Mat Siyah Izgara' },
+      secondary: { hex: '#1E2228', roughness: 0.58, metalness: 0.12, partLabel: 'ABS Sifon Haznesi' },
+      accent: { hex: '#3B424E', roughness: 0.36, metalness: 0.65, partLabel: 'Çerçeve Flanşı' },
+    },
+  }),
+  makeFinish({
+    id: 'suzgec-fircali-gold',
+    label: 'PVD Fırçalı Gold · Lüks Villa Banyo',
+    comboSummary: 'Kapak & Çerçeve: PVD Fırçalı Gold · Sifon: Antrasit ABS',
+    materialKind: 'metal',
+    comboRole: 'faucet_hardware',
+    partFinishes: {
+      primary: { hex: '#D4B062', roughness: 0.24, metalness: 0.94, partLabel: 'PVD Fırçalı Gold Izgara' },
+      secondary: { hex: '#2B313B', roughness: 0.56, metalness: 0.14, partLabel: 'ABS Sifon Haznesi' },
+      accent: { hex: '#B89246', roughness: 0.26, metalness: 0.9, partLabel: 'Gold Çerçeve Flanşı' },
+    },
+  }),
+  makeFinish({
+    id: 'suzgec-fume-gunmetal',
+    label: 'PVD Füme Gunmetal · Minimalist Banyo',
+    comboSummary: 'Kapak & Çerçeve: PVD Füme Gunmetal · Sifon: Antrasit ABS',
+    materialKind: 'metal',
+    comboRole: 'faucet_hardware',
+    partFinishes: {
+      primary: { hex: '#525864', roughness: 0.26, metalness: 0.9, partLabel: 'PVD Gunmetal Izgara' },
+      secondary: { hex: '#252A32', roughness: 0.56, metalness: 0.14, partLabel: 'ABS Sifon Haznesi' },
+      accent: { hex: '#6B7280', roughness: 0.28, metalness: 0.86, partLabel: 'Gunmetal Flanş' },
+    },
+  }),
+  makeFinish({
+    id: 'suzgec-rose-gold-bronz',
+    label: 'PVD Rose Gold / Saten Bronz · Spa Banyo',
+    comboSummary: 'Kapak & Çerçeve: PVD Rose Gold / Bronz · Sifon: Antrasit ABS',
+    materialKind: 'metal',
+    comboRole: 'faucet_hardware',
+    partFinishes: {
+      primary: { hex: '#B9836A', roughness: 0.24, metalness: 0.92, partLabel: 'PVD Rose Gold Izgara' },
+      secondary: { hex: '#2B313B', roughness: 0.56, metalness: 0.14, partLabel: 'ABS Sifon Haznesi' },
+      accent: { hex: '#9A6B55', roughness: 0.28, metalness: 0.88, partLabel: 'Bronz Flanş' },
+    },
+  }),
+];
+
 function createMepAsset(params: {
   id: string;
   slug: string;
   name: string;
   brandStyle: string;
   category: AssetCategory;
+  subCategory?: BathroomSubCategory;
   archetype: AssetArchetype;
   placement: PlacementType;
   dimensionsCm: AssetDimensionsCm;
@@ -832,6 +1028,7 @@ function createMepAsset(params: {
     name: params.name,
     brandStyle: params.brandStyle,
     category: params.category,
+    ...(params.subCategory ? { subCategory: params.subCategory } : {}),
     archetype: params.archetype,
     placement: params.placement,
     dimensionsCm: params.dimensionsCm,
@@ -893,7 +1090,7 @@ export const TURKISH_MEP_ASSETS: ArchitecturalAsset[] = [
     slug: 'viko-panasonic-24lu-siva-alti-sigorta-kutusu',
     name: "Viko by Panasonic 24'lü Sıva Altı Sigorta Kutusu (Otomat & Kaçak Akım)",
     brandStyle: "Viko by Panasonic · 24'lü Sıva Altı Elektrik Panosu",
-    category: 'Mimari & Çalışma',
+    category: 'Elektrik Tesisatı',
     archetype: 'tr_fuse_box',
     placement: 'wall-mounted',
     dimensionsCm: { width: 32, depth: 11, height: 42, mountHeight: 165 },
@@ -933,7 +1130,7 @@ export const TURKISH_MEP_ASSETS: ArchitecturalAsset[] = [
     slug: 'siemens-18li-siva-alti-elektrik-dagitim-panosu',
     name: "Siemens 18'li Sıva Altı Elektrik Dağıtım Panosu (5SL6 & 5SV Kaçak Akım)",
     brandStyle: 'Siemens · 5SL6 / 5SV Sıva Altı Dağıtım Panosu',
-    category: 'Mimari & Çalışma',
+    category: 'Elektrik Tesisatı',
     archetype: 'tr_fuse_box',
     placement: 'wall-mounted',
     dimensionsCm: { width: 38, depth: 11, height: 34, mountHeight: 165 },
@@ -971,7 +1168,7 @@ export const TURKISH_MEP_ASSETS: ArchitecturalAsset[] = [
     slug: 'audio-7-inc-dokunmatik-goruntulu-diafon-interkom',
     name: 'Audio 7" Dokunmatik Görüntülü Diafon & Akıllı Ev İnterkom Paneli',
     brandStyle: 'Audio · 7" HD Görüntülü Diafon & Kapı Otomatiği',
-    category: 'Mimari & Çalışma',
+    category: 'Elektrik Tesisatı',
     archetype: 'tr_video_intercom',
     placement: 'wall-mounted',
     dimensionsCm: { width: 22, depth: 3, height: 15, mountHeight: 145 },
@@ -1009,7 +1206,7 @@ export const TURKISH_MEP_ASSETS: ArchitecturalAsset[] = [
     slug: 'viko-karre-tv-uydu-sat-rj45-data-ikili-priz',
     name: 'Viko Karre TV-Uydu (SAT) + RJ45 Cat6 İnternet İkili Priz Seti',
     brandStyle: 'Viko by Panasonic · Karre TV-SAT + Cat6 Data İkili Priz',
-    category: 'Mimari & Çalışma',
+    category: 'Elektrik Tesisatı',
     archetype: 'tr_tv_data_socket',
     placement: 'wall-mounted',
     dimensionsCm: { width: 16, depth: 4, height: 9, mountHeight: 40 },
@@ -1432,6 +1629,321 @@ export const TURKISH_MEP_ASSETS: ArchitecturalAsset[] = [
       'COP panelinde okunaklı Z, 1, 2, 3, 4, 5, 6, 7, 8 tuş dizilimi, sarı acil alarm butonu ve EN 81-20 CE kapasite plakası.',
     ],
     lightingTip: 'Kabin iç mekan renderında kamera 24–28 mm geniş açıyla ön eşikten içeri bakacak şekilde konumlandırın; tavan LED difüzörü doğal dolgu ışığı sağlar.',
+  }),
+
+  // 15. Daikin / Arçelik Inverter Split Klima Dış Ünitesi & Duvar Konsolu (Dış Cephe)
+  createMepAsset({
+    id: 'tr-daikin-klima-dis-unite',
+    slug: 'daikin-arcelik-inverter-split-klima-dis-unitesi-konsol',
+    name: 'Daikin / Arçelik Inverter Split Klima Dış Ünitesi & Duvar Konsolu (80×30×55 cm)',
+    brandStyle: 'Daikin / Arçelik · R32 Inverter Klima Dış Ünite & L-Konsol Seti',
+    category: 'Dış Cephe',
+    archetype: 'tr_ac_outdoor_unit',
+    placement: 'wall-mounted',
+    dimensionsCm: { width: 80, depth: 34, height: 56, mountHeight: 160 },
+    polyEstimate: 14600,
+    thumbnailUrl: '/assets/turkish-gaps/daikin-inverter-klima-dis-unite-konsol.png',
+    searchKeywords: [
+      'klima dış ünite',
+      'klima motoru',
+      'split klima',
+      'daikin',
+      'arçelik',
+      'dış cephe klima',
+      'balkon kliması',
+      'klima konsolu',
+      'mekanik mühendislik',
+      'dış cephe',
+    ],
+    roomTags: ['Dış Cephe', 'Balkon', 'Villa Terası', 'Apartman Cephesi'],
+    aiSummary:
+      'Türkiye apartman balkonları ve villa dış cephe renderlarının olmazsa olmazı Daikin / Arçelik R32 inverter split klima dış ünitesi. Koruyucu dairesel fan ızgarası, 3 kanatlı aksiyel pervane, L-tipi duvar askı konsolları, kauçuk titreşim takozları ve izoleli çift bakır gaz borusu bağlantısı ile gerçekçi dış cephe CAD modeli.',
+    finishes: SPLIT_AC_FINISHES,
+    surfaceType: 'Elektrostatik Fırın Boyalı Galvaniz Sac + Siyah Koruyucu Fan Izgarası + Bakır Servis Vanası',
+    geometryBreakdown: [
+      '78×29×55 cm korozyona dayanıklı dış cephe kompresör gövdesi ve üst servis kapağı.',
+      'Sol ön cephede dairesel koruyucu tel ızgara arkasında 3 kanatlı koyu aksiyel fan pervanesi.',
+      'Altında 2 adet L-profil çelik duvar konsolu, kauçuk titreşim takozu ve sağ yanda koruma kapaklı çift izoleli bakır tesisat borusu.',
+    ],
+    microDetails: [
+      'Sağ ön yüzeyde net DAIKIN INVERTER R32 teknik etiketi ve arka kısımda alüminyum kondenser serpantin lamelleri.',
+    ],
+    lightingTip: 'Dış cephe ve balkon renderlarında güneş ışığını 35° açıyla vererek dairesel fan ızgarasının gölgesini kompresör kasasına düşürün.',
+  }),
+
+  // 16. İGDAŞ / BaşkentGaz Dış Cephe Doğalgaz Servis Kutusu (Sarı Çelik Kutu)
+  createMepAsset({
+    id: 'tr-igdas-dogalgaz-servis-kutusu',
+    slug: 'igdas-dis-cephe-dogalgaz-servis-kutusu-sari',
+    name: 'İGDAŞ / BaşkentGaz Dış Cephe Doğalgaz Servis Kutusu — Sarı Çelik Kutu (42×22×52 cm)',
+    brandStyle: 'İGDAŞ / BaşkentGaz · S-200 Dış Cephe Doğalgaz Servis Kutusu',
+    category: 'Dış Cephe',
+    archetype: 'tr_gas_service_box',
+    placement: 'exterior-ground',
+    dimensionsCm: { width: 42, depth: 22, height: 86 },
+    polyEstimate: 7800,
+    thumbnailUrl: '/assets/turkish-gaps/igdas-dis-cephe-dogalgaz-servis-kutusu.png',
+    searchKeywords: [
+      'igdaş',
+      'doğalgaz kutusu',
+      'servis kutusu',
+      'sarı kutu',
+      'başkentgaz',
+      'izmirgaz',
+      'doğalgaz kolon',
+      'dış cephe',
+      'bina girişi',
+      'mekanik mühendislik',
+    ],
+    roomTags: ['Dış Cephe', 'Villa Bahçe Duvarı', 'Apartman Girişi', 'Cephe Tesisatı'],
+    aiSummary:
+      'Türkiye’deki her apartman ve villa cephesinde yer alan İGDAŞ / BaşkentGaz S-200 tipi sarı çelik doğalgaz servis kutusu. Üçgen servis kilidi, havalandırma panjurları, İGDAŞ · DOĞALGAZ uyarı baskısı, beton zemin kaidesi ve binaya yükselen sarı çelik kolon borusuyla dış cephe renderlarına anında Türkiye gerçekçiliği katar.',
+    finishes: GAS_SERVICE_BOX_FINISHES,
+    surfaceType: 'RAL 1021 İGDAŞ Sarısı Elektrostatik Çelik + Beton Kaide + Sarı Çelik Kolon Borusu',
+    geometryBreakdown: [
+      '42×22×52 cm eğimli yağmur şapkalı çelik servis kutusu, ön kapak menteşeleri ve üçgen kilit rozeti.',
+      'Kapak alt ve üstünde damgalı gaz havalandırma panjurları ve sarı/siyah alev tehlike + İGDAŞ uyarı levhası.',
+      'Altında 24 cm beton tesisat kaidesi ve üst çıkışta duvar kelepçeli DN32 sarı doğalgaz kolon yükseltme borusu.',
+    ],
+    microDetails: [
+      'Ön kapakta okunaklı "İGDAŞ · DOĞALGAZ SERVİS KUTUSU · 187 ACİL" teknik uyarı grafiği.',
+    ],
+    lightingTip: 'Apartman giriş cephesi veya villa bahçe duvarı köşesinde zemin sıfır noktasına yerleştirerek dış mekan mimari gerçekçiliğini güçlendirin.',
+  }),
+
+  // 17. TS EN 671-1 Sıva Altı Apartman Yangın Dolabı (Hortum Makarası + 6 kg KKT Tüp)
+  createMepAsset({
+    id: 'tr-yangin-dolabi-siva-alti',
+    slug: 'ts-en-671-1-siva-alti-apartman-yangin-dolabi-tup',
+    name: 'TS EN 671-1 Sıva Altı Apartman Yangın Dolabı (Hortum Makarası + 6 kg KKT Tüp)',
+    brandStyle: 'Üçyıldız / Norm · TS EN 671-1 Hortum Makaralı & Tüplü Yangın Dolabı',
+    category: 'Mimari & Çalışma',
+    archetype: 'tr_fire_hose_cabinet',
+    placement: 'wall-mounted',
+    dimensionsCm: { width: 80, depth: 22, height: 80, mountHeight: 100 },
+    polyEstimate: 15200,
+    thumbnailUrl: '/assets/turkish-gaps/ts-en-671-siva-alti-yangin-dolabi.png',
+    searchKeywords: [
+      'yangın dolabı',
+      'yangın hortumu',
+      'yangın tüpü',
+      'ts en 671',
+      'apartman holü',
+      'merdiven sahanlığı',
+      'mekanik mühendislik',
+      'yangın tesisatı',
+      'kkt tüp',
+    ],
+    roomTags: ['Apartman Holü', 'Merdiven Sahanlığı', 'Rezidans Koridoru', 'Otopark'],
+    aiSummary:
+      'Binaların Yangından Korunması Hakkında Yönetmelik ve TS EN 671-1 standardına uygun 80×80×22 cm sıva altı apartman yangın dolabı. Şeffaf/füme gözetleme camı arkasında sarılı yarı sert kırmızı yangın hortumu makarası, pirinç jet-sprey lansı ve sağ bölmede 6 kg ABC kuru kimyevi tozlu (KKT) yangın söndürme tüpü yer alır.',
+    finishes: FIRE_CABINET_FINISHES,
+    surfaceType: 'RAL 3000 Elektrostatik Çelik / 304 İnox Kasa + Temperli Cam + Kırmızı Hortum Makarası & KKT Tüp',
+    geometryBreakdown: [
+      '80×80×22 cm sıva altı çelik gömme kasa, 2.5 cm duvar taşma çerçevesi, krom bas-aç kulp ve temperli cam gözetleme penceresi.',
+      'Sol bölmede Ø48 cm döner çelik makara üzerinde katmanlı 3D kırmızı yangın hortumu, pirinç vana ve jet-sprey lans ucu.',
+      'Sağ bölmede manometreli, tetikli ve hortumlu 6 kg ABC KKT yangın söndürme tüpü.',
+    ],
+    microDetails: [
+      'Üst çerçeve bandında net "YANGIN DOLABI · TS EN 671-1" ikonu ve tüp üzerinde kırmızı-beyaz ABC talimat etiketi.',
+    ],
+    lightingTip: 'Asansör kapısı ve kat holü renderlarında yerden 100 cm alt kotta yerleştirin; temperli camdan iç kırmızı makara ve tüp silüeti okunur.',
+  }),
+
+  // 18. Viko Karre IP44 Kapaklı Banyo & Balkon Topraklı Prizi (Type F Schuko)
+  createMepAsset({
+    id: 'tr-viko-karre-ip44-kapakli-priz',
+    slug: 'viko-karre-ip44-kapakli-banyo-balkon-prizi',
+    name: 'Viko Karre IP44 Kapaklı Banyo & Balkon Topraklı Prizi (Type F Schuko)',
+    brandStyle: 'Viko by Panasonic · Karre IP44 Sızdırmaz Kapaklı Schuko Priz',
+    category: 'Elektrik Tesisatı',
+    archetype: 'tr_ip44_lidded_socket',
+    placement: 'wall-mounted',
+    dimensionsCm: { width: 9, depth: 5, height: 9, mountHeight: 115 },
+    polyEstimate: 4600,
+    thumbnailUrl: '/assets/turkish-gaps/viko-karre-ip44-kapakli-banyo-prizi.png',
+    searchKeywords: [
+      'kapaklı priz',
+      'banyo prizi',
+      'balkon prizi',
+      'ip44 priz',
+      'viko',
+      'karre',
+      'schuko',
+      'topraklı priz',
+      'elektrik tesisatı',
+    ],
+    roomTags: ['Banyo', 'Balkon', 'Teras', 'Çamaşır Odası', 'Mutfak'],
+    aiSummary:
+      'Türkiye banyo lavabo yanları, çamaşır odaları ve balkon/teras duvarları için zorunlu Viko Karre IP44 yaylı kapaklı, su sıçramasına dayanıklı Avrupa tipi (Type F Schuko) topraklı priz. Yarı şeffaf/opak menteşeli koruma kapağı, kauçuk sızdırmazlık contası ve alt parmak açma tırnağıyla 1:1 ölçekli.',
+    finishes: VIKO_SOCKET_FINISHES,
+    surfaceType: 'IP44 Polikarbonat Çerçeve + Yaylı Koruma Kapağı + Kauçuk Conta + Nikel Schuko Topraklama',
+    geometryBreakdown: [
+      '8.8×8.8 cm Viko Karre çerçeve, IP44 siyah/gri sızdırmazlık conta halkası ve üstten yaylı menteşeli koruyucu kapak.',
+      'Hafif aralık/yarı saydam kapak altında Avrupa tipi (Type F) dairesel priz kuyusu, çift kutup deliği ve üst-alt metal topraklama klipsleri.',
+    ],
+    microDetails: [
+      'Kapak ön yüzünde "VIKO · IP44" kabartma işareti ve su damlası koruma piktogramı.',
+    ],
+    lightingTip: 'Banyo aynası yanında 115–120 cm kotta veya balkon duvarında 45 cm kotta seramik derz hizasına yerleştirin.',
+  }),
+
+  // 19. Makel / Luna 3 Fazlı Dijital Elektrik Sayacı & Apartman Sayaç Panosu
+  createMepAsset({
+    id: 'tr-makel-elektrik-sayac-panosu',
+    slug: 'makel-luna-3-fazli-dijital-elektrik-sayaci-panosu',
+    name: 'Makel / Luna 3 Fazlı Dijital Elektrik Sayacı & Apartman Sayaç Panosu (36×16×48 cm)',
+    brandStyle: 'Makel / Luna · M560 TEDAŞ Onaylı Dijital kWh Sayaç & Şaft Panosu',
+    category: 'Elektrik Tesisatı',
+    archetype: 'tr_electric_meter_panel',
+    placement: 'wall-mounted',
+    dimensionsCm: { width: 36, depth: 16, height: 48, mountHeight: 150 },
+    polyEstimate: 11200,
+    thumbnailUrl: '/assets/turkish-gaps/makel-luna-elektrik-sayac-panosu.png',
+    searchKeywords: [
+      'elektrik sayacı',
+      'makel',
+      'luna',
+      'sayaç panosu',
+      'tedaş',
+      'bedaş',
+      'elektrik şaftı',
+      'kwh sayacı',
+      'elektrik mühendisliği',
+      'apartman panosu',
+    ],
+    roomTags: ['Apartman Şaftı', 'Teknik Oda', 'Villa Garajı', 'Bina Girişi'],
+    aiSummary:
+      'Türkiye apartman elektrik şaftları ve müstakil villa girişleri için Makel / Luna 3 fazlı çok tarifeli dijital elektrik sayacı (T1/T2/T3) ve sıva üstü şaft panosu. Arkadan aydınlatmalı LCD kWh ekranı, optik okuma portu, mühürlü klemens kapağı ve 3x40A ana kesici şalteriyle gerçekçi elektrik mühendisliği varlığı.',
+    finishes: FUSE_BOX_FINISHES,
+    surfaceType: 'RAL 7035 Çelik Sayaç Panosu + Polikarbonat Makel Sayaç + LCD Ekran + 3 Faz Otomat',
+    geometryBreakdown: [
+      '36×16×48 cm gözetleme pencereli metal/polikarbonat apartman sayaç panosu ve 3 fazlı 40A ana sigorta.',
+      'İçeride Makel / Luna M560 3 fazlı elektronik kWh sayacı, T1/T2/T3 arkadan aydınlatmalı LCD ekran, kırmızı darbe LED’i ve dairesel optik okuma portu.',
+      'Alt kısımda mühürlenebilir şeffaf klemens koruma kapağı ve 4’lü bakır/PVC faz kablo girişleri.',
+    ],
+    microDetails: [
+      'Sayaç ön panelinde net "MAKEL · M560 · 3x230/400V · 01482.6 kWh" LCD ekran grafiği ve CE/MID onay işareti.',
+    ],
+    lightingTip: 'Villa teknik odası veya apartman merdiven altı elektrik şaftında yerden 150 cm kotta konumlandırın.',
+  }),
+
+  // 20. Mavili Maxlogic / Teknim İGDAŞ Doğalgaz Kaçak Alarmı & Optik Duman Dedektörü Seti
+  createMepAsset({
+    id: 'tr-mavili-gaz-duman-dedektoru',
+    slug: 'mavili-teknim-igdas-dogalgaz-alarmi-duman-dedektoru',
+    name: 'Mavili Maxlogic / Teknim İGDAŞ Doğalgaz Kaçak Alarmı & Duman Dedektörü (14×6×22 cm)',
+    brandStyle: 'Mavili / Teknim · TS EN 50194 Doğalgaz Kaçak Dedektörü & Yangın Sensörü',
+    category: 'Elektrik Tesisatı',
+    archetype: 'tr_gas_smoke_detector',
+    placement: 'wall-mounted',
+    dimensionsCm: { width: 14, depth: 6, height: 22, mountHeight: 230 },
+    polyEstimate: 5600,
+    thumbnailUrl: '/assets/turkish-gaps/mavili-igdas-dogalgaz-duman-dedektoru.png',
+    searchKeywords: [
+      'doğalgaz dedektörü',
+      'gaz alarmı',
+      'duman dedektörü',
+      'yangın sensörü',
+      'mavili',
+      'teknim',
+      'igdaş',
+      'mutfak güvenliği',
+      'zayıf akım',
+      'elektrik mühendisliği',
+    ],
+    roomTags: ['Mutfak', 'Kombi Balkonu', 'Koridor', 'Kazan Dairesi'],
+    aiSummary:
+      'İGDAŞ doğalgaz açılış şartnamesine uygun mutfak doğalgaz (metan) kaçak alarm cihazı (duvar tipi, tavandan 15–30 cm aşağıda) ve eşleşen EN 54 optik duman dedektörü. Havalandırma sensör ızgaraları, yeşil enerji / sarı hata / kırmızı alarm LED’leri ve TEST/RESET butonuyla modern Türk mutfak renderlarını tamamlar.',
+    finishes: INTERCOM_FINISHES,
+    surfaceType: 'Alev Geciktirici ABS Gövde + Sensör Panjur Izgarası + 3 Renk Durum LED’i',
+    geometryBreakdown: [
+      '12×4.5×16 cm yuvarlatılmış duvar tipi doğalgaz kaçak alarm ünitesi, çift sıralı metan sensör ızgarası, 3 durum LED’i ve TEST butonu.',
+      'Altında esnek besleme kablo rakoru ve üst modülde kompakt EN 54 optik duman sensör başlığı.',
+    ],
+    microDetails: [
+      'Ön yüzeyde "MAVİLİ · DOĞALGAZ / METAN ALARM · TS EN 50194" baskısı ve yumuşak yeşil güç LED parıltısı.',
+    ],
+    lightingTip: 'Mutfak ocağı veya kombi yakınında tavandan 20–30 cm aşağıda (yaklaşık 230 cm kot) duvara yerleştirin.',
+  }),
+
+  // 21. DemirDöküm DT4 Titanium / Baymak 65L Elektrikli Termosifon
+  createMepAsset({
+    id: 'tr-demirdokum-dt4-termosifon-65l',
+    slug: 'demirdokum-dt4-titanium-65l-elektrikli-termosifon',
+    name: 'DemirDöküm DT4 Titanium / Baymak 65L Elektrikli Termosifon (44×45×76 cm)',
+    brandStyle: 'DemirDöküm · DT4 Titanium Digital 65L Silindirik Termosifon',
+    category: 'Mimari & Çalışma',
+    archetype: 'tr_electric_water_heater',
+    placement: 'wall-mounted',
+    dimensionsCm: { width: 44, depth: 45, height: 76, mountHeight: 140 },
+    polyEstimate: 10400,
+    thumbnailUrl: '/assets/turkish-gaps/demirdokum-dt4-65l-elektrikli-termosifon.png',
+    searchKeywords: [
+      'termosifon',
+      'şofben',
+      'demirdöküm',
+      'baymak',
+      'elektrikli su ısıtıcı',
+      '65 litre',
+      'dt4 titanium',
+      'yazlık villa',
+      'banyo tesisat',
+      'mekanik mühendislik',
+    ],
+    roomTags: ['Banyo', 'Yazlık Villa', 'Çamaşır Odası', 'Teknik Oda'],
+    aiSummary:
+      'Bodrum, Çeşme, Antalya sahil villaları ve doğalgazsız Türk konutlarının standardı DemirDöküm DT4 Titanium 65 litre silindirik duvar tipi elektrikli termosifon. Parlak beyaz titanyum emaye silindirik kazan, siyah dijital derece göstergesi (55°C), emniyet tahliye ventili ve mavi/kırmızı soğuk-sıcak flex bağlantılarıyla eksiksiz.',
+    finishes: BAYMAK_BOILER_FINISHES,
+    surfaceType: 'Titanyum Emaye Silindirik Çelik Gövde + Siyah Dijital LED Panel + Pirinç Emniyet Ventili',
+    geometryBreakdown: [
+      'Ø44×66 cm bombe üst-alt kapaklı silindirik termosifon kazanı ve arka çelik duvar askı konsolları.',
+      'Alt ön yüzeyde siyah cam dijital sıcaklık paneli (55°C · ECO), güç düğmesi ve DemirDöküm DT4 Titanium marka grafiği.',
+      'Alt kısımda mavi soğuk su girişi (pirinç çekvalf emniyet ventilli), kırmızı sıcak su çıkışı ve örgülü çelik flex hortum bağlantıları.',
+    ],
+    microDetails: [
+      'Kazan üzerinde net DemirDöküm DT4 Titanium logosu ve mavi/kırmızı su bağlantısı renk kodlaması.',
+    ],
+    lightingTip: 'Banyo veya teknik oda duvarına yerden 140 cm alt kotta asın; silindirik parlak emaye yüzeyde dikey yumuşak ışık şeridi oluşturun.',
+  }),
+
+  // 22. Sukar / Geberit CleanLine 60 cm Paslanmaz Çelik Lineer Duş & Balkon Yer Süzgeci
+  createMepAsset({
+    id: 'tr-sukar-lineer-dus-suzgeci',
+    slug: 'sukar-geberit-60cm-paslanmaz-lineer-dus-yer-suzgeci',
+    name: 'Sukar / Geberit CleanLine 60 cm Paslanmaz Çelik Lineer Duş & Balkon Yer Süzgeci',
+    brandStyle: 'Sukar / Geberit · AISI 304 60 cm Lineer Duş Kanalı & Koku Önleyici Sifon',
+    category: 'Banyo',
+    subCategory: 'Duşakabin & Küvet',
+    archetype: 'tr_linear_floor_drain',
+    placement: 'floor',
+    dimensionsCm: { width: 60, depth: 11, height: 8 },
+    polyEstimate: 7400,
+    thumbnailUrl: '/assets/turkish-gaps/sukar-60cm-paslanmaz-lineer-dus-suzgeci.png',
+    searchKeywords: [
+      'yer süzgeci',
+      'lineer süzgeç',
+      'duş kanalı',
+      'sukar',
+      'geberit cleanline',
+      'duş gideri',
+      'banyo gideri',
+      'balkon süzgeci',
+      'sıhhi tesisat',
+    ],
+    roomTags: ['Banyo', 'Walk-in Duş', 'Balkon', 'Villa Terası', 'Çamaşır Odası'],
+    aiSummary:
+      'Modern Türk walk-in duşakabin zeminleri ve villa balkonlarında kullanılan Sukar / Geberit CleanLine 60 cm AISI 304 paslanmaz çelik lineer yer süzgeci. Hassas kesimli ince oluklu fırçalı paslanmaz kapak, çevre seramik izolasyon flansı ve alt koku önleyici Ø50 mm ABS sifon çıkışıyla zemin kotuna tam gömülür.',
+    finishes: LINEAR_DRAIN_FINISHES,
+    surfaceType: 'AISI 304 Fırçalı Paslanmaz / PVD Kapak + Su Yalıtım Flansı + ABS Sifon',
+    geometryBreakdown: [
+      '60×7 cm sıfır kotlu paslanmaz çelik dış kanal çerçevesi ve çıkarılabilir ince çizgi kanallı (slot) paslanmaz ızgara kapağı.',
+      'Kanal çevresinde delikli su yalıtım eteği (flanş) ve altında Ø50 mm yatay PVC/ABS koku önleyici sifon haznesi.',
+    ],
+    microDetails: [
+      'Izgara kenarında lazer kazıma SUKAR AISI 304 detayı ve mikro pahlı su akış boşlukları.',
+    ],
+    lightingTip: 'Walk-in duş zemininde arka duvardan 8–10 cm içeride seramik üst yüzeyle sıfır kotta konumlandırın.',
   }),
 ];
 

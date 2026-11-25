@@ -17,6 +17,7 @@ import {
 } from './expandedInteriorAssets';
 import { LAUNDRY_CATALOG_ASSETS } from './laundryCatalogAssets';
 import { TURKISH_GAP_ASSETS } from './turkishGapAssets';
+import { READY_MADE_HOME_STUDY_TOYS_ASSETS } from './readyMadeHomeStudyToysAssets';
 import { getRetailFinishesForAsset } from './retailColorCombos';
 import {
   applyTurkishMarketLocalization,
@@ -32,8 +33,12 @@ export const CATEGORY_LIST: Array<AssetCategory | 'Tümü'> = [
   'Banyo',
   'Salon',
   'Yatak Odası',
+  'Çocuk & Oyun',
   'Yemek & Mutfak',
+  'Mutfak Ankastre',
+  'Antre & Giriş',
   'Mimari & Çalışma',
+  'Elektrik Tesisatı',
   'Aydınlatma',
   'Dekor & Bitki',
   'Dış Cephe',
@@ -2219,6 +2224,68 @@ const BASE_TURKISH_ASSETS: ArchitecturalAsset[] = [
   }),
 
   buildPolyHavenAsset({
+    phId: 'drawer_cabinet',
+    id: 'ph-drawer-cabinet',
+    slug: 'cok-cekmeceli-ahsap-metal-antre-konsol-dolabi',
+    name: 'Çok Çekmeceli Modern Ahşap & Metal Antre Konsol Dolabı (114 cm)',
+    brandStyle: 'Kelebek / Vivense · Antre Çok Gözlü Depolama Konsolu',
+    category: 'Antre & Giriş',
+    placement: 'floor',
+    dimensionsCm: { width: 114, depth: 49, height: 188 },
+    polyEstimate: 26406,
+    materialKind: 'wood',
+    primaryHex: '#7A5438',
+    secondaryHex: '#282C33',
+    accentHex: '#C59E56',
+    roughness: 0.46,
+    metalness: 0.14,
+    surfaceType: 'Masif Ahşap Çekmeceler & Mat Siyah Metal Gövde',
+    searchKeywords: [
+      'antre dolabı',
+      'antre konsol',
+      'çok çekmeceli dolap',
+      'dresuar',
+      'daire girişi',
+      'vestiyer yanı dolap',
+      'depolama dolabı',
+    ],
+    roomTags: ['antre', 'daire girişi', 'hol', 'villa girişi'],
+    aiSummary:
+      'Geniş apartman ve villa antrelerinde eldiven, atkı, fatura, anahtar ve ayakkabı bakım ürünleri için 26.4k üçgen detaylı çok çekmeceli ahşap-metal antre konsol dolabı (Poly Haven CC0).',
+  }),
+
+  buildPolyHavenAsset({
+    phId: 'Shelf_01',
+    id: 'ph-shelf-01',
+    slug: 'masif-ahsap-ince-antre-ayakkabi-duzenleyici-raf',
+    name: 'Masif Ahşap İnce (26 cm) Çok Katlı Antre & Ayakkabı Düzenleyici Raf (100×208 cm)',
+    brandStyle: 'Adore / Vivense · Dar Antre Açık Ayakkabılık & Düzenleyici',
+    category: 'Antre & Giriş',
+    placement: 'floor',
+    dimensionsCm: { width: 100, depth: 26, height: 208 },
+    polyEstimate: 182,
+    materialKind: 'wood',
+    primaryHex: '#B68A5C',
+    secondaryHex: '#7C5839',
+    accentHex: '#3A3E46',
+    roughness: 0.56,
+    metalness: 0.04,
+    surfaceType: 'Doğal Masif Çam / Meşe İnce Duvar Rafı',
+    searchKeywords: [
+      'ayakkabı rafı',
+      'dar antre rafı',
+      'ince ayakkabılık',
+      'antre düzenleyici',
+      'açık ayakkabılık',
+      '26 cm raf',
+      'daire girişi',
+    ],
+    roomTags: ['dar antre', 'daire girişi', 'kapı arkası', 'koridor'],
+    aiSummary:
+      'Sadece 26 cm derinliğiyle en dar apartman antrelerine ve kapı arkalarına sığan, 100×208 cm tam boy doğal ahşap çok katlı ayakkabı & sepet düzenleyici raf (Poly Haven CC0).',
+  }),
+
+  buildPolyHavenAsset({
     phId: 'small_wooden_table_01',
     id: 'ph-small-wooden-table-01',
     slug: 'masif-ahsap-yan-sehpa-92',
@@ -2388,8 +2455,11 @@ const BASE_TURKISH_ASSETS: ArchitecturalAsset[] = [
   // 42 Verified Laundry Room Assets (8 Custom Pinterest Architectural Cabinets + 34 Ready-Made USDCraft GLBs)
   ...LAUNDRY_CATALOG_ASSETS,
 
-  // 16 Critical Turkish Branded Architectural Gap Models (VitrA Alaturka, Geberit Sigma20/30, Viko/Schneider Schuko, Bosch/Siemens/Arçelik/Beko, E.C.A., Vaillant, Demirdöküm, Sur/Kale, Pelsan, Bioetanol Şömine)
+  // 107 Critical Turkish Branded Architectural CAD Models (MEP, Electrical, Lighting, Entryway, Kitchen Built-In, Wardrobes, Study & Kids Toys)
   ...TURKISH_GAP_ASSETS,
+
+  // 79 Verified Ready-Made External 3D Models (Wardrobes, Bookcases, Desks, Laptops, Stationery, Textbooks & Kids/Baby Toys)
+  ...READY_MADE_HOME_STUDY_TOYS_ASSETS,
 ];
 
 export const PROCEDURAL_RUG_DESIGNER_FINISHES: MaterialFinish[] = [

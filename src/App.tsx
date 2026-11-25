@@ -17,11 +17,21 @@ import { MasterInstructionsView } from './components/MasterInstructionsView';
 import { SceneDrawer } from './components/SceneDrawer';
 
 export default function App() {
-  const [activeView, setActiveView] = useState<AppView>('catalog');
+  const initialStudioParam =
+    typeof window !== 'undefined'
+      ? new URLSearchParams(window.location.search).get('studio')
+      : null;
+  const matchedInitialAsset = initialStudioParam
+    ? INITIAL_TURKISH_ASSETS.find((a) => a.id === initialStudioParam)
+    : undefined;
+
+  const [activeView, setActiveView] = useState<AppView>(
+    matchedInitialAsset ? 'studio' : 'catalog',
+  );
   const [assets, setAssets] = useState<ArchitecturalAsset[]>(INITIAL_TURKISH_ASSETS);
   const [selection, setSelection] = useState<SceneSelectionItem[]>([]);
   const [activeStudioAssetId, setActiveStudioAssetId] = useState<string>(
-    INITIAL_TURKISH_ASSETS[0].id,
+    matchedInitialAsset ? matchedInitialAsset.id : INITIAL_TURKISH_ASSETS[0].id,
   );
   const [studioInitialFinishId, setStudioInitialFinishId] = useState<string | undefined>(undefined);
   const [drawerOpen, setDrawerOpen] = useState(false);

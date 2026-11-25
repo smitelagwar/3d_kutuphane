@@ -19,6 +19,14 @@ export const TURKISH_MEP_ARCHETYPES = new Set<AssetArchetype>([
   'tr_water_meter_group',
   'tr_elevator_landing',
   'tr_elevator_cabin',
+  'tr_ac_outdoor_unit',
+  'tr_gas_service_box',
+  'tr_fire_hose_cabinet',
+  'tr_ip44_lidded_socket',
+  'tr_electric_meter_panel',
+  'tr_gas_smoke_detector',
+  'tr_electric_water_heater',
+  'tr_linear_floor_drain',
 ]);
 
 export function isTurkishMepArchetype(archetype: AssetArchetype): boolean {
@@ -173,6 +181,7 @@ export function buildTurkishMepModel(
   // ============================================================================
   if (asset.archetype === 'tr_fuse_box') {
     const isSiemens = asset.id.includes('siemens');
+    const isLegrand = asset.id.includes('legrand');
     const frameMat = makePrimaryMat();
     const innerMat = makeSecondaryMat();
     const accentMat = makeAccentMat();
@@ -189,7 +198,11 @@ export function buildTurkishMepModel(
       new THREE.MeshStandardMaterial({ color: '#1E293B', roughness: 0.38, metalness: 0.12 }),
     );
     const rccbBlueMat = trackMat(
-      new THREE.MeshStandardMaterial({ color: isSiemens ? '#0D9488' : '#2563EB', roughness: 0.32, metalness: 0.1 }),
+      new THREE.MeshStandardMaterial({
+        color: isSiemens ? '#0D9488' : isLegrand ? '#DC2626' : '#2563EB',
+        roughness: 0.32,
+        metalness: 0.1,
+      }),
     );
     const testBtnMat = trackMat(
       new THREE.MeshStandardMaterial({ color: '#FACC15', roughness: 0.35, metalness: 0.05 }),
@@ -202,12 +215,12 @@ export function buildTurkishMepModel(
     addMesh(new THREE.BoxGeometry(w - 0.028, h - 0.028, d * 0.65), darkSlotMat, [0, h / 2, -d * 0.25]);
     // Flush architectural front outer frame
     addMesh(new THREE.BoxGeometry(w, h, 0.024), frameMat, [0, h / 2, 0.012]);
-    // Inner white/grey molded fascia plate with 2 DIN windows
+    // Inner white/grey molded fascia plate with DIN windows
     addMesh(new THREE.BoxGeometry(w - 0.036, h - 0.044, 0.014), innerMat, [0, h / 2, 0.022]);
 
-    const rows = isSiemens ? 2 : 2;
+    const rows = isLegrand ? 3 : 2;
     const colsPerRow = isSiemens ? 9 : 12;
-    const rowYs = [h * 0.64, h * 0.32];
+    const rowYs = isLegrand ? [h * 0.74, h * 0.49, h * 0.24] : [h * 0.64, h * 0.32];
     const moduleW = (w - 0.075) / colsPerRow;
 
     for (let r = 0; r < rows; r++) {
@@ -220,9 +233,9 @@ export function buildTurkishMepModel(
       const startX = -(w - 0.075) / 2 + moduleW / 2;
       for (let c = 0; c < colsPerRow; c++) {
         // Leave 1-2 spare blank slots on bottom right for realism
-        if (r === 1 && c >= colsPerRow - 2) continue;
+        if (r === rows - 1 && c >= colsPerRow - 2) continue;
         const cx = startX + c * moduleW;
-        const isRccb = r === 0 && c < 2;
+        const isRccb = (r === 0 && c < 2) || (isLegrand && r === 0 && c >= 2 && c < 4);
         addMesh(
           new THREE.BoxGeometry(moduleW * 0.88, 0.064, 0.024),
           breakerBodyMat,
@@ -260,8 +273,10 @@ export function buildTurkishMepModel(
           ctx.textBaseline = 'middle';
           const labels =
             r === 0
-              ? ['KAÇAK AKIM', 'ANA', 'SALON', 'MUTFAK', 'FIRIN', 'BULAŞIK']
-              : ['KOMBİ', 'KLİMA', 'ÇAMAŞIR', 'BANYO', 'AYDINLATMA', 'YEDEK'];
+              ? ['KAÇAK AKIM', 'PARAFUDR', 'SALON', 'MUTFAK', 'FIRIN', 'BULAŞIK']
+              : r === 1
+                ? ['KOMBİ', 'KLİMA 1', 'KLİMA 2', 'ÇAMAŞIR', 'KURUTMA', 'BANYO']
+                : ['BAHÇE', 'HAVUZ', 'EV ŞARJ', 'PANJUR', 'AYDINLATMA', 'YEDEK'];
           labels.forEach((lbl, idx) => {
             ctx.fillText(lbl, ((idx + 0.5) / labels.length) * lw, lh / 2);
           });
@@ -284,30 +299,37 @@ export function buildTurkishMepModel(
         roughness: doorGlass?.roughness ?? 0.08,
         metalness: 0.08,
         clearcoat: 1.0,
+        depthWrite: false,
       }),
     );
     addMesh(new THREE.BoxGeometry(w - 0.022, h - 0.052, 0.01), doorMat, [0, h * 0.475, 0.058]);
     // Push-latch handle tab on right edge of cover
     addMesh(new THREE.BoxGeometry(0.014, 0.052, 0.012), frameMat, [w / 2 - 0.02, h * 0.475, 0.062]);
 
-    // Crisp brand header (VIKO by Panasonic or SIEMENS)
+    // Crisp brand header (VIKO by Panasonic, SIEMENS or LEGRAND)
     const brandColor = isSiemens
       ? '#009999'
-      : getLuminance(primaryHex) > 0.45
-        ? '#1E293B'
-        : '#F8FAFC';
+      : isLegrand
+        ? '#DC2626'
+        : getLuminance(primaryHex) > 0.45
+          ? '#1E293B'
+          : '#F8FAFC';
     const brandTex = trackTex(
       createWordmarkTex(
-        isSiemens ? 'SIEMENS' : 'VIKO',
+        isSiemens ? 'SIEMENS' : isLegrand ? 'legrand' : 'VIKO',
         brandColor,
         options.maxAnisotropy,
-        isSiemens ? '5SL6 / 5SV · 18 MODÜL' : 'by Panasonic · 24 MODÜL',
+        isSiemens
+          ? '5SL6 / 5SV · 18 MODÜL'
+          : isLegrand
+            ? 'PRACTIBOX S · 36 MODÜL (3×12)'
+            : 'by Panasonic · 24 MODÜL',
       ),
     );
     const brandMat = trackMat(
       new THREE.MeshBasicMaterial({ map: brandTex, transparent: true, depthWrite: false }),
     );
-    addMesh(new THREE.PlaneGeometry(0.14, 0.042), brandMat, [0, h - 0.026, 0.026]);
+    addMesh(new THREE.PlaneGeometry(0.145, 0.034), brandMat, [0, h - 0.019, 0.031]);
   }
 
   // ============================================================================
@@ -1344,6 +1366,790 @@ export function buildTurkishMepModel(
     // Ceiling slab with recessed warm architectural LED diffuser panels
     addMesh(new THREE.BoxGeometry(w, 0.04, d), wallMat, [0, h - 0.02, 0]);
     addMesh(new THREE.BoxGeometry(innerW - 0.24, 0.012, d - 0.34), ledCeilingMat, [0, h - 0.044, 0]);
+  }
+
+  // ============================================================================
+  // 13. Daikin / Arçelik Inverter Split Klima Dış Ünitesi & Duvar Konsolu
+  // ============================================================================
+  else if (asset.archetype === 'tr_ac_outdoor_unit') {
+    const bodyMat = makePrimaryMat();
+    const grilleMat = trackMat(
+      new THREE.MeshStandardMaterial({ color: '#1F242C', roughness: 0.45, metalness: 0.55 }),
+    );
+    const bladeMat = trackMat(
+      new THREE.MeshStandardMaterial({ color: '#272E38', roughness: 0.38, metalness: 0.25 }),
+    );
+    const bracketMat = trackMat(
+      new THREE.MeshStandardMaterial({ color: '#D1D5DB', roughness: 0.36, metalness: 0.78 }),
+    );
+    const copperMat = trackMat(
+      new THREE.MeshStandardMaterial({ color: '#C87D52', roughness: 0.26, metalness: 0.9 }),
+    );
+    const foamMat = trackMat(
+      new THREE.MeshStandardMaterial({ color: '#E2E8F0', roughness: 0.85, metalness: 0.02 }),
+    );
+    const rubberMat = trackMat(
+      new THREE.MeshStandardMaterial({ color: '#181A1F', roughness: 0.88, metalness: 0.05 }),
+    );
+
+    const bodyW = w * 0.94;
+    const bodyH = h * 0.86;
+    const bodyD = d * 0.84;
+    const bodyY = h * 0.12 + bodyH / 2;
+    const bodyZ = d * 0.06;
+
+    // Main galvanized outdoor condenser housing + slightly overhanging top lid
+    addMesh(new THREE.BoxGeometry(bodyW, bodyH, bodyD), bodyMat, [0, bodyY, bodyZ]);
+    addMesh(new THREE.BoxGeometry(bodyW + 0.014, 0.026, bodyD + 0.014), bodyMat, [0, bodyY + bodyH / 2 + 0.01, bodyZ]);
+
+    // Recessed circular fan shroud on left-front face
+    const fanX = -bodyW * 0.17;
+    const fanY = bodyY;
+    const fanR = Math.min(bodyH, bodyW) * 0.38;
+    addMesh(
+      new THREE.CylinderGeometry(fanR, fanR, 0.04, 36),
+      grilleMat,
+      [fanX, fanY, bodyZ + bodyD / 2 - 0.016],
+      [Math.PI / 2, 0, 0],
+    );
+    // 3 sculpted axial fan blades + center hub inside shroud
+    addMesh(
+      new THREE.CylinderGeometry(fanR * 0.22, fanR * 0.22, 0.036, 20),
+      bladeMat,
+      [fanX, fanY, bodyZ + bodyD / 2 - 0.005],
+      [Math.PI / 2, 0, 0],
+    );
+    for (let b = 0; b < 3; b++) {
+      const ang = (b * Math.PI * 2) / 3 + 0.3;
+      const bx = fanX + Math.cos(ang) * fanR * 0.48;
+      const by = fanY + Math.sin(ang) * fanR * 0.48;
+      addMesh(
+        new THREE.BoxGeometry(fanR * 0.72, fanR * 0.32, 0.012),
+        bladeMat,
+        [bx, by, bodyZ + bodyD / 2 - 0.006],
+        [0.24, 0.18, ang],
+      );
+    }
+    // Concentric protective wire guard rings + 4 radial spokes
+    for (const frac of [0.35, 0.62, 0.85, 1.0]) {
+      addMesh(
+        new THREE.TorusGeometry(fanR * frac, 0.0045, 8, 36),
+        grilleMat,
+        [fanX, fanY, bodyZ + bodyD / 2 + 0.01],
+      );
+    }
+    for (let s = 0; s < 4; s++) {
+      addMesh(
+        new THREE.BoxGeometry(fanR * 2.02, 0.006, 0.006),
+        grilleMat,
+        [fanX, fanY, bodyZ + bodyD / 2 + 0.009],
+        [0, 0, (s * Math.PI) / 4],
+      );
+    }
+
+    // Crisp DAIKIN INVERTER R32 label on right-front panel
+    const brandCol = getLuminance(primaryHex) > 0.45 ? '#0284C7' : '#F1F5F9';
+    const acTex = trackTex(createWordmarkTex('DAIKIN', brandCol, options.maxAnisotropy, 'INVERTER · R32'));
+    addMesh(
+      new THREE.PlaneGeometry(bodyW * 0.28, 0.075),
+      trackMat(new THREE.MeshBasicMaterial({ map: acTex, transparent: true, depthWrite: false })),
+      [bodyW * 0.27, bodyY + bodyH * 0.22, bodyZ + bodyD / 2 + 0.002],
+    );
+
+    // Side protective valve cover + insulated twin refrigerant pipes (liquid & gas lines)
+    addMesh(new THREE.BoxGeometry(0.045, 0.15, 0.11), bodyMat, [bodyW / 2 + 0.02, bodyY - bodyH * 0.18, bodyZ - 0.02]);
+    for (const [pyOff, r] of [[-0.028, 0.009], [0.018, 0.012]] as const) {
+      addMesh(
+        new THREE.CylinderGeometry(r, r, 0.06, 14),
+        copperMat,
+        [bodyW / 2 + 0.03, bodyY - bodyH * 0.22 + pyOff, bodyZ - 0.02],
+        [0, 0, Math.PI / 2],
+      );
+      addMesh(
+        new THREE.CylinderGeometry(r + 0.006, r + 0.006, 0.18, 14),
+        foamMat,
+        [bodyW / 2 + 0.065, bodyY - bodyH * 0.22 + pyOff, bodyZ - 0.07],
+        [Math.PI / 2, 0, 0],
+      );
+    }
+
+    // Rear aluminum condenser fin louvers
+    for (let f = 0; f < 10; f++) {
+      const fy = bodyY - bodyH * 0.38 + (f / 9) * (bodyH * 0.76);
+      addMesh(new THREE.BoxGeometry(bodyW * 0.86, 0.006, 0.012), grilleMat, [0, fy, bodyZ - bodyD / 2 - 0.004]);
+    }
+
+    // Twin heavy-duty L-shaped wall mounting consoles + 4 rubber anti-vibration feet
+    for (const bx of [-bodyW * 0.34, bodyW * 0.34]) {
+      // Horizontal support arm
+      addMesh(new THREE.BoxGeometry(0.042, 0.036, d), bracketMat, [bx, 0.065, 0.01]);
+      // Vertical wall rail
+      addMesh(new THREE.BoxGeometry(0.044, 0.26, 0.022), bracketMat, [bx, 0.15, -d / 2 + 0.012]);
+      // Diagonal brace strut
+      addMesh(new THREE.BoxGeometry(0.026, 0.24, 0.016), bracketMat, [bx, 0.05, -0.05], [0.85, 0, 0]);
+      // Rubber anti-vibration pads under feet
+      for (const pz of [-bodyD * 0.32, bodyD * 0.32]) {
+        addMesh(new THREE.BoxGeometry(0.052, 0.026, 0.052), rubberMat, [bx, 0.095, bodyZ + pz]);
+      }
+    }
+  }
+
+  // ============================================================================
+  // 14. İGDAŞ / BaşkentGaz Dış Cephe Doğalgaz Servis Kutusu (Sarı Çelik Kutu)
+  // ============================================================================
+  else if (asset.archetype === 'tr_gas_service_box') {
+    const boxMat = makePrimaryMat();
+    const concreteMat = makeSecondaryMat();
+    const lockMat = makeAccentMat();
+    const yellowPipeMat = trackMat(
+      new THREE.MeshStandardMaterial({ color: '#EAB308', roughness: 0.32, metalness: 0.25 }),
+    );
+    const darkMat = trackMat(
+      new THREE.MeshStandardMaterial({ color: '#1E242D', roughness: 0.55, metalness: 0.45 }),
+    );
+
+    const plinthH = 0.22;
+    const cabH = 0.52;
+    const cabY = plinthH + cabH / 2;
+
+    // Concrete foundation plinth grounded at Y = 0
+    addMesh(new THREE.BoxGeometry(w + 0.04, plinthH, d + 0.04), concreteMat, [0, plinthH / 2, 0]);
+
+    // Main steel service cabinet body + sloped rain overhang hood
+    addMesh(new THREE.BoxGeometry(w, cabH, d), boxMat, [0, cabY, 0]);
+    addMesh(
+      new THREE.BoxGeometry(w + 0.032, 0.028, d + 0.038),
+      boxMat,
+      [0, plinthH + cabH + 0.012, 0.008],
+      [0.08, 0, 0],
+    );
+
+    // Front recessed door frame + 2 side hinges + triangular İGDAŞ key lock
+    addMesh(new THREE.BoxGeometry(w - 0.026, cabH - 0.032, 0.014), boxMat, [0, cabY, d / 2 + 0.006]);
+    for (const hy of [cabY - 0.14, cabY + 0.14]) {
+      addMesh(new THREE.CylinderGeometry(0.008, 0.008, 0.036, 12), darkMat, [-w / 2 + 0.016, hy, d / 2 + 0.012]);
+    }
+    // Triangular service lock escutcheon on right side
+    addMesh(
+      new THREE.CylinderGeometry(0.018, 0.018, 0.014, 18),
+      lockMat,
+      [w / 2 - 0.048, cabY, d / 2 + 0.014],
+      [Math.PI / 2, 0, 0],
+    );
+    addMesh(
+      new THREE.CylinderGeometry(0.009, 0.009, 0.018, 3),
+      darkMat,
+      [w / 2 - 0.048, cabY, d / 2 + 0.016],
+      [Math.PI / 2, 0, 0],
+    );
+
+    // Stamped gas ventilation louvers top & bottom
+    for (const baseLy of [cabY + 0.18, cabY - 0.19]) {
+      for (let i = 0; i < 4; i++) {
+        addMesh(new THREE.BoxGeometry(w * 0.56, 0.006, 0.008), darkMat, [-0.015, baseLy + i * 0.013, d / 2 + 0.015]);
+      }
+    }
+
+    // Authentic İGDAŞ DOĞALGAZ warning decal on front door
+    const igdasTex = trackTex(
+      createCanvasTex(512, 320, options.maxAnisotropy, (ctx, cw, ch) => {
+        ctx.fillStyle = '#FEF08A';
+        ctx.fillRect(0, 0, cw, ch);
+        ctx.strokeStyle = '#111827';
+        ctx.lineWidth = 10;
+        ctx.strokeRect(10, 10, cw - 20, ch - 20);
+
+        // Top navy İGDAŞ header band
+        ctx.fillStyle = '#0F172A';
+        ctx.fillRect(16, 16, cw - 32, 76);
+        ctx.fillStyle = '#FACC15';
+        ctx.font = '900 48px "Inter", Arial, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('İGDAŞ · DOĞALGAZ', cw / 2, 56);
+
+        // Warning triangle with flame icon
+        ctx.beginPath();
+        ctx.moveTo(95, 128);
+        ctx.lineTo(148, 224);
+        ctx.lineTo(42, 224);
+        ctx.closePath();
+        ctx.fillStyle = '#EAB308';
+        ctx.fill();
+        ctx.strokeStyle = '#111827';
+        ctx.lineWidth = 7;
+        ctx.stroke();
+        ctx.fillStyle = '#111827';
+        ctx.font = '900 44px "Inter", Arial, sans-serif';
+        ctx.fillText('!', 95, 192);
+
+        // Technical text right of triangle
+        ctx.textAlign = 'left';
+        ctx.fillStyle = '#111827';
+        ctx.font = '800 24px "Inter", Arial, sans-serif';
+        ctx.fillText('SERVİS KUTUSU S-200', 170, 150);
+        ctx.font = '700 21px "Inter", Arial, sans-serif';
+        ctx.fillStyle = '#B91C1C';
+        ctx.fillText('ATEŞLE YAKLAŞMAYINIZ', 170, 192);
+        ctx.fillStyle = '#0F172A';
+        ctx.font = '800 24px "JetBrains Mono", monospace';
+        ctx.fillText('ACİL İHBAR: ALO 187', 170, 246);
+      }),
+    );
+    addMesh(
+      new THREE.PlaneGeometry(w * 0.68, 0.2),
+      trackMat(new THREE.MeshBasicMaterial({ map: igdasTex })),
+      [-0.015, cabY, d / 2 + 0.016],
+    );
+
+    // Rising yellow DN32 building supply pipe exiting top of box with collar clamp
+    const riserH = h - (plinthH + cabH);
+    addMesh(
+      new THREE.CylinderGeometry(0.019, 0.019, riserH + 0.04, 20),
+      yellowPipeMat,
+      [-w * 0.24, plinthH + cabH + riserH / 2, -d * 0.14],
+    );
+    addMesh(
+      new THREE.CylinderGeometry(0.028, 0.028, 0.022, 20),
+      darkMat,
+      [-w * 0.24, plinthH + cabH + 0.025, -d * 0.14],
+    );
+  }
+
+  // ============================================================================
+  // 15. TS EN 671-1 Sıva Altı Apartman Yangın Dolabı (Hortum Makarası + 6 kg KKT)
+  // ============================================================================
+  else if (asset.archetype === 'tr_fire_hose_cabinet') {
+    const frameMat = makePrimaryMat();
+    const redFireMat = trackMat(
+      new THREE.MeshStandardMaterial({ color: '#DC2626', roughness: 0.26, metalness: 0.28 }),
+    );
+    const hoseMat = trackMat(
+      new THREE.MeshStandardMaterial({ color: '#B91C1C', roughness: 0.56, metalness: 0.08 }),
+    );
+    const brassMat = makeAccentMat();
+    const interiorMat = trackMat(
+      new THREE.MeshStandardMaterial({ color: '#1E242E', roughness: 0.65, metalness: 0.3 }),
+    );
+    const glassMat = trackMat(
+      new THREE.MeshPhysicalMaterial({
+        color: new THREE.Color('#E2E8F0'),
+        roughness: 0.06,
+        metalness: 0.05,
+        transparent: true,
+        opacity: 0.16,
+        depthWrite: false,
+        clearcoat: 1.0,
+      }),
+    );
+
+    // Hollow recessed steel cabinet cavity (back wall + 4 perimeter side walls so interior equipment is fully visible)
+    const wallT = 0.016;
+    const cavW = w - 0.036;
+    const cavH = h - 0.036;
+    const cavD = d - 0.022;
+    addMesh(new THREE.BoxGeometry(cavW, cavH, wallT), interiorMat, [0, h / 2, -d / 2 + wallT / 2]);
+    addMesh(new THREE.BoxGeometry(cavW, wallT, cavD), interiorMat, [0, h - 0.018 - wallT / 2, -0.011]);
+    addMesh(new THREE.BoxGeometry(cavW, wallT, cavD), interiorMat, [0, 0.018 + wallT / 2, -0.011]);
+    addMesh(new THREE.BoxGeometry(wallT, cavH, cavD), interiorMat, [-cavW / 2 + wallT / 2, h / 2, -0.011]);
+    addMesh(new THREE.BoxGeometry(wallT, cavH, cavD), interiorMat, [cavW / 2 - wallT / 2, h / 2, -0.011]);
+
+    // Outer frame rails (top, bottom, left, right)
+    const rim = 0.068;
+    addMesh(new THREE.BoxGeometry(w, rim, 0.028), frameMat, [0, h - rim / 2, d / 2 - 0.008]);
+    addMesh(new THREE.BoxGeometry(w, rim * 0.72, 0.028), frameMat, [0, rim * 0.36, d / 2 - 0.008]);
+    addMesh(new THREE.BoxGeometry(rim * 0.72, h, 0.028), frameMat, [-w / 2 + rim * 0.36, h / 2, d / 2 - 0.008]);
+    addMesh(new THREE.BoxGeometry(rim * 0.72, h, 0.028), frameMat, [w / 2 - rim * 0.36, h / 2, d / 2 - 0.008]);
+    // Center vertical divider post between hose reel & 6 kg extinguisher bay
+    addMesh(new THREE.BoxGeometry(0.022, h - 0.06, d - 0.04), frameMat, [w * 0.14, h / 2, -0.01]);
+
+    // LEFT BAY: Red steel hose reel drum + layered coiled semi-rigid hose + brass nozzle
+    const reelX = -w * 0.17;
+    const reelY = h * 0.5;
+    addMesh(
+      new THREE.CylinderGeometry(0.22, 0.22, 0.012, 32),
+      redFireMat,
+      [reelX, reelY, 0.028],
+      [Math.PI / 2, 0, 0],
+    );
+    addMesh(
+      new THREE.CylinderGeometry(0.22, 0.22, 0.012, 32),
+      redFireMat,
+      [reelX, reelY, -0.048],
+      [Math.PI / 2, 0, 0],
+    );
+    addMesh(
+      new THREE.CylinderGeometry(0.055, 0.055, 0.095, 20),
+      brassMat,
+      [reelX, reelY, -0.01],
+      [Math.PI / 2, 0, 0],
+    );
+    for (const r of [0.115, 0.15, 0.185]) {
+      addMesh(new THREE.TorusGeometry(r, 0.018, 12, 32), hoseMat, [reelX, reelY, -0.01]);
+    }
+    // Brass jet/spray nozzle clipped at lower right of hose bay
+    addMesh(new THREE.CylinderGeometry(0.014, 0.022, 0.15, 16), brassMat, [reelX + 0.21, h * 0.22, 0.012]);
+
+    // RIGHT BAY: 6 kg ABC KKT Fire Extinguisher cylinder + trigger valve + pressure gauge
+    const extX = w * 0.31;
+    addMesh(new THREE.CylinderGeometry(0.076, 0.076, 0.44, 24), redFireMat, [extX, 0.29, -0.005]);
+    addMesh(new THREE.SphereGeometry(0.076, 24, 14, 0, Math.PI * 2, 0, Math.PI / 2), redFireMat, [extX, 0.51, -0.005]);
+    addMesh(new THREE.CylinderGeometry(0.022, 0.022, 0.065, 16), brassMat, [extX, 0.61, -0.005]);
+    addMesh(new THREE.BoxGeometry(0.095, 0.016, 0.022), interiorMat, [extX + 0.022, 0.645, -0.005], [0, 0, 0.22]);
+    // White ABC spec label wrapped around front of extinguisher
+    addMesh(new THREE.CylinderGeometry(0.0775, 0.0775, 0.17, 24, 1, true, -0.8, 1.6), makeSecondaryMat(), [extX, 0.34, -0.005]);
+
+    // Tempered inspection glass front pane + recessed brass push-handle
+    addMesh(new THREE.BoxGeometry(w - rim * 1.44, h - rim * 1.72, 0.006), glassMat, [0, h / 2 - 0.01, d / 2 - 0.004]);
+    addMesh(new THREE.BoxGeometry(0.022, 0.11, 0.018), brassMat, [w / 2 - 0.028, h * 0.5, d / 2 + 0.01]);
+
+    // Top header plaque: YANGIN DOLABI · TS EN 671-1
+    const fireTex = trackTex(
+      createCanvasTex(640, 96, options.maxAnisotropy, (ctx, cw, ch) => {
+        ctx.clearRect(0, 0, cw, ch);
+        ctx.fillStyle = getLuminance(primaryHex) > 0.48 ? '#B91C1C' : '#FFFFFF';
+        ctx.font = '900 42px "Inter", Arial, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('YANGIN DOLABI  ·  TS EN 671-1', cw / 2, ch / 2);
+      }),
+    );
+    addMesh(
+      new THREE.PlaneGeometry(w * 0.78, 0.052),
+      trackMat(new THREE.MeshBasicMaterial({ map: fireTex, transparent: true, depthWrite: false })),
+      [0, h - rim / 2, d / 2 + 0.008],
+    );
+  }
+
+  // ============================================================================
+  // 16. Viko Karre IP44 Kapaklı Banyo & Balkon Topraklı Prizi (Type F Schuko)
+  // ============================================================================
+  else if (asset.archetype === 'tr_ip44_lidded_socket') {
+    const frameMat = makePrimaryMat();
+    const insertMat = makeSecondaryMat();
+    const metalMat = makeAccentMat();
+    const gasketMat = trackMat(
+      new THREE.MeshStandardMaterial({ color: '#374151', roughness: 0.78, metalness: 0.06 }),
+    );
+    const lidMat = trackMat(
+      new THREE.MeshPhysicalMaterial({
+        color: new THREE.Color(primaryHex),
+        roughness: 0.14,
+        metalness: 0.05,
+        transparent: true,
+        opacity: 0.76,
+        clearcoat: 0.9,
+      }),
+    );
+
+    // Rear IP44 rubber moisture seal gasket
+    addMesh(new THREE.BoxGeometry(w + 0.004, h + 0.004, 0.005), gasketMat, [0, h / 2, 0.0025]);
+    // Outer Karre polycarbonate square frame
+    addMesh(new THREE.BoxGeometry(w, h, 0.014), frameMat, [0, h / 2, 0.012]);
+    // Inner recessed Type F Schuko socket body
+    addMesh(new THREE.BoxGeometry(w * 0.74, h * 0.74, 0.01), insertMat, [0, h / 2, 0.02]);
+    // Recessed circular Schuko well + 2 contact holes + top/bottom grounding clips
+    addMesh(
+      new THREE.CylinderGeometry(0.021, 0.021, 0.006, 28),
+      gasketMat,
+      [0, h / 2, 0.024],
+      [Math.PI / 2, 0, 0],
+    );
+    for (const hx of [-0.0095, 0.0095]) {
+      addMesh(
+        new THREE.CylinderGeometry(0.0028, 0.0028, 0.009, 12),
+        gasketMat,
+        [hx, h / 2, 0.026],
+        [Math.PI / 2, 0, 0],
+      );
+    }
+    for (const cy of [h / 2 + 0.018, h / 2 - 0.018]) {
+      addMesh(new THREE.BoxGeometry(0.004, 0.004, 0.012), metalMat, [0, cy, 0.026]);
+    }
+
+    // Spring-hinged IP44 flip lid slightly cracked open (14°) to clearly show Schuko interior + hinge barrel
+    addMesh(
+      new THREE.CylinderGeometry(0.0045, 0.0045, w * 0.56, 14),
+      frameMat,
+      [0, h * 0.84, 0.026],
+      [0, 0, Math.PI / 2],
+    );
+    addMesh(
+      new THREE.BoxGeometry(w * 0.76, h * 0.72, 0.009),
+      lidMat,
+      [0, h * 0.52, 0.036],
+      [-0.26, 0, 0],
+    );
+    // Bottom finger-lift tab
+    addMesh(new THREE.BoxGeometry(0.024, 0.007, 0.014), frameMat, [0, h * 0.16, 0.044], [-0.26, 0, 0]);
+
+    // Crisp VIKO IP44 badge on lid
+    const vikoCol = getLuminance(primaryHex) > 0.45 ? '#1E293B' : '#F8FAFC';
+    const ipTex = trackTex(createWordmarkTex('VIKO', vikoCol, options.maxAnisotropy, 'IP44 · 16A'));
+    addMesh(
+      new THREE.PlaneGeometry(0.048, 0.02),
+      trackMat(new THREE.MeshBasicMaterial({ map: ipTex, transparent: true, depthWrite: false })),
+      [0, h * 0.56, 0.043],
+      [-0.26, 0, 0],
+    );
+  }
+
+  // ============================================================================
+  // 17. Makel / Luna 3 Fazlı Dijital Elektrik Sayacı & Apartman Sayaç Panosu
+  // ============================================================================
+  else if (asset.archetype === 'tr_electric_meter_panel') {
+    const boxMat = makePrimaryMat();
+    const meterBodyMat = makeSecondaryMat();
+    const accentMat = makeAccentMat();
+    const darkMat = trackMat(
+      new THREE.MeshStandardMaterial({ color: '#1F242D', roughness: 0.48, metalness: 0.35 }),
+    );
+    const glassMat = trackMat(
+      new THREE.MeshPhysicalMaterial({
+        color: new THREE.Color('#E2E8F0'),
+        roughness: 0.06,
+        metalness: 0.06,
+        transparent: true,
+        opacity: 0.15,
+        depthWrite: false,
+        clearcoat: 1.0,
+      }),
+    );
+
+    // Hollow steel apartment shaft enclosure (thin backplate + 4 side walls so the Makel meter is fully visible)
+    const wallT = 0.014;
+    const boxD = d * 0.86;
+    addMesh(new THREE.BoxGeometry(w, h, wallT), boxMat, [0, h / 2, wallT / 2]);
+    addMesh(new THREE.BoxGeometry(w - wallT * 2, h - wallT * 2, 0.008), darkMat, [0, h / 2, wallT + 0.004]);
+    addMesh(new THREE.BoxGeometry(w, wallT, boxD), boxMat, [0, h - wallT / 2, boxD / 2]);
+    addMesh(new THREE.BoxGeometry(w, wallT, boxD), boxMat, [0, wallT / 2, boxD / 2]);
+    addMesh(new THREE.BoxGeometry(wallT, h, boxD), boxMat, [-w / 2 + wallT / 2, h / 2, boxD / 2]);
+    addMesh(new THREE.BoxGeometry(wallT, h, boxD), boxMat, [w / 2 - wallT / 2, h / 2, boxD / 2]);
+
+    // Front door rim with clear viewing window cut-out
+    const rim = 0.036;
+    addMesh(new THREE.BoxGeometry(w, rim, 0.018), boxMat, [0, h - rim / 2, d * 0.88]);
+    addMesh(new THREE.BoxGeometry(w, rim, 0.018), boxMat, [0, rim / 2, d * 0.88]);
+    addMesh(new THREE.BoxGeometry(rim, h, 0.018), boxMat, [-w / 2 + rim / 2, h / 2, d * 0.88]);
+    addMesh(new THREE.BoxGeometry(rim, h, 0.018), boxMat, [w / 2 - rim / 2, h / 2, d * 0.88]);
+    addMesh(new THREE.BoxGeometry(w - rim * 2, h - rim * 2, 0.005), glassMat, [0, h / 2, d * 0.885]);
+
+    // Inside upper: Makel M560 3-phase digital kWh meter housing
+    const meterW = w * 0.62;
+    const meterH = h * 0.5;
+    const meterY = h * 0.6;
+    addMesh(new THREE.BoxGeometry(meterW, meterH, 0.072), meterBodyMat, [0, meterY, d * 0.56]);
+
+    // Detailed Makel / Luna digital LCD faceplate CanvasTexture
+    const meterTex = trackTex(
+      createCanvasTex(512, 560, options.maxAnisotropy, (ctx, cw, ch) => {
+        ctx.fillStyle = '#F8FAFC';
+        ctx.fillRect(0, 0, cw, ch);
+        ctx.fillStyle = '#0F172A';
+        ctx.fillRect(0, 0, cw, 78);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '900 42px "Inter", Arial, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('MAKEL', 28, 40);
+        ctx.fillStyle = '#38BDF8';
+        ctx.font = '700 22px "Inter", Arial, sans-serif';
+        ctx.textAlign = 'right';
+        ctx.fillText('M560 · 3 FAZ', cw - 28, 40);
+
+        // Backlit LCD kWh window
+        ctx.fillStyle = '#CBD5C0';
+        ctx.fillRect(34, 112, cw - 68, 128);
+        ctx.strokeStyle = '#334155';
+        ctx.lineWidth = 6;
+        ctx.strokeRect(34, 112, cw - 68, 128);
+        ctx.fillStyle = '#0F172A';
+        ctx.font = '700 58px "JetBrains Mono", monospace';
+        ctx.textAlign = 'right';
+        ctx.fillText('01482.6', cw - 52, 174);
+        ctx.font = '700 22px "Inter", Arial, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText('T1  kWh', 52, 214);
+
+        // Optical IR reading port circle + red pulse LED
+        ctx.beginPath();
+        ctx.arc(cw * 0.25, 326, 36, 0, Math.PI * 2);
+        ctx.strokeStyle = '#475569';
+        ctx.lineWidth = 8;
+        ctx.stroke();
+        ctx.fillStyle = '#1E293B';
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(cw * 0.72, 316, 12, 0, Math.PI * 2);
+        ctx.fillStyle = '#EF4444';
+        ctx.fill();
+        ctx.fillStyle = '#334155';
+        ctx.font = '700 18px "Inter", Arial, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('1000 imp/kWh', cw * 0.72, 354);
+
+        ctx.fillStyle = '#475569';
+        ctx.font = '600 20px "JetBrains Mono", monospace';
+        ctx.fillText('3x230/400V  5(100)A  50Hz', cw / 2, 434);
+        ctx.fillStyle = '#0284C7';
+        ctx.fillRect(34, 474, cw - 68, 52);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '700 22px "Inter", Arial, sans-serif';
+        ctx.fillText('TEDAŞ / MID ONAYLI', cw / 2, 502);
+      }),
+    );
+    addMesh(
+      new THREE.PlaneGeometry(meterW - 0.012, meterH - 0.012),
+      trackMat(new THREE.MeshBasicMaterial({ map: meterTex })),
+      [0, meterY, d * 0.56 + 0.037],
+    );
+
+    // Lower 3-phase 40A main breaker switch + 4 color-coded phase cables (L1, L2, L3, N)
+    addMesh(new THREE.BoxGeometry(0.088, 0.084, 0.056), meterBodyMat, [-0.04, h * 0.21, d * 0.56]);
+    addMesh(new THREE.BoxGeometry(0.072, 0.016, 0.024), accentMat, [-0.04, h * 0.22, d * 0.56 + 0.034]);
+    const cableColors = ['#92400E', '#111827', '#6B7280', '#2563EB'];
+    cableColors.forEach((col, i) => {
+      addMesh(
+        new THREE.CylinderGeometry(0.006, 0.006, 0.14, 10),
+        trackMat(new THREE.MeshStandardMaterial({ color: col, roughness: 0.55 })),
+        [0.055 + i * 0.018, h * 0.22, d * 0.54],
+      );
+    });
+    // Side lock handle
+    addMesh(new THREE.CylinderGeometry(0.012, 0.012, 0.016, 16), darkMat, [w / 2 - 0.02, h * 0.5, d * 0.89], [Math.PI / 2, 0, 0]);
+  }
+
+  // ============================================================================
+  // 18. Mavili Maxlogic / Teknim İGDAŞ Doğalgaz Kaçak Alarmı & Duman Dedektörü
+  // ============================================================================
+  else if (asset.archetype === 'tr_gas_smoke_detector') {
+    const bodyMat = makePrimaryMat();
+    const ventMat = trackMat(
+      new THREE.MeshStandardMaterial({ color: '#1F2937', roughness: 0.68, metalness: 0.2 }),
+    );
+    const greenLedMat = trackMat(
+      new THREE.MeshStandardMaterial({ color: '#22C55E', emissive: '#22C55E', emissiveIntensity: 1.4 }),
+    );
+    const amberLedMat = trackMat(
+      new THREE.MeshStandardMaterial({ color: '#F59E0B', roughness: 0.3 }),
+    );
+    const redLedMat = trackMat(
+      new THREE.MeshStandardMaterial({ color: '#EF4444', roughness: 0.3 }),
+    );
+
+    // Lower wall-mounted İGDAŞ Natural Gas Leak Alarm box
+    const alarmW = w * 0.82;
+    const alarmH = h * 0.64;
+    const alarmD = d * 0.72;
+    addMesh(new THREE.BoxGeometry(alarmW, alarmH, alarmD), bodyMat, [0, alarmH / 2 + 0.01, alarmD / 2]);
+
+    // Sensor intake vent slots across lower half
+    for (let v = 0; v < 5; v++) {
+      addMesh(
+        new THREE.BoxGeometry(alarmW * 0.7, 0.004, 0.006),
+        ventMat,
+        [0, 0.032 + v * 0.01, alarmD + 0.002],
+      );
+    }
+
+    // 3 Status indicator LEDs (Power Green / Fault Amber / Alarm Red) + TEST button
+    addMesh(new THREE.SphereGeometry(0.0042, 12, 12), greenLedMat, [-0.022, 0.104, alarmD + 0.002]);
+    addMesh(new THREE.SphereGeometry(0.0042, 12, 12), amberLedMat, [0, 0.104, alarmD + 0.002]);
+    addMesh(new THREE.SphereGeometry(0.0042, 12, 12), redLedMat, [0.022, 0.104, alarmD + 0.002]);
+    addMesh(
+      new THREE.CylinderGeometry(0.01, 0.01, 0.007, 20),
+      makeSecondaryMat(),
+      [0, 0.084, alarmD + 0.003],
+      [Math.PI / 2, 0, 0],
+    );
+
+    // Crisp MAVİLİ DOĞALGAZ ALARM text
+    const textCol = getLuminance(primaryHex) > 0.45 ? '#0F172A' : '#F8FAFC';
+    const gasDetTex = trackTex(createWordmarkTex('MAVİLİ', textCol, options.maxAnisotropy, 'DOĞALGAZ ALARM'));
+    addMesh(
+      new THREE.PlaneGeometry(alarmW * 0.82, 0.028),
+      trackMat(new THREE.MeshBasicMaterial({ map: gasDetTex, transparent: true, depthWrite: false })),
+      [0, 0.128, alarmD + 0.0025],
+    );
+
+    // Companion circular EN 54 Optical Smoke Detector mounted just above
+    const smokeR = w * 0.36;
+    const smokeY = h - smokeR * 0.92;
+    addMesh(
+      new THREE.CylinderGeometry(smokeR, smokeR * 1.05, 0.028, 32),
+      bodyMat,
+      [0, smokeY, 0.016],
+      [Math.PI / 2, 0, 0],
+    );
+    addMesh(
+      new THREE.CylinderGeometry(smokeR * 0.72, smokeR * 0.84, 0.02, 28),
+      ventMat,
+      [0, smokeY, 0.032],
+      [Math.PI / 2, 0, 0],
+    );
+    addMesh(
+      new THREE.CylinderGeometry(smokeR * 0.66, smokeR * 0.66, 0.01, 28),
+      bodyMat,
+      [0, smokeY, 0.042],
+      [Math.PI / 2, 0, 0],
+    );
+    addMesh(new THREE.SphereGeometry(0.004, 10, 10), redLedMat, [smokeR * 0.38, smokeY, 0.048]);
+  }
+
+  // ============================================================================
+  // 19. DemirDöküm DT4 Titanium / Baymak 65L Elektrikli Termosifon
+  // ============================================================================
+  else if (asset.archetype === 'tr_electric_water_heater') {
+    const tankMat = makePrimaryMat();
+    const trimRingMat = trackMat(
+      new THREE.MeshStandardMaterial({ color: '#CBD5E1', roughness: 0.28, metalness: 0.72 }),
+    );
+    const brassMat = makeAccentMat();
+    const coldMat = trackMat(new THREE.MeshStandardMaterial({ color: '#2563EB', roughness: 0.35 }));
+    const hotMat = trackMat(new THREE.MeshStandardMaterial({ color: '#DC2626', roughness: 0.35 }));
+    const hoseMat = trackMat(new THREE.MeshStandardMaterial({ color: '#CBD5E1', roughness: 0.25, metalness: 0.88 }));
+
+    const r = Math.min(w, d) * 0.47;
+    const cylH = h * 0.64;
+    const cylY = h * 0.18 + cylH / 2;
+
+    // Main cylindrical titanium-enameled tank + matching glossy domed top & bottom caps
+    addMesh(new THREE.CylinderGeometry(r, r, cylH, 36), tankMat, [0, cylY, 0]);
+    addMesh(
+      new THREE.SphereGeometry(r, 36, 16, 0, Math.PI * 2, 0, Math.PI / 2),
+      tankMat,
+      [0, cylY + cylH / 2, 0],
+      [0, 0, 0],
+    );
+    addMesh(
+      new THREE.SphereGeometry(r, 36, 16, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2),
+      tankMat,
+      [0, cylY - cylH / 2, 0],
+      [0, 0, 0],
+    );
+    // Subtle satin chrome equatorial seam bands where domes meet cylinder
+    addMesh(new THREE.TorusGeometry(r + 0.001, 0.0035, 10, 40), trimRingMat, [0, cylY + cylH / 2, 0], [Math.PI / 2, 0, 0]);
+    addMesh(new THREE.TorusGeometry(r + 0.001, 0.0035, 10, 40), trimRingMat, [0, cylY - cylH / 2, 0], [Math.PI / 2, 0, 0]);
+
+    // Rear wall mounting brackets
+    for (const by of [cylY + cylH * 0.3, cylY - cylH * 0.24]) {
+      addMesh(new THREE.BoxGeometry(r * 1.4, 0.032, 0.032), brassMat, [0, by, -r - 0.008]);
+    }
+
+    // DemirDöküm DT4 Titanium branding plaque on upper front face
+    const ddTex = trackTex(createWordmarkTex('DemirDöküm', '#D91A2A', options.maxAnisotropy, 'DT4 TITANIUM · 65L'));
+    addMesh(
+      new THREE.PlaneGeometry(r * 1.12, 0.092),
+      trackMat(new THREE.MeshBasicMaterial({ map: ddTex, transparent: true, depthWrite: false })),
+      [0, cylY + cylH * 0.14, r + 0.003],
+    );
+
+    // Lower front black glass digital temperature display (55°C ECO)
+    const dispTex = trackTex(
+      createCanvasTex(320, 140, options.maxAnisotropy, (ctx, cw, ch) => {
+        ctx.fillStyle = '#0F172A';
+        ctx.fillRect(0, 0, cw, ch);
+        ctx.strokeStyle = '#334155';
+        ctx.lineWidth = 6;
+        ctx.strokeRect(4, 4, cw - 8, ch - 8);
+        ctx.fillStyle = '#38BDF8';
+        ctx.font = '800 62px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('55°C', cw * 0.44, ch * 0.52);
+        ctx.fillStyle = '#22C55E';
+        ctx.font = '700 22px "Inter", Arial, sans-serif';
+        ctx.fillText('ECO', cw * 0.8, ch * 0.38);
+        ctx.fillStyle = '#94A3B8';
+        ctx.font = '600 18px "Inter", Arial, sans-serif';
+        ctx.fillText('ON', cw * 0.8, ch * 0.68);
+      }),
+    );
+    addMesh(
+      new THREE.BoxGeometry(0.15, 0.072, 0.022),
+      trackMat(new THREE.MeshStandardMaterial({ color: '#111827', roughness: 0.14, metalness: 0.2 })),
+      [0, cylY - cylH * 0.26, r - 0.004],
+    );
+    addMesh(
+      new THREE.PlaneGeometry(0.136, 0.06),
+      trackMat(
+        new THREE.MeshStandardMaterial({
+          map: dispTex,
+          emissiveMap: dispTex,
+          emissive: new THREE.Color('#FFFFFF'),
+          emissiveIntensity: 0.45,
+          roughness: 0.12,
+        }),
+      ),
+      [0, cylY - cylH * 0.26, r + 0.008],
+    );
+
+    // Bottom plumbing: Red hot outlet (left), Blue cold inlet + brass pressure safety valve (right)
+    addMesh(new THREE.CylinderGeometry(0.014, 0.014, 0.04, 16), hotMat, [-0.06, 0.12, 0]);
+    addMesh(new THREE.CylinderGeometry(0.014, 0.014, 0.04, 16), coldMat, [0.06, 0.12, 0]);
+    addMesh(new THREE.CylinderGeometry(0.011, 0.011, 0.11, 14), hoseMat, [-0.06, 0.055, 0]);
+    addMesh(new THREE.CylinderGeometry(0.016, 0.016, 0.048, 16), brassMat, [0.06, 0.088, 0]);
+    addMesh(new THREE.CylinderGeometry(0.009, 0.009, 0.04, 12), brassMat, [0.084, 0.088, 0], [0, 0, Math.PI / 2]);
+    addMesh(new THREE.CylinderGeometry(0.011, 0.011, 0.068, 14), hoseMat, [0.06, 0.034, 0]);
+  }
+
+  // ============================================================================
+  // 20. Sukar / Geberit CleanLine 60 cm Paslanmaz Çelik Lineer Duş Yer Süzgeci
+  // ============================================================================
+  else if (asset.archetype === 'tr_linear_floor_drain') {
+    const steelMat = makePrimaryMat();
+    const absMat = makeSecondaryMat();
+    const flangeMat = makeAccentMat();
+    const slotDarkMat = trackMat(
+      new THREE.MeshStandardMaterial({ color: '#0F131A', roughness: 0.72, metalness: 0.35 }),
+    );
+
+    const topY = h - 0.01;
+    const channelW = w;
+    const channelD = d * 0.66;
+
+    // Lower ABS odor-trap siphon chamber & horizontal DN50 outlet stub
+    addMesh(new THREE.BoxGeometry(0.16, h * 0.72, 0.09), absMat, [0, h * 0.36, 0]);
+    addMesh(
+      new THREE.CylinderGeometry(0.025, 0.025, 0.085, 20),
+      absMat,
+      [0.115, h * 0.32, 0],
+      [0, 0, Math.PI / 2],
+    );
+    // Tapered stainless drainage trough body under the grate
+    addMesh(new THREE.BoxGeometry(channelW - 0.016, 0.024, channelD - 0.014), absMat, [0, topY - 0.014, 0]);
+
+    // Perimeter waterproof tiling flange skirt (sits beneath bathroom ceramic tiles)
+    addMesh(new THREE.BoxGeometry(channelW + 0.032, 0.004, d), flangeMat, [0, topY - 0.006, 0]);
+
+    // Recessed dark drainage trench + outer brushed AISI 304 steel rim
+    addMesh(new THREE.BoxGeometry(channelW - 0.008, 0.008, channelD - 0.008), slotDarkMat, [0, topY, 0]);
+    addMesh(new THREE.BoxGeometry(channelW, 0.01, 0.006), steelMat, [0, topY + 0.001, channelD / 2 - 0.003]);
+    addMesh(new THREE.BoxGeometry(channelW, 0.01, 0.006), steelMat, [0, topY + 0.001, -channelD / 2 + 0.003]);
+    addMesh(new THREE.BoxGeometry(0.006, 0.01, channelD), steelMat, [-channelW / 2 + 0.003, topY + 0.001, 0]);
+    addMesh(new THREE.BoxGeometry(0.006, 0.01, channelD), steelMat, [channelW / 2 - 0.003, topY + 0.001, 0]);
+
+    // Removable brushed stainless linear grate bar with precision architectural water slots
+    const grateW = channelW - 0.018;
+    const grateD = channelD - 0.022;
+    addMesh(new THREE.BoxGeometry(grateW, 0.004, grateD), steelMat, [0, topY + 0.004, 0]);
+    for (let s = -4; s <= 4; s++) {
+      addMesh(
+        new THREE.BoxGeometry(0.048, 0.0048, 0.007),
+        slotDarkMat,
+        [s * 0.06, topY + 0.0045, 0],
+      );
+    }
+
+    // Subtle SUKAR AISI 304 laser mark on top center edge
+    const sukarTex = trackTex(createWordmarkTex('SUKAR · 304', '#334155', options.maxAnisotropy));
+    addMesh(
+      new THREE.PlaneGeometry(0.075, 0.018),
+      trackMat(new THREE.MeshBasicMaterial({ map: sukarTex, transparent: true, depthWrite: false })),
+      [0, topY + 0.0065, grateD * 0.34],
+      [-Math.PI / 2, 0, 0],
+    );
   }
 
   return {
