@@ -1,0 +1,8 @@
+{
+  "name": "MimarKatalog — Türkiye Mimari Blender 3D Varlık Kütüphanesi",
+  "description": "Blender ile villa, apartman dış cephe ve iç mekan projeleri üreten mimarlar ve yapay zeka ajanları için Türkiye pazarına özgü mobilya, vitrifiye, aydınlatma ve dış mekan 3D varlık kataloğu.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
