@@ -7,6 +7,7 @@ import type {
   PlacedSceneEntry,
   SceneSelectionItem,
 } from './catalogTypes';
+import { buildComposedRoomBlenderScript } from './composedRoomLogic';
 import { classifyAssetGroup } from './taxonomy';
 
 /**
@@ -262,9 +263,15 @@ export function generateBlenderPythonScript(
   baseUrl = 'http://localhost:3000',
   customFinish?: MaterialFinish,
   patternId?: PatternId,
+  catalogById?: ReadonlyMap<string, ArchitecturalAsset>,
 ): string {
   const finish = resolveFinish(asset, finishId, customFinish);
   const pattern = resolvePattern(asset, patternId);
+
+  if (asset.archetype === 'composed_room' && asset.composedRoom) {
+    return buildComposedRoomBlenderScript(asset, finish, pattern, position, baseUrl, catalogById);
+  }
+
   const pyName = sanitizePythonName(asset.slug || asset.name);
   const w = Number((asset.dimensionsCm.width / 100).toFixed(3));
   const d = Number((asset.dimensionsCm.depth / 100).toFixed(3));

@@ -35,11 +35,12 @@ export interface TaxonomyCategoryNode {
  * Drives both the left faceted taxonomy sidebar and same-type similar product recommendations.
  */
 export const PRODUCT_GROUP_ORDER: ProductGroupMeta[] = [
-  // Oda Tasarımları (5 full-room groups for Blender AI item extraction & scene assembly)
+  // Oda Tasarımları (6 full-room groups for curated Pinterest rooms & Blender AI scene assembly)
+  { id: 'oda-mutfak', label: 'Mutfak & Set Tasarımı', category: 'Oda Tasarımları' },
   { id: 'oda-salon', label: 'Salon Oda Tasarımı', category: 'Oda Tasarımları' },
   { id: 'oda-yatak', label: 'Yatak Odası Tasarımı', category: 'Oda Tasarımları' },
-  { id: 'oda-mutfak', label: 'Mutfak & Set Tasarımı', category: 'Oda Tasarımları' },
   { id: 'oda-banyo', label: 'Banyo Oda Tasarımı', category: 'Oda Tasarımları' },
+  { id: 'oda-ozel', label: 'Antre, Çalışma & Çamaşır Odası', category: 'Oda Tasarımları' },
   { id: 'oda-daire', label: 'Komple Daire & Ev İçi', category: 'Oda Tasarımları' },
 
   // Çamaşır Odası (6 dedicated Turkish laundry room product groups)
@@ -159,6 +160,13 @@ export function classifyAssetGroup(asset: ArchitecturalAsset): ProductGroupMeta 
   );
 
   if (asset.category === 'Oda Tasarımları') {
+    if (asset.composedRoom) {
+      if (asset.composedRoom.roomType === 'mutfak') return GROUP_BY_ID.get('oda-mutfak')!;
+      if (asset.composedRoom.roomType === 'salon') return GROUP_BY_ID.get('oda-salon')!;
+      if (asset.composedRoom.roomType === 'yatak') return GROUP_BY_ID.get('oda-yatak')!;
+      if (asset.composedRoom.roomType === 'banyo') return GROUP_BY_ID.get('oda-banyo')!;
+      return GROUP_BY_ID.get('oda-ozel')!;
+    }
     if (/banyo/.test(nameNorm)) {
       return GROUP_BY_ID.get('oda-banyo')!;
     }
@@ -167,6 +175,9 @@ export function classifyAssetGroup(asset: ArchitecturalAsset): ProductGroupMeta 
     }
     if (/yatak odas|suite|yatak/.test(nameNorm)) {
       return GROUP_BY_ID.get('oda-yatak')!;
+    }
+    if (/antre|calisma odas|camasir odas|ofis/.test(nameNorm)) {
+      return GROUP_BY_ID.get('oda-ozel')!;
     }
     if (/daire|ev ic|rezidans|villa ic mekan|toplanti/.test(nameNorm)) {
       return GROUP_BY_ID.get('oda-daire')!;

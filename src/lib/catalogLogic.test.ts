@@ -207,7 +207,9 @@ test('generateBlenderPythonScript imports HF/ABO/PolyHaven GLBs and injects sele
   assert.match(goldScript, /ShaderNodeTexNoise/);
   assert.match(goldScript, /ShaderNodeBump/);
 
-  const roomAsset = INITIAL_TURKISH_ASSETS.find((a) => a.category === 'Oda Tasarımları')!;
+  const roomAsset = INITIAL_TURKISH_ASSETS.find(
+    (a) => a.category === 'Oda Tasarımları' && a.archetype !== 'composed_room',
+  )!;
   const roomScript = generateBlenderPythonScript(
     roomAsset,
     roomAsset.defaultFinishId,
@@ -458,14 +460,14 @@ test('all 16 salon, runner, and bathroom rugs ship with curated 3-tone designer 
   assert.match(triTonePy, /Anadolu Terracotta & Ekru/);
 });
 
-test('Phase 1 (365/896 assets: Banyo, Salon, Oda Tasarımları) ship with curated multi-part retail color combinations & zero flat monochrome finishes', async () => {
+test('Phase 1 (389/920 assets: Banyo, Salon, Oda Tasarımları) ship with curated multi-part retail color combinations & zero flat monochrome finishes', async () => {
   const { isRugAsset } = await import('./catalogData');
   const { isPhase1RetailAsset } = await import('./retailColorCombos');
 
   const phase1Assets = INITIAL_TURKISH_ASSETS.filter((a) => isPhase1RetailAsset(a));
   const phase2Assets = INITIAL_TURKISH_ASSETS.filter((a) => !isPhase1RetailAsset(a));
 
-  assert.equal(phase1Assets.length, 365, `Expected 365 Phase 1 assets, got ${phase1Assets.length}`);
+  assert.equal(phase1Assets.length, 389, `Expected 389 Phase 1 assets, got ${phase1Assets.length}`);
   assert.equal(phase2Assets.length, 531, `Expected 531 Phase 2 assets, got ${phase2Assets.length}`);
 
   for (const asset of phase1Assets) {
@@ -919,10 +921,10 @@ test('all 107 authentic Turkish branded architectural, wardrobe, bookcase, study
   assert.equal(kidsToyHits.length, 32, `Expected 32 assets in Çocuk & Oyun, got ${kidsToyHits.length}`);
 });
 
-test('all 896 catalog assets pass strict Turkish retail market authenticity audit (23 non-Turkish foreign items pruned, zero foreign names, zero US imperial sizes, 896/896 TR brands)', async () => {
+test('all 920 catalog assets pass strict Turkish retail market authenticity audit (23 non-Turkish foreign items pruned, zero foreign names, zero US imperial sizes, 920/920 TR brands)', async () => {
   const { NON_TURKISH_PRUNED_IDS } = await import('./turkishMarketRegistry');
   assert.equal(NON_TURKISH_PRUNED_IDS.size, 23);
-  assert.equal(INITIAL_TURKISH_ASSETS.length, 896);
+  assert.equal(INITIAL_TURKISH_ASSETS.length, 920);
 
   for (const prunedId of NON_TURKISH_PRUNED_IDS) {
     assert.ok(
@@ -1136,8 +1138,42 @@ test('every local catalog thumbnail image referenced by INITIAL_TURKISH_ASSETS e
   assert.deepEqual(missing, [], `Missing or empty local thumbnail files:\n${missing.join('\n')}`);
 });
 
+test('verified photorealistic architectural room renders (Phase 1 Batch 1: 30 flagship Banyo & Salon models) exist on disk with valid hover cutouts', async () => {
+  const { VERIFIED_ROOM_RENDER_IDS } = await import('./roomRenderManifest');
+  assert.ok(
+    VERIFIED_ROOM_RENDER_IDS.size >= 30,
+    `Expected >=30 verified photorealistic room renders in Phase 1 Batch 1, got ${VERIFIED_ROOM_RENDER_IDS.size}`,
+  );
 
+  const renderedAssets = INITIAL_TURKISH_ASSETS.filter((a) => Boolean(a.roomRenderUrl));
+  assert.equal(
+    renderedAssets.length,
+    VERIFIED_ROOM_RENDER_IDS.size,
+    'Every asset with roomRenderUrl must be explicitly listed in VERIFIED_ROOM_RENDER_IDS (zero unverified 2D paste-ups)',
+  );
 
+  const missingRenders: string[] = [];
+  const missingCutouts: string[] = [];
 
+  for (const asset of renderedAssets) {
+    assert.ok(
+      asset.roomRenderUrl && asset.roomRenderUrl.startsWith('/assets/room-renders/'),
+      `${asset.id}: unexpected roomRenderUrl`,
+    );
+    const diskPath = path.resolve(process.cwd(), 'public', asset.roomRenderUrl.slice(1));
+    if (!fs.existsSync(diskPath) || fs.statSync(diskPath).size < 20000) {
+      missingRenders.push(`${asset.id} -> ${asset.roomRenderUrl}`);
+    }
 
+    if (asset.hoverCutoutUrl) {
+      const cutPath = path.resolve(process.cwd(), 'public', asset.hoverCutoutUrl.slice(1));
+      if (!fs.existsSync(cutPath) || fs.statSync(cutPath).size < 2048) {
+        missingCutouts.push(`${asset.id} -> ${asset.hoverCutoutUrl}`);
+      }
+    }
+  }
+
+  assert.deepEqual(missingRenders, [], `Missing or low-res verified room renders:\n${missingRenders.join('\n')}`);
+  assert.deepEqual(missingCutouts, [], `Missing or corrupt pure-white hover cutouts:\n${missingCutouts.join('\n')}`);
+});
 

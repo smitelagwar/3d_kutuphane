@@ -1,9 +1,11 @@
 import 'dotenv/config';
 import express, { type Request, type Response } from 'express';
 import fs from 'fs/promises';
+import os from 'os';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { GoogleGenAI, Type } from '@google/genai';
+import { optimizeGlbBuffer } from './src/lib/glbBinaryOptimizer.ts';
 import {
   buildDefaultModelingSpec,
   EXTERNAL_PBR_PATTERNS,
@@ -242,6 +244,7 @@ const VALID_ARCHETYPES: AssetArchetype[] = [
   'tr_wooden_kids_play_kitchen',
   'tr_kids_toy_storage_organizer',
   'tr_wooden_dollhouse_3story',
+  'composed_room',
   'external_gltf',
 ];
 
@@ -583,9 +586,131 @@ async function createApp() {
     }
   });
 
-  // Amazon Berkeley Objects (CC BY 4.0) binary .GLB — validated 302 redirect to CORS-enabled S3 origin
-  // Avoids Cloud Run's 32 MiB HTTP/1.1 response limit so 30–65 MB high-res PBR rug/furniture GLBs never HTTP 500
-  app.get('/api/v1/abo/glb/:dir/:filename', (req: Request, res: Response) => {
+  // Server-side automatic GLB texture optimizer + disk cache for oversized (>4 MB) ABO / HF / Khronos models.
+  // Compact models (<=4 MB) immediately 302-redirect to CORS-enabled CDN with zero server bandwidth;
+  // heavy 10–65 MB models (e.g. 4K PNG rugs/towels/sconces) are compressed once to ~0.7–2.5 MB and cached.
+  const GLB_CACHE_DIR = path.join(os.tmpdir(), 'mimarkatalog-glb-cache');
+  const GLB_OPTIMIZE_THRESHOLD_BYTES = 4 * 1024 * 1024;
+  const smallGlbRedirectCache = new Map<string, string>();
+  const glbOptimizeInFlight = new Map<
+    string,
+    Promise<{ filePath: string; originalBytes: number; optimizedBytes: number } | null>
+  >();
+  let glbCacheDirReady = false;
+
+  async function ensureGlbCacheDir(): Promise<void> {
+    if (glbCacheDirReady) return;
+    await fs.mkdir(GLB_CACHE_DIR, { recursive: true });
+    glbCacheDirReady = true;
+  }
+
+  async function serveOptimizedExternalGlb(
+    res: Response,
+    cacheKey: string,
+    upstreamUrl: string,
+  ): Promise<void> {
+    const safeKey = cacheKey.replace(/[^a-zA-Z0-9_-]/g, '_');
+    const cachedFilePath = path.join(GLB_CACHE_DIR, `v2_${safeKey}.glb`);
+
+    // 1. Fast hit: already optimized on disk
+    try {
+      const stat = await fs.stat(cachedFilePath);
+      if (stat.isFile() && stat.size > 100) {
+        res.setHeader('Content-Type', 'model/gltf-binary');
+        res.setHeader('Content-Length', String(stat.size));
+        res.setHeader('Cache-Control', 'public, max-age=86400');
+        res.setHeader('X-Glb-Optimized', 'cache');
+        res.sendFile(cachedFilePath);
+        return;
+      }
+    } catch {
+      // Cache miss
+    }
+
+    // 2. Fast hit: already known to be <= 4 MB compact GLB
+    if (smallGlbRedirectCache.has(safeKey)) {
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+      res.redirect(302, upstreamUrl);
+      return;
+    }
+
+    // 3. Probe upstream size via lightweight HEAD
+    try {
+      const headResp = await fetch(upstreamUrl, {
+        method: 'HEAD',
+        redirect: 'follow',
+        signal: AbortSignal.timeout(6000),
+      });
+      if (headResp.ok) {
+        const len = Number(
+          headResp.headers.get('content-length') || headResp.headers.get('x-linked-size') || 0,
+        );
+        if (len > 0 && len <= GLB_OPTIMIZE_THRESHOLD_BYTES) {
+          smallGlbRedirectCache.set(safeKey, upstreamUrl);
+          res.setHeader('Cache-Control', 'public, max-age=86400');
+          res.redirect(302, upstreamUrl);
+          return;
+        }
+      }
+    } catch {
+      // Proceed to fetch/fallback below
+    }
+
+    // 4. Download & optimize oversized GLB once (deduplicated across concurrent requests)
+    let job = glbOptimizeInFlight.get(safeKey);
+    if (!job) {
+      job = (async () => {
+        try {
+          await ensureGlbCacheDir();
+          const resp = await fetch(upstreamUrl, {
+            redirect: 'follow',
+            signal: AbortSignal.timeout(45000),
+          });
+          if (!resp.ok) return null;
+          const rawBuf = Buffer.from(await resp.arrayBuffer());
+          if (rawBuf.byteLength <= GLB_OPTIMIZE_THRESHOLD_BYTES) {
+            smallGlbRedirectCache.set(safeKey, upstreamUrl);
+            return null;
+          }
+          const optimized = await optimizeGlbBuffer(rawBuf, {
+            skipThresholdBytes: GLB_OPTIMIZE_THRESHOLD_BYTES,
+          });
+          const tmpPath = `${cachedFilePath}.${Date.now()}.tmp`;
+          await fs.writeFile(tmpPath, optimized.buffer);
+          await fs.rename(tmpPath, cachedFilePath);
+          return {
+            filePath: cachedFilePath,
+            originalBytes: optimized.originalBytes,
+            optimizedBytes: optimized.optimizedBytes,
+          };
+        } catch {
+          return null;
+        } finally {
+          glbOptimizeInFlight.delete(safeKey);
+        }
+      })();
+      glbOptimizeInFlight.set(safeKey, job);
+    }
+
+    const done = await job;
+    if (done) {
+      res.setHeader('Content-Type', 'model/gltf-binary');
+      res.setHeader('Content-Length', String(done.optimizedBytes));
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+      res.setHeader('X-Glb-Optimized', 'true');
+      res.setHeader('X-Original-Bytes', String(done.originalBytes));
+      res.setHeader('X-Optimized-Bytes', String(done.optimizedBytes));
+      res.sendFile(done.filePath);
+      return;
+    }
+
+    // Fallback: direct redirect to CORS-enabled CDN origin
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    res.redirect(302, upstreamUrl);
+  }
+
+  // Amazon Berkeley Objects (CC BY 4.0) binary .GLB — auto-optimizes heavy >4 MB assets to ~0.7–2.5 MB
+  app.get('/api/v1/abo/glb/:dir/:filename', async (req: Request, res: Response) => {
     const dir = String(req.params.dir || '').trim();
     const filename = String(req.params.filename || '').trim();
     if (!/^[0-9a-zA-Z]$/.test(dir) || !/^[A-Z0-9_-]{4,28}\.glb$/i.test(filename)) {
@@ -594,13 +719,12 @@ async function createApp() {
     }
 
     const upstreamUrl = `https://amazon-berkeley-objects.s3.amazonaws.com/3dmodels/original/${dir}/${filename}`;
-    res.setHeader('Cache-Control', 'public, max-age=86400');
-    res.redirect(302, upstreamUrl);
+    await serveOptimizedExternalGlb(res, `abo_${dir}_${filename}`, upstreamUrl);
   });
 
-  // Hugging Face (NVIDIA USDCraft Apache-2.0 / SimReady / Objaverse-Clean CC-BY-4.0) — validated 302 redirect to CORS-enabled HF CDN
+  // Hugging Face (NVIDIA USDCraft / SimReady / Objaverse-Clean) — auto-optimizes heavy >4 MB assets
   const ALLOWED_HF_REPOS = new Set(['usdcraft-glb', 'simready-glb', 'objaverse-clean-glb']);
-  app.get('/api/v1/hf/glb/:repo/:id', (req: Request, res: Response) => {
+  app.get('/api/v1/hf/glb/:repo/:id', async (req: Request, res: Response) => {
     const repo = String(req.params.repo || '').trim();
     const assetId = String(req.params.id || '').trim();
     if (!ALLOWED_HF_REPOS.has(repo) || !/^[a-zA-Z0-9_-]{2,96}$/.test(assetId)) {
@@ -609,8 +733,19 @@ async function createApp() {
     }
 
     const upstreamUrl = `https://huggingface.co/datasets/codepawl/${repo}/resolve/main/engine/${assetId}/${assetId}.glb`;
-    res.setHeader('Cache-Control', 'public, max-age=86400');
-    res.redirect(302, upstreamUrl);
+    await serveOptimizedExternalGlb(res, `hf_${repo}_${assetId}`, upstreamUrl);
+  });
+
+  // Khronos glTF-Sample-Assets — auto-optimizes heavy >4 MB sample GLBs
+  app.get('/api/v1/khronos/glb/:model', async (req: Request, res: Response) => {
+    const model = String(req.params.model || '').trim();
+    if (!/^[a-zA-Z0-9_-]{2,80}$/.test(model)) {
+      res.status(400).json({ error: 'Geçersiz Khronos 3D model adı.' });
+      return;
+    }
+
+    const upstreamUrl = `https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/${model}/glTF-Binary/${model}.glb`;
+    await serveOptimizedExternalGlb(res, `khronos_${model}`, upstreamUrl);
   });
 
   // Live search across ALL 522+ Poly Haven CC0 Blender 3D models (supports Turkish & English keywords!)

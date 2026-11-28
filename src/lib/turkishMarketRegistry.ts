@@ -2152,7 +2152,10 @@ export function applyTurkishMarketLocalization(asset: ArchitecturalAsset): Archi
   };
 
   // 4. Resolve verified Turkish retail brand, series & sales channel
-  const turkishMarket = resolveTurkishMarketInfo(normalizedDraft);
+  const turkishMarket =
+    asset.archetype === 'composed_room' && asset.turkishMarket
+      ? asset.turkishMarket
+      : resolveTurkishMarketInfo(normalizedDraft);
   const cleanBrandStyle = `${turkishMarket.brand} · ${turkishMarket.series}`;
 
   // 5. Clean any dataset jargon out of aiSummary while preserving technical accuracy

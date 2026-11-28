@@ -143,6 +143,7 @@ export type AssetArchetype =
   | 'tr_wooden_kids_play_kitchen'
   | 'tr_kids_toy_storage_organizer'
   | 'tr_wooden_dollhouse_3story'
+  | 'composed_room'
   | 'external_gltf';
 
 export type PatternId =
@@ -293,6 +294,122 @@ export interface TurkishMarketInfo {
   matchType: 'exact-model' | 'tr-retail-matched';
 }
 
+export type RoomFloorMaterialKind =
+  | 'oak_herringbone'
+  | 'walnut_plank'
+  | 'calacatta_marble'
+  | 'travertine_stone'
+  | 'warm_microcement'
+  | 'terrazzo_light'
+  | 'light_oak_plank';
+
+export type RoomWallFeatureKind =
+  | 'none'
+  | 'fluted_wood_slats'
+  | 'wainscoting_frames'
+  | 'calacatta_slab'
+  | 'travertine_slab'
+  | 'zellige_tile'
+  | 'arched_alcove'
+  | 'limewash_plaster';
+
+export interface KitchenCabinetRunSpec {
+  wall: 'back' | 'left';
+  /** Start offset along wall in cm (from -halfSpan to +halfSpan) */
+  startCm: number;
+  /** End offset along wall in cm */
+  endCm: number;
+  baseDepthCm?: number;
+  baseHeightCm?: number;
+  hasUpperCabinets?: boolean;
+  hasBacksplash?: boolean;
+  hasUnderCabinetLed?: boolean;
+  /** Optional full-height tall cabinet column segments (widthCm each) on left/right end */
+  tallColumnLeftCm?: number;
+  tallColumnRightCm?: number;
+  /** Optional recessed stainless/granite sink cutout center offset along wall (cm) */
+  sinkCenterCm?: number;
+}
+
+export interface KitchenIslandSpec {
+  centerXCm: number;
+  centerZCm: number;
+  widthCm: number;
+  depthCm: number;
+  heightCm?: number;
+  waterfallSides?: boolean;
+  flutedFront?: boolean;
+  overhangSide?: 'front' | 'back' | 'none';
+  hasSinkCutout?: boolean;
+}
+
+export interface RoomArtFrameSpec {
+  wall: 'back' | 'left';
+  offsetCm: number;
+  centerYCm: number;
+  widthCm: number;
+  heightCm: number;
+  palette: [string, string, string];
+}
+
+export interface ComposedRoomShellSpec {
+  widthCm: number;
+  depthCm: number;
+  heightCm: number;
+  floorMaterial: RoomFloorMaterialKind;
+  floorTintHex: string;
+  wallColorHex: string;
+  accentWallColorHex: string;
+  cabinetPrimaryHex?: string;
+  cabinetWoodHex?: string;
+  countertopHex?: string;
+  hardwareHex?: string;
+  backWallFeature: RoomWallFeatureKind;
+  leftWallFeature: RoomWallFeatureKind;
+  windowOnWall?: 'back' | 'left' | 'none';
+  windowCenterCm?: number;
+  windowWidthCm?: number;
+  ceilingCoveLed?: boolean;
+  kitchenRuns?: KitchenCabinetRunSpec[];
+  kitchenIsland?: KitchenIslandSpec;
+  artFrames?: RoomArtFrameSpec[];
+  /** Optional built-in architectural headboard or TV media niche panel on back/left wall */
+  builtInBackdrop?: {
+    wall: 'back' | 'left';
+    centerCm: number;
+    widthCm: number;
+    heightCm: number;
+    style: 'fluted_slat_wall' | 'travertine_tv_wall' | 'upholstered_headboard' | 'wood_arch_headboard';
+  };
+}
+
+export interface ComposedRoomPlacement {
+  /** Verified existing catalog asset ID from INITIAL_TURKISH_ASSETS */
+  assetId: string;
+  /** Turkish interior role label shown in the room BOM (e.g. "Ana L Köşe Koltuk") */
+  roleLabel: string;
+  /** Center X in cm relative to room center (-widthCm/2 to +widthCm/2) */
+  xCm: number;
+  /** Bottom elevation Y in cm from finished floor (0 = floor-grounded) */
+  yCm: number;
+  /** Center Z in cm relative to room center (-depthCm/2 to +depthCm/2) */
+  zCm: number;
+  /** Rotation around Y axis in degrees (0 = facing +Z) */
+  rotYDeg: number;
+  /** Optional uniform scale multiplier (default 1) */
+  scaleOverride?: number;
+  /** True for rugs, ceiling lights, wall-mounted pieces, countertop appliances/faucets, and table-top decor */
+  allowOverlap?: boolean;
+}
+
+export interface ComposedRoomSpec {
+  roomType: 'mutfak' | 'salon' | 'yatak' | 'banyo' | 'antre' | 'calisma' | 'camasir';
+  designStyle: string;
+  pinterestInspiration: string;
+  shell: ComposedRoomShellSpec;
+  placements: ComposedRoomPlacement[];
+}
+
 export interface ArchitecturalAsset {
   id: string;
   slug: string;
@@ -308,6 +425,10 @@ export interface ArchitecturalAsset {
   renderEngines: string[];
   uvUnwrapped: boolean;
   thumbnailUrl: string;
+  /** Photorealistic unobstructed in-room architectural render shown by default in catalog cards */
+  roomRenderUrl?: string;
+  /** Optional isolated white-background bare model cutout revealed on card hover (defaults to thumbnailUrl) */
+  hoverCutoutUrl?: string;
   searchKeywords: string[];
   roomTags: string[];
   aiSummary: string;
@@ -317,6 +438,8 @@ export interface ArchitecturalAsset {
   defaultPatternId: PatternId;
   modelingSpec: AssetModelingSpec;
   modelSource: ExternalModelSource;
+  /** Present on curated multi-asset composed rooms built from real catalog models */
+  composedRoom?: ComposedRoomSpec;
   sourceOrigin:
     | 'catalog'
     | 'polyhaven-cc0'

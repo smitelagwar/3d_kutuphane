@@ -18,11 +18,13 @@ import {
 import { LAUNDRY_CATALOG_ASSETS } from './laundryCatalogAssets';
 import { TURKISH_GAP_ASSETS } from './turkishGapAssets';
 import { READY_MADE_HOME_STUDY_TOYS_ASSETS } from './readyMadeHomeStudyToysAssets';
+import { COMPOSED_ROOM_ASSETS } from './composedRoomsCatalog';
 import { getRetailFinishesForAsset } from './retailColorCombos';
 import {
   applyTurkishMarketLocalization,
   NON_TURKISH_PRUNED_IDS,
 } from './turkishMarketRegistry';
+import { applyRoomRenderMedia } from './roomRenderManifest';
 
 export const HERO_VILLA_IMAGE_URL = '/src/assets/images/hero_turkish_villa_salon_1795519593820.jpg';
 
@@ -2449,6 +2451,9 @@ const BASE_TURKISH_ASSETS: ArchitecturalAsset[] = [
   // 193 Verified Ready-Made Bathroom PBR .GLB Assets (SimReady + NVIDIA USDCraft + Objaverse + ABO)
   ...BATHROOM_CATALOG_ASSETS,
 
+  // 24 Curated Pinterest-Inspired Complete Architectural Room Sets (Composed from Verified Real Catalog Models)
+  ...COMPOSED_ROOM_ASSETS,
+
   // 275 Verified Ready-Made Full Room Scenes, Bedroom, Kitchen, Living, Doors/Windows/Stairs & Home Office GLBs
   ...EXPANDED_INTERIOR_ASSETS,
 
@@ -2576,7 +2581,7 @@ export const INITIAL_TURKISH_ASSETS: ArchitecturalAsset[] = BASE_TURKISH_ASSETS
   .map((rawAsset) => {
   // 1. Full Turkish retail market localization: category fixes, Turkish metric dimensions,
   //    clean Turkish product names, and verified Turkish brand/series/retail channel metadata
-  const asset = applyTurkishMarketLocalization(rawAsset);
+  const asset = applyRoomRenderMedia(applyTurkishMarketLocalization(rawAsset));
 
   const withPatterns =
     asset.archetype === 'external_gltf' && asset.defaultPatternId === 'original_pbr'

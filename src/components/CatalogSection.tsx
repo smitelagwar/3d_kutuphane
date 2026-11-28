@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
+  ArrowUp,
   Box,
   Check,
   ChevronDown,
@@ -12,6 +13,7 @@ import {
   SlidersHorizontal,
   X,
 } from 'lucide-react';
+import { PinchZoomPortal } from './PinchZoomPortal';
 import type {
   ArchitecturalAsset,
   AssetCategory,
@@ -22,6 +24,12 @@ import type {
 } from '../lib/catalogTypes';
 import { PLACEMENT_LABELS } from '../lib/catalogData';
 import { formatDimensionsText } from '../lib/catalogLogic';
+import {
+  clampCardDragOffsetPx,
+  isHorizontalSwipeGesture,
+  resolveSwipeTargetSlide,
+  type CardMediaSlide,
+} from '../lib/cardSwipeLogic';
 import { buildTaxonomyTree, classifyAssetGroup, getProductGroupMeta } from '../lib/taxonomy';
 
 const SOURCE_OPTIONS: Array<{ value: SourceFilter; label: string }> = [
@@ -62,36 +70,337 @@ interface CatalogSectionProps {
   onOpenDiscoveryWithQuery: (query: string) => void;
 }
 
-const AssetImagePlate: React.FC<{ asset: ArchitecturalAsset }> = ({ asset }) => {
-  const [failed, setFailed] = useState(false);
+interface CatalogCardMediaStageProps {
+  asset: ArchitecturalAsset;
+  onInspect: () => void;
+  children?: React.ReactNode;
+}
 
-  if (failed || !asset.thumbnailUrl) {
-    return (
-      <div className="w-full h-full flex flex-col items-center justify-center bg-[#F4F4F5] text-[#71717A] p-4 text-center">
-        <Box className="w-6 h-6 mb-1.5 text-[#52525B]" aria-hidden="true" />
-        <span className="text-[11px] font-medium line-clamp-2">{asset.name}</span>
-      </div>
-    );
-  }
+export const CatalogCardMediaStage: React.FC<CatalogCardMediaStageProps> = ({
+  asset,
+  onInspect,
+  children,
+}) => {
+  const [failed, setFailed] = useState(false);
+  const [roomFailed, setRoomFailed] = useState(false);
+  const [activeSlide, setActiveSlide] = useState<CardMediaSlide>(0);
+  const [dragOffsetPx, setDragOffsetPx] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isPinchZooming, setIsPinchZooming] = useState(false);
+
+  const stageRef = useRef<HTMLDivElement | null>(null);
+  const suppressClickRef = useRef(false);
+  const pinchActiveRef = useRef(false);
+  const gestureRef = useRef<{
+    active: boolean;
+    mode: 'touch' | 'pointer' | null;
+    startX: number;
+    startY: number;
+    lastDx: number;
+    horizontalLocked: boolean;
+  }>({
+    active: false,
+    mode: null,
+    startX: 0,
+    startY: 0,
+    lastDx: 0,
+    horizontalLocked: false,
+  });
+
+  const handlePinchStateChange = (active: boolean) => {
+    pinchActiveRef.current = active;
+    setIsPinchZooming(active);
+    if (active) {
+      // Cancel any in-progress 1-finger horizontal swipe cleanly
+      gestureRef.current.active = false;
+      gestureRef.current.horizontalLocked = false;
+      setIsDragging(false);
+      setDragOffsetPx(0);
+      suppressClickRef.current = true;
+    } else {
+      window.setTimeout(() => {
+        suppressClickRef.current = false;
+      }, 220);
+    }
+  };
+
+  const bareUrl = asset.hoverCutoutUrl || asset.thumbnailUrl;
+  const hasRoomRender = Boolean(asset.roomRenderUrl) && !roomFailed;
 
   const provider = asset.modelSource?.provider;
-  const imgClass =
-    provider === 'abo' || provider === 'hf'
-      ? 'w-full h-full object-contain p-3 bg-white transition-transform duration-200 group-hover:scale-[1.04]'
+  const bareImgClass =
+    asset.hoverCutoutUrl || provider === 'abo' || provider === 'hf'
+      ? 'w-full h-full object-contain p-3 bg-white'
       : provider === 'polyhaven' || provider === 'khronos'
-        ? 'w-full h-full object-contain p-3 bg-[#F6F7F9] transition-transform duration-200 group-hover:scale-[1.04]'
-        : 'w-full h-full object-cover transition-transform duration-200 group-hover:scale-[1.03]';
+        ? 'w-full h-full object-contain p-3 bg-[#F6F7F9]'
+        : 'w-full h-full object-cover';
+
+  const startGesture = (clientX: number, clientY: number, mode: 'touch' | 'pointer') => {
+    if (!hasRoomRender) return;
+    gestureRef.current = {
+      active: true,
+      mode,
+      startX: clientX,
+      startY: clientY,
+      lastDx: 0,
+      horizontalLocked: false,
+    };
+  };
+
+  const moveGesture = (clientX: number, clientY: number, mode: 'touch' | 'pointer') => {
+    const g = gestureRef.current;
+    if (!g.active || g.mode !== mode) return;
+    const dx = clientX - g.startX;
+    const dy = clientY - g.startY;
+
+    if (!g.horizontalLocked) {
+      if (isHorizontalSwipeGesture({ dx, dy })) {
+        g.horizontalLocked = true;
+        suppressClickRef.current = true;
+        setIsDragging(true);
+      } else if (Math.abs(dy) > 12 && Math.abs(dy) > Math.abs(dx)) {
+        // User is vertically scrolling the catalog; release gesture cleanly
+        g.active = false;
+        return;
+      } else {
+        return;
+      }
+    }
+
+    g.lastDx = dx;
+    const width = stageRef.current?.clientWidth || 300;
+    setDragOffsetPx(clampCardDragOffsetPx(activeSlide, dx, width));
+  };
+
+  const endGesture = (mode: 'touch' | 'pointer') => {
+    const g = gestureRef.current;
+    if (!g.active || g.mode !== mode) return;
+    const wasLocked = g.horizontalLocked;
+    const dx = g.lastDx;
+    g.active = false;
+    g.mode = null;
+    g.horizontalLocked = false;
+
+    if (wasLocked) {
+      const width = stageRef.current?.clientWidth || 300;
+      const nextSlide = resolveSwipeTargetSlide({
+        currentSlide: activeSlide,
+        dx,
+        containerWidth: width,
+      });
+      setActiveSlide(nextSlide);
+      setIsDragging(false);
+      setDragOffsetPx(0);
+      window.setTimeout(() => {
+        suppressClickRef.current = false;
+      }, 120);
+    }
+  };
+
+  const handleStageClick = () => {
+    if (suppressClickRef.current) {
+      suppressClickRef.current = false;
+      return;
+    }
+    onInspect();
+  };
+
+  const trackTransform = `translate3d(calc(${activeSlide === 0 ? '0%' : '-50%'} + ${dragOffsetPx}px), 0, 0)`;
+  const activeZoomSrc = hasRoomRender && activeSlide === 0 ? asset.roomRenderUrl : bareUrl;
+  const activeZoomImgClass =
+    hasRoomRender && activeSlide === 0 ? 'w-full h-full object-cover' : bareImgClass;
 
   return (
-    <img
-      src={asset.thumbnailUrl}
-      alt={asset.name}
-      loading="lazy"
-      decoding="async"
-      referrerPolicy="no-referrer"
-      onError={() => setFailed(true)}
-      className={imgClass}
-    />
+    <div
+      ref={stageRef}
+      data-has-room-render={hasRoomRender ? 'true' : undefined}
+      data-active-slide={hasRoomRender ? String(activeSlide) : undefined}
+      data-pinch-zooming={isPinchZooming ? 'true' : undefined}
+      onTouchStart={(e) => {
+        if (e.touches.length >= 2) {
+          gestureRef.current.active = false;
+          gestureRef.current.horizontalLocked = false;
+          setIsDragging(false);
+          setDragOffsetPx(0);
+          return;
+        }
+        if (e.touches.length === 1 && !pinchActiveRef.current) {
+          startGesture(e.touches[0].clientX, e.touches[0].clientY, 'touch');
+        }
+      }}
+      onTouchMove={(e) => {
+        if (e.touches.length >= 2 || pinchActiveRef.current) {
+          gestureRef.current.active = false;
+          gestureRef.current.horizontalLocked = false;
+          return;
+        }
+        if (e.touches.length === 1) {
+          moveGesture(e.touches[0].clientX, e.touches[0].clientY, 'touch');
+        }
+      }}
+      onTouchEnd={() => endGesture('touch')}
+      onTouchCancel={() => endGesture('touch')}
+      onPointerDown={(e) => {
+        if (e.pointerType !== 'touch' && e.button === 0) {
+          startGesture(e.clientX, e.clientY, 'pointer');
+        }
+      }}
+      onPointerMove={(e) => {
+        if (e.pointerType !== 'touch') {
+          moveGesture(e.clientX, e.clientY, 'pointer');
+        }
+      }}
+      onPointerUp={(e) => {
+        if (e.pointerType !== 'touch') {
+          endGesture('pointer');
+        }
+      }}
+      onPointerCancel={(e) => {
+        if (e.pointerType !== 'touch') {
+          endGesture('pointer');
+        }
+      }}
+      className="relative aspect-[4/3] w-full overflow-hidden border-b border-[#F1F2F4] bg-white touch-pan-y select-none"
+    >
+      <button
+        type="button"
+        onClick={handleStageClick}
+        aria-label={`${asset.name} 3D modelini incele`}
+        className={`w-full h-full block cursor-pointer focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-[#2563EB] transition-opacity duration-75 ${
+          isPinchZooming ? 'opacity-0' : 'opacity-100'
+        }`}
+      >
+        {failed || !bareUrl ? (
+          <div className="w-full h-full flex flex-col items-center justify-center bg-[#F4F4F5] text-[#71717A] p-4 text-center">
+            <Box className="w-6 h-6 mb-1.5 text-[#52525B]" aria-hidden="true" />
+            <span className="text-[11px] font-medium line-clamp-2">{asset.name}</span>
+          </div>
+        ) : hasRoomRender ? (
+          <div
+            className={`flex h-full w-[200%] will-change-transform ${
+              isDragging ? '' : 'transition-transform duration-200 ease-out'
+            }`}
+            style={{ transform: trackTransform }}
+          >
+            {/* Slide 0: Photorealistic in-room architectural render (desktop mouse hover still crossfades smoothly) */}
+            <div className="relative w-1/2 h-full shrink-0 bg-white overflow-hidden">
+              <img
+                src={bareUrl}
+                alt={`${asset.name} yalın model görünümü`}
+                loading="lazy"
+                decoding="async"
+                draggable={false}
+                referrerPolicy="no-referrer"
+                onError={() => setFailed(true)}
+                className={`absolute inset-0 ${bareImgClass} opacity-0 transition-opacity duration-200 ease-out ${
+                  activeSlide === 0 && !isDragging
+                    ? '[@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100 [@media(hover:hover)_and_(pointer:fine)]:group-focus-within:opacity-100'
+                    : ''
+                }`}
+              />
+              <img
+                src={asset.roomRenderUrl}
+                alt={asset.name}
+                loading="lazy"
+                decoding="async"
+                draggable={false}
+                onError={() => setRoomFailed(true)}
+                className={`absolute inset-0 w-full h-full object-cover opacity-100 transition-opacity duration-200 ease-out ${
+                  activeSlide === 0 && !isDragging
+                    ? '[@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-focus-within:opacity-0'
+                    : ''
+                }`}
+              />
+            </div>
+
+            {/* Slide 1: Bare white-background 3D model cutout revealed by swiping sideways */}
+            <div className="relative w-1/2 h-full shrink-0 bg-white overflow-hidden">
+              <img
+                src={bareUrl}
+                alt={`${asset.name} yalın 3D model görünümü`}
+                loading="lazy"
+                decoding="async"
+                draggable={false}
+                referrerPolicy="no-referrer"
+                onError={() => setFailed(true)}
+                className={bareImgClass}
+              />
+            </div>
+          </div>
+        ) : (
+          <img
+            src={bareUrl}
+            alt={asset.name}
+            loading="lazy"
+            decoding="async"
+            draggable={false}
+            referrerPolicy="no-referrer"
+            onError={() => setFailed(true)}
+            className={`${bareImgClass} transition-transform duration-200 group-hover:scale-[1.04]`}
+          />
+        )}
+      </button>
+
+      {/* Subtle 2-dot swipe pagination indicator for mobile/touch discovery & direct tap switching */}
+      {hasRoomRender && !failed && !isPinchZooming && (
+        <div
+          onTouchStart={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation();
+            setActiveSlide((prev) => (prev === 0 ? 1 : 0));
+          }}
+          className={`absolute bottom-2 left-1/2 -translate-x-1/2 z-10 items-center gap-1.5 px-2 py-1.5 rounded-full backdrop-blur-[2px] transition-colors cursor-pointer ${
+            activeSlide === 1
+              ? 'flex bg-black/10'
+              : 'flex lg:hidden [@media(hover:none)]:flex bg-black/30'
+          }`}
+          role="group"
+          aria-label={`${asset.name} görünüm seçici`}
+        >
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setActiveSlide(0);
+            }}
+            aria-label={`${asset.name} oda içi görünüm`}
+            aria-pressed={activeSlide === 0}
+            className={`h-1.5 rounded-full transition-all cursor-pointer ${
+              activeSlide === 0
+                ? 'w-3.5 bg-white shadow-xs'
+                : 'w-1.5 bg-[#09090B]/35 hover:bg-[#09090B]/60'
+            }`}
+          />
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setActiveSlide(1);
+            }}
+            aria-label={`${asset.name} yalın 3D model görünümü`}
+            aria-pressed={activeSlide === 1}
+            className={`h-1.5 rounded-full transition-all cursor-pointer ${
+              activeSlide === 1
+                ? 'w-3.5 bg-[#09090B]'
+                : 'w-1.5 bg-white/65 hover:bg-white'
+            }`}
+          />
+        </div>
+      )}
+
+      {!isPinchZooming && children}
+
+      <PinchZoomPortal
+        targetRef={stageRef}
+        imageSrc={activeZoomSrc}
+        imageAlt={asset.name}
+        imageClassName={activeZoomImgClass}
+        frameBgClassName="bg-white"
+        disabled={failed || !activeZoomSrc}
+        onPinchStateChange={handlePinchStateChange}
+      />
+    </div>
   );
 };
 
@@ -109,12 +418,22 @@ export const CatalogSection: React.FC<CatalogSectionProps> = ({
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [denseGrid, setDenseGrid] = useState(false);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
   const [expandedCats, setExpandedCats] = useState<Record<string, boolean>>({
     'Oda Tasarımları': true,
     Banyo: true,
     'Çamaşır Odası': true,
   });
   const searchInputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    const onScroll = () => {
+      setShowScrollTop(window.scrollY > 640);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   // Reset pagination whenever filters change
   useEffect(() => {
@@ -669,28 +988,27 @@ export const CatalogSection: React.FC<CatalogSectionProps> = ({
                       key={asset.id}
                       className="group bg-white border border-[#E5E7EB] hover:border-[#A1A1AA] rounded-lg overflow-hidden flex flex-col transition-colors duration-150"
                     >
-                      {/* Clickable Studio Thumbnail Stage */}
-                      <div className="relative aspect-[4/3] w-full overflow-hidden border-b border-[#F1F2F4] bg-white">
-                        <button
-                          type="button"
-                          onClick={() => onInspectAsset(asset)}
-                          aria-label={`${asset.name} 3D modelini incele`}
-                          className="w-full h-full block cursor-pointer focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-[#2563EB]"
-                        >
-                          <AssetImagePlate asset={asset} />
-                        </button>
-
+                      {/* Clickable & Swipeable Studio Thumbnail Stage */}
+                      <CatalogCardMediaStage
+                        asset={asset}
+                        onInspect={() => onInspectAsset(asset)}
+                      >
                         {/* Compact Top-Right Quick Scene Add Button */}
                         <button
                           type="button"
-                          onClick={() => onAddToScene(asset)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onAddToScene(asset);
+                          }}
+                          onTouchStart={(e) => e.stopPropagation()}
+                          onPointerDown={(e) => e.stopPropagation()}
                           aria-label={
                             isSelected
                               ? `${asset.name} sahnede (+1 ekle)`
                               : `${asset.name} varlığını sahneye ekle`
                           }
                           title={isSelected ? 'Sahnede (+1 Ekle)' : 'Sahneye Ekle'}
-                          className={`absolute top-2 right-2 w-7 h-7 inline-flex items-center justify-center rounded-md border transition-colors cursor-pointer ${
+                          className={`absolute top-2 right-2 z-10 w-7 h-7 inline-flex items-center justify-center rounded-md border transition-all active:scale-90 cursor-pointer ${
                             isSelected
                               ? 'bg-[#09090B] text-white border-[#09090B]'
                               : 'bg-white/95 text-[#18181B] border-[#E5E7EB] hover:bg-[#09090B] hover:text-white hover:border-[#09090B]'
@@ -702,7 +1020,7 @@ export const CatalogSection: React.FC<CatalogSectionProps> = ({
                             <Plus className="w-3.5 h-3.5" aria-hidden="true" />
                           )}
                         </button>
-                      </div>
+                      </CatalogCardMediaStage>
 
                       {/* Crisp Minimalist Card Footer */}
                       <div className="p-2.5 flex-1 flex flex-col">
@@ -715,21 +1033,22 @@ export const CatalogSection: React.FC<CatalogSectionProps> = ({
                           {asset.name}
                         </button>
 
-                        <div className="flex items-center gap-1.5 text-[11px] text-[#71717A] mt-0.5 min-w-0">
-                          {asset.turkishMarket?.brand && (
-                            <>
-                              <span
-                                className="font-medium text-[#27272A] shrink-0 max-w-[46%] truncate"
-                                title={asset.turkishMarket.brand}
-                              >
-                                {asset.turkishMarket.brand}
-                              </span>
-                              <span aria-hidden="true" className="shrink-0">·</span>
-                            </>
-                          )}
-                          <span className="min-w-0 flex-1 truncate">{group.label}</span>
-                          <span aria-hidden="true" className="shrink-0">·</span>
-                          <span className="font-mono tabular-nums shrink-0">
+                        <div className="flex items-center justify-between gap-2 text-[11px] text-[#71717A] mt-0.5 min-w-0">
+                          <div className="flex items-center gap-1 min-w-0">
+                            {asset.turkishMarket?.brand && (
+                              <>
+                                <span
+                                  className="font-medium text-[#27272A] shrink-0 max-w-[52%] truncate"
+                                  title={asset.turkishMarket.brand}
+                                >
+                                  {asset.turkishMarket.brand}
+                                </span>
+                                <span aria-hidden="true" className="shrink-0 text-[#A1A1AA]">·</span>
+                              </>
+                            )}
+                            <span className="min-w-0 truncate">{group.label}</span>
+                          </div>
+                          <span className="font-mono tabular-nums shrink-0 text-[#52525B]">
                             {formatDimensionsText(asset)}
                           </span>
                         </div>
@@ -807,6 +1126,19 @@ export const CatalogSection: React.FC<CatalogSectionProps> = ({
           )}
         </div>
       </div>
+
+      {/* Floating Scroll-to-Top button for effortless mobile browsing across 896+ models */}
+      {showScrollTop && (
+        <button
+          type="button"
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          aria-label="Sayfanın en üstüne dön"
+          title="Yukarı Çık"
+          className="fixed bottom-5 right-4 z-30 w-10 h-10 inline-flex items-center justify-center rounded-full bg-[#09090B]/90 hover:bg-[#1D4ED8] text-white border border-white/15 shadow-lg active:scale-95 transition-all cursor-pointer"
+        >
+          <ArrowUp className="w-4 h-4" aria-hidden="true" />
+        </button>
+      )}
     </section>
   );
 };

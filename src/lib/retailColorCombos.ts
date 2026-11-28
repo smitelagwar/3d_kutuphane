@@ -2018,8 +2018,8 @@ export function getRetailFinishesForAsset(
     return null;
   }
 
-  // Preserve researched brand-specific Turkish retail finishes (Geberit, VitrA, Viko, Schneider, Bosch, Siemens, Arçelik, Beko, Vaillant, Demirdöküm, E.C.A., Sur/Kale, Pelsan)
-  if (TURKISH_GAP_ASSET_IDS.has(asset.id)) {
+  // Preserve researched brand-specific Turkish retail finishes and curated multi-palette room sets
+  if (TURKISH_GAP_ASSET_IDS.has(asset.id) || asset.archetype === 'composed_room') {
     return asset.finishes;
   }
 

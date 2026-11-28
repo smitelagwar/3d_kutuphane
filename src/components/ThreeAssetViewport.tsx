@@ -20,6 +20,7 @@ import type {
   PatternVariant,
 } from '../lib/catalogTypes';
 import { buildArchitecturalAssetMesh, type BuiltAssetModel } from '../three/assetMeshBuilder';
+import { buildComposedRoomScene } from '../three/composedRoomBuilder';
 import {
   applyFinishAndPatternToExternalModel,
   loadExternalArchitecturalModel,
@@ -27,13 +28,14 @@ import {
 import { createContactShadowTexture } from '../three/proceduralTextures';
 import { exportAssetAsGlb } from '../three/glbExporter';
 import { formatDimensionsText } from '../lib/catalogLogic';
-import { PROCEDURAL_RUG_DESIGNER_FINISHES } from '../lib/catalogData';
+import { INITIAL_TURKISH_ASSETS, PROCEDURAL_RUG_DESIGNER_FINISHES } from '../lib/catalogData';
 
 type CameraPreset = 'perspective' | 'front' | 'side' | 'top';
 type SurfaceModeId = 'matte' | 'satin' | 'glossy' | 'metallic';
 
 interface ThreeAssetViewportProps {
   asset: ArchitecturalAsset;
+  allAssets?: ArchitecturalAsset[];
   finish: MaterialFinish;
   pattern: PatternVariant;
   isCustomFinishActive: boolean;
@@ -128,6 +130,7 @@ function detectSoftwareGl(): boolean {
 
 export const ThreeAssetViewport: React.FC<ThreeAssetViewportProps> = ({
   asset,
+  allAssets,
   finish,
   pattern,
   isCustomFinishActive,
@@ -138,7 +141,14 @@ export const ThreeAssetViewport: React.FC<ThreeAssetViewportProps> = ({
 }) => {
   const mountRef = useRef<HTMLDivElement | null>(null);
   const [cameraPreset, setCameraPreset] = useState<CameraPreset>('perspective');
-  const [showGrid, setShowGrid] = useState(true);
+  const [showGrid, setShowGrid] = useState(
+    () =>
+      !(
+        typeof window !== 'undefined' &&
+        (new URLSearchParams(window.location.search).get('cutout') === '1' ||
+          new URLSearchParams(window.location.search).get('roomCapture') === '1')
+      ),
+  );
   const [wireframe, setWireframe] = useState(false);
   const [dockCollapsed, setDockCollapsed] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
@@ -178,8 +188,8 @@ export const ThreeAssetViewport: React.FC<ThreeAssetViewportProps> = ({
   }, [finish.primaryHex, finish.secondaryHex, finish.accentHex, asset.id]);
 
   // Refs for latest finish/pattern/wireframe so async GLTF loads apply fresh values
-  const latestPropsRef = useRef({ finish, pattern, wireframe, cameraPreset });
-  latestPropsRef.current = { finish, pattern, wireframe, cameraPreset };
+  const latestPropsRef = useRef({ finish, pattern, wireframe, cameraPreset, archetype: asset.archetype });
+  latestPropsRef.current = { finish, pattern, wireframe, cameraPreset, archetype: asset.archetype };
 
   const engineRef = useRef<{
     scene: THREE.Scene;
@@ -192,9 +202,22 @@ export const ThreeAssetViewport: React.FC<ThreeAssetViewportProps> = ({
     maxAnisotropy: number;
     currentModel: BuiltAssetModel | null;
     loadedExternalAssetId: string | null;
+    applyComposedTheme: ((nextFinish: MaterialFinish, nextWireframe: boolean) => void) | null;
     requestRender: (immediate?: boolean) => void;
     fitCamera: (preset: CameraPreset) => void;
   } | null>(null);
+
+  // Close Color Studio popover cleanly with Escape key
+  useEffect(() => {
+    if (!paletteOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setPaletteOpen(false);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [paletteOpen]);
 
   // Initialize WebGLRenderer & studio lighting rig ONCE
   useEffect(() => {
@@ -202,10 +225,17 @@ export const ThreeAssetViewport: React.FC<ThreeAssetViewportProps> = ({
     if (!container) return;
 
     const isSoftwareGl = detectSoftwareGl();
+    const searchParams =
+      typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+    const isCutoutMode = searchParams?.get('cutout') === '1';
+    const isRoomCaptureMode = searchParams?.get('roomCapture') === '1';
+    const isStudioCapture = isCutoutMode || isRoomCaptureMode;
     let renderer: THREE.WebGLRenderer;
     try {
       renderer = new THREE.WebGLRenderer({
-        antialias: !isSoftwareGl,
+        antialias: !isSoftwareGl || isStudioCapture,
+        alpha: isCutoutMode,
+        preserveDrawingBuffer: isStudioCapture,
         powerPreference: 'high-performance',
       });
     } catch {
@@ -217,12 +247,17 @@ export const ThreeAssetViewport: React.FC<ThreeAssetViewportProps> = ({
     const height = Math.max(container.clientHeight, 320);
 
     renderer.setSize(width, height);
-    renderer.setPixelRatio(isSoftwareGl ? 1 : Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(
+      isRoomCaptureMode ? 1.5 : isSoftwareGl ? 1 : Math.min(window.devicePixelRatio, 2),
+    );
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.12;
-    renderer.shadowMap.enabled = !isSoftwareGl;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMappingExposure = isRoomCaptureMode ? 0.98 : isCutoutMode ? 1.18 : 1.12;
+    renderer.shadowMap.enabled = !isSoftwareGl || isRoomCaptureMode;
+    renderer.shadowMap.type = THREE.PCFShadowMap;
+    if (isCutoutMode) {
+      renderer.setClearColor(0x000000, 0);
+    }
 
     container.innerHTML = '';
     container.appendChild(renderer.domElement);
@@ -231,17 +266,21 @@ export const ThreeAssetViewport: React.FC<ThreeAssetViewportProps> = ({
     renderer.domElement.style.height = '100%';
 
     const scene = new THREE.Scene();
-    const bgHex = 0x262b34;
-    scene.background = new THREE.Color(bgHex);
-    scene.fog = new THREE.FogExp2(bgHex, 0.032);
+    const bgHex = isRoomCaptureMode ? 0xe9e4dc : 0x262b34;
+    if (!isCutoutMode) {
+      scene.background = new THREE.Color(bgHex);
+      if (!isRoomCaptureMode) {
+        scene.fog = new THREE.FogExp2(bgHex, 0.032);
+      }
+    }
 
     const pmremGenerator = new THREE.PMREMGenerator(renderer);
     const envTex = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
     scene.environment = envTex;
-    scene.environmentIntensity = 0.92;
+    scene.environmentIntensity = isRoomCaptureMode ? 0.96 : isCutoutMode ? 1.05 : 0.92;
     pmremGenerator.dispose();
 
-    const camera = new THREE.PerspectiveCamera(36, width / height, 0.02, 80);
+    const camera = new THREE.PerspectiveCamera(isRoomCaptureMode ? 38 : 36, width / height, 0.02, 80);
     camera.position.set(2.4, 1.6, 2.8);
 
     const controls = new OrbitControls(camera, renderer.domElement);
@@ -249,15 +288,19 @@ export const ThreeAssetViewport: React.FC<ThreeAssetViewportProps> = ({
     controls.dampingFactor = 0.08;
     controls.maxPolarAngle = Math.PI * 0.495;
     controls.minDistance = 0.16;
-    controls.maxDistance = 18;
+    controls.maxDistance = 24;
 
     // 3-point warm/cool architectural studio lighting rig
-    const hemiLight = new THREE.HemisphereLight(0xdbe8ff, 0x3b3630, 0.62);
+    const hemiLight = new THREE.HemisphereLight(
+      0xfffcf7,
+      isStudioCapture ? 0xcfc6b8 : 0x3b3630,
+      isRoomCaptureMode ? 0.68 : isCutoutMode ? 0.95 : 0.62,
+    );
     scene.add(hemiLight);
 
-    const keyLight = new THREE.DirectionalLight(0xfff2de, 1.6);
+    const keyLight = new THREE.DirectionalLight(0xfff0d8, isRoomCaptureMode ? 1.32 : 1.6);
     keyLight.position.set(4.8, 6.4, 4.6);
-    keyLight.castShadow = !isSoftwareGl;
+    keyLight.castShadow = !isSoftwareGl || isRoomCaptureMode;
     keyLight.shadow.mapSize.set(1024, 1024);
     keyLight.shadow.camera.near = 0.2;
     keyLight.shadow.camera.far = 22;
@@ -269,9 +312,18 @@ export const ThreeAssetViewport: React.FC<ThreeAssetViewportProps> = ({
     keyLight.shadow.normalBias = 0.02;
     scene.add(keyLight);
 
-    const rimLight = new THREE.DirectionalLight(0xa3c9ff, 0.85);
+    const rimLight = new THREE.DirectionalLight(
+      isRoomCaptureMode ? 0xffe4c4 : 0xa3c9ff,
+      isRoomCaptureMode ? 0.52 : 0.85,
+    );
     rimLight.position.set(-4.6, 3.8, -4.4);
     scene.add(rimLight);
+
+    if (isRoomCaptureMode) {
+      const interiorBounce = new THREE.PointLight(0xfff0d6, 0.85, 11, 1.5);
+      interiorBounce.position.set(0.5, 2.25, 0.7);
+      scene.add(interiorBounce);
+    }
 
     const floorGeo = new THREE.CircleGeometry(10, 48);
     const floorMat = new THREE.MeshStandardMaterial({
@@ -283,10 +335,12 @@ export const ThreeAssetViewport: React.FC<ThreeAssetViewportProps> = ({
     floorMesh.rotation.x = -Math.PI / 2;
     floorMesh.position.y = -0.003;
     floorMesh.receiveShadow = !isSoftwareGl;
+    floorMesh.visible = !isStudioCapture;
     scene.add(floorMesh);
 
     const grid = new THREE.GridHelper(12, 24, 0x596477, 0x3b4352);
     grid.position.y = 0.001;
+    grid.visible = !isStudioCapture;
     scene.add(grid);
 
     const shadowTex = createContactShadowTexture();
@@ -300,6 +354,7 @@ export const ThreeAssetViewport: React.FC<ThreeAssetViewportProps> = ({
     const shadowDisc = new THREE.Mesh(shadowDiscGeo, shadowDiscMat);
     shadowDisc.rotation.x = -Math.PI / 2;
     shadowDisc.position.y = 0.0025;
+    shadowDisc.visible = !isStudioCapture;
     scene.add(shadowDisc);
 
     let rafId = 0;
@@ -360,13 +415,24 @@ export const ThreeAssetViewport: React.FC<ThreeAssetViewportProps> = ({
       box.getSize(size);
 
       const maxDim = Math.max(size.x, size.y, size.z, 0.24);
-      const isFlatWide = size.y < maxDim * 0.14;
-      const isTallThinWall = size.y > size.z * 1.35 && size.x < 1.65;
-      const dist = isFlatWide
-        ? maxDim * 1.82
-        : isTallThinWall
-          ? maxDim * 2.15
-          : maxDim * 2.08;
+      const isComposedRoom = latestPropsRef.current.archetype === 'composed_room';
+      const isFlatWide = !isComposedRoom && size.y < maxDim * 0.14;
+      const isTallThinWall = !isComposedRoom && size.y > size.z * 1.35 && size.x < 1.65;
+      const baseDist = isComposedRoom
+        ? isRoomCaptureMode
+          ? maxDim * 1.24
+          : isCutoutMode
+            ? maxDim * 1.38
+            : maxDim * 1.46
+        : isFlatWide
+          ? maxDim * 1.82
+          : isTallThinWall
+            ? maxDim * 2.15
+            : maxDim * 2.08;
+      // Pull camera back proportionally on narrow portrait mobile viewports so wide objects never clip horizontally
+      const isPortrait = camera.aspect < 0.98;
+      const aspectBoost = isPortrait ? Math.min(1.42, 1 / Math.max(camera.aspect, 0.7)) : 1;
+      const dist = baseDist * aspectBoost;
 
       if (preset === 'front') {
         camera.position.set(center.x, center.y + maxDim * 0.08, center.z + dist);
@@ -374,6 +440,21 @@ export const ThreeAssetViewport: React.FC<ThreeAssetViewportProps> = ({
         camera.position.set(center.x + dist, center.y + maxDim * 0.1, center.z);
       } else if (preset === 'top') {
         camera.position.set(center.x, center.y + dist * 1.18, center.z + dist * 0.14);
+      } else if (isComposedRoom) {
+        if (isRoomCaptureMode) {
+          // Architectural interior cutaway hero angle looking diagonally into the back & left feature walls
+          camera.position.set(
+            center.x + dist * 0.66,
+            center.y + dist * 0.26,
+            center.z + dist * 0.74,
+          );
+        } else {
+          camera.position.set(
+            center.x + dist * 0.74,
+            center.y + dist * 0.44,
+            center.z + dist * 0.82,
+          );
+        }
       } else if (isFlatWide) {
         camera.position.set(center.x + dist * 0.56, center.y + dist * 0.9, center.z + dist * 0.8);
       } else if (isTallThinWall) {
@@ -382,13 +463,24 @@ export const ThreeAssetViewport: React.FC<ThreeAssetViewportProps> = ({
         camera.position.set(center.x + dist * 0.72, center.y + dist * 0.42, center.z + dist * 0.84);
       }
 
-      controls.target.set(center.x, isFlatWide ? center.y - 0.08 : center.y - size.y * 0.05, center.z);
+      // On portrait mobile, bias target slightly lower so the 3D model sits comfortably above the bottom dock
+      const portraitShiftY = isPortrait && !isStudioCapture ? -maxDim * 0.14 : 0;
+      controls.target.set(
+        isComposedRoom && isRoomCaptureMode ? center.x - size.x * 0.04 : center.x,
+        (isComposedRoom
+          ? center.y - size.y * 0.1
+          : isFlatWide
+            ? center.y - 0.08
+            : center.y - size.y * 0.05) + portraitShiftY,
+        isComposedRoom && isRoomCaptureMode ? center.z - size.z * 0.04 : center.z,
+      );
       controls.update();
 
       const footprint = Math.max(size.x, size.z, 0.32) * 0.72;
       shadowDisc.scale.set(footprint, footprint, 1);
       shadowDisc.position.set(center.x, 0.0025, center.z);
-      shadowDisc.visible = !isFlatWide;
+      shadowDisc.visible = !isStudioCapture && !isFlatWide && !isComposedRoom;
+      grid.visible = !isStudioCapture && !isComposedRoom;
       requestRender(true);
     };
 
@@ -428,6 +520,7 @@ export const ThreeAssetViewport: React.FC<ThreeAssetViewportProps> = ({
       maxAnisotropy: renderer.capabilities.getMaxAnisotropy(),
       currentModel: null,
       loadedExternalAssetId: null,
+      applyComposedTheme: null,
       requestRender,
       fitCamera,
     };
@@ -456,15 +549,17 @@ export const ThreeAssetViewport: React.FC<ThreeAssetViewportProps> = ({
     };
   }, []);
 
-  // Load external GLTF/GLB model when active asset changes (only re-fetches when asset.id changes!)
+  // Load external GLTF/GLB model OR Composed Room multi-asset scene when active asset changes
   useEffect(() => {
     const eng = engineRef.current;
     if (!eng) return;
 
     const isExternal = isExternalProvider(asset.modelSource?.provider);
+    const isComposedRoom = asset.archetype === 'composed_room' && Boolean(asset.composedRoom);
 
-    if (!isExternal) {
+    if (!isExternal && !isComposedRoom) {
       eng.loadedExternalAssetId = null;
+      eng.applyComposedTheme = null;
       setLoadingModel(false);
       setLoadError('');
       return;
@@ -481,7 +576,72 @@ export const ThreeAssetViewport: React.FC<ThreeAssetViewportProps> = ({
       eng.currentModel.dispose();
       eng.currentModel = null;
       eng.loadedExternalAssetId = null;
+      eng.applyComposedTheme = null;
       eng.requestRender();
+    }
+
+    if (isComposedRoom) {
+      const sourceList = allAssets && allAssets.length > 0 ? allAssets : INITIAL_TURKISH_ASSETS;
+      const catalogMap = new Map<string, ArchitecturalAsset>(sourceList.map((a) => [a.id, a]));
+      let mountedShell = false;
+
+      buildComposedRoomScene(
+        asset,
+        catalogMap,
+        latestPropsRef.current.finish,
+        {
+          isSoftwareGl:
+            eng.isSoftwareGl &&
+            !(
+              typeof window !== 'undefined' &&
+              new URLSearchParams(window.location.search).get('roomCapture') === '1'
+            ),
+          maxAnisotropy: eng.maxAnisotropy,
+          wireframe: latestPropsRef.current.wireframe,
+          pattern: latestPropsRef.current.pattern,
+          onProgress: (loadedCount, totalCount) => {
+            setLoadProgress({ loaded: loadedCount, total: totalCount });
+          },
+          onPartialUpdate: () => {
+            if (!controller.signal.aborted && engineRef.current) {
+              engineRef.current.requestRender(true);
+            }
+          },
+        },
+        controller.signal,
+      )
+        .then((builtRoom) => {
+          if (controller.signal.aborted || !engineRef.current) {
+            builtRoom.dispose();
+            return;
+          }
+          if (!mountedShell) {
+            mountedShell = true;
+            engineRef.current.currentModel = {
+              group: builtRoom.group,
+              dispose: builtRoom.dispose,
+            };
+            engineRef.current.loadedExternalAssetId = asset.id;
+            engineRef.current.applyComposedTheme = builtRoom.applyTheme;
+            engineRef.current.scene.add(builtRoom.group);
+          }
+          engineRef.current.fitCamera(latestPropsRef.current.cameraPreset);
+          setLoadedAssetId(asset.id);
+          setLoadingModel(false);
+          setLoadProgress(null);
+        })
+        .catch((err) => {
+          if (controller.signal.aborted) return;
+          setLoadingModel(false);
+          setLoadProgress(null);
+          setLoadError(
+            err instanceof Error ? err.message : 'Kompoze 3D oda sahnesi kurulurken hata oluştu.',
+          );
+        });
+
+      return () => {
+        controller.abort();
+      };
     }
 
     loadExternalArchitecturalModel(
@@ -505,6 +665,7 @@ export const ThreeAssetViewport: React.FC<ThreeAssetViewportProps> = ({
         }
         engineRef.current.currentModel = built;
         engineRef.current.loadedExternalAssetId = asset.id;
+        engineRef.current.applyComposedTheme = null;
         engineRef.current.scene.add(built.group);
         engineRef.current.fitCamera(latestPropsRef.current.cameraPreset);
         setLoadedAssetId(asset.id);
@@ -525,12 +686,21 @@ export const ThreeAssetViewport: React.FC<ThreeAssetViewportProps> = ({
     };
   }, [asset, retryNonce]);
 
-  // Apply finish, pattern, wireframe updates (for procedural: rebuild; for external: instant non-destructive PBR update!)
+  // Apply finish, pattern, wireframe updates (procedural: rebuild; external/composed: instant live update!)
   useEffect(() => {
     const eng = engineRef.current;
     if (!eng) return;
 
     const isExternal = isExternalProvider(asset.modelSource?.provider);
+    const isComposedRoom = asset.archetype === 'composed_room' && Boolean(asset.composedRoom);
+
+    if (isComposedRoom) {
+      if (eng.applyComposedTheme && eng.loadedExternalAssetId === asset.id) {
+        eng.applyComposedTheme(finish, wireframe);
+        eng.requestRender(true);
+      }
+      return;
+    }
 
     if (isExternal) {
       if (eng.currentModel && eng.loadedExternalAssetId === asset.id) {
@@ -667,14 +837,19 @@ export const ThreeAssetViewport: React.FC<ThreeAssetViewportProps> = ({
   };
 
   const blendUrl = asset.modelSource?.blendUrl;
+  const isComposedRoomAsset = asset.archetype === 'composed_room' && Boolean(asset.composedRoom);
   const isModelPending =
-    loadingModel || (isExternalAsset && loadedAssetId !== asset.id && !loadError);
+    loadingModel || ((isExternalAsset || isComposedRoomAsset) && loadedAssetId !== asset.id && !loadError);
   const isModelReady = loadedAssetId === asset.id && !loadingModel && !loadError;
-  const progressText = loadProgress
-    ? loadProgress.total > 0
-      ? `3D model yükleniyor... %${Math.min(99, Math.round((loadProgress.loaded / loadProgress.total) * 100))} (${(loadProgress.loaded / 1048576).toFixed(1)} MB)`
-      : `3D model yükleniyor... ${(loadProgress.loaded / 1048576).toFixed(1)} MB`
-    : '3D model yükleniyor...';
+  const progressText = isComposedRoomAsset
+    ? loadProgress && loadProgress.total > 0
+      ? `3D oda kuruluyor... (${loadProgress.loaded}/${loadProgress.total} model)`
+      : '3D oda sahnesi kuruluyor...'
+    : loadProgress
+      ? loadProgress.total > 0
+        ? `3D model yükleniyor... %${Math.min(99, Math.round((loadProgress.loaded / loadProgress.total) * 100))} (${(loadProgress.loaded / 1048576).toFixed(1)} MB)`
+        : `3D model yükleniyor... ${(loadProgress.loaded / 1048576).toFixed(1)} MB`
+      : '3D model yükleniyor...';
 
   return (
     <div
@@ -685,11 +860,15 @@ export const ThreeAssetViewport: React.FC<ThreeAssetViewportProps> = ({
       data-active-hex={finish.primaryHex}
       data-active-pattern={pattern.id}
     >
-      {/* Dedicated isolated WebGL canvas mount container */}
+      {/* Dedicated isolated WebGL canvas mount container (double-tap/click re-centers camera) */}
       {!webglError ? (
         <div
           ref={mountRef}
           data-testid="three-canvas-container"
+          onDoubleClick={() => {
+            engineRef.current?.fitCamera(latestPropsRef.current.cameraPreset);
+          }}
+          title="Kamerayı ortalamak için çift tıklayın"
           className="w-full h-full cursor-grab active:cursor-grabbing"
         />
       ) : (
@@ -737,9 +916,12 @@ export const ThreeAssetViewport: React.FC<ThreeAssetViewportProps> = ({
         </div>
       )}
 
-      {/* Minimal top-left architectural readout (no backdrop-blur over WebGL) */}
+      {/* Minimal top-left architectural readout (no backdrop-blur over WebGL, strictly bounded on mobile) */}
       {!(typeof window !== 'undefined' && window.location.search.includes('capture=1')) && (
-      <div className="pointer-events-none absolute top-3 left-3 z-10 bg-[#161920]/95 border border-[#323846] rounded-md px-3 py-1.5 max-w-[440px]">
+      <div
+        data-testid="viewport-hud-readout"
+        className="pointer-events-none absolute top-2.5 left-2.5 right-2.5 sm:top-3 sm:left-3 sm:right-auto z-10 bg-[#161920]/95 border border-[#323846] rounded-md px-2.5 sm:px-3 py-1.5 sm:max-w-[440px]"
+      >
         <p className="text-xs font-medium text-white truncate">{asset.name}</p>
         <p className="text-[11px] font-mono tabular-nums text-[#A1A8B5] truncate">
           {formatDimensionsText(asset)} · {finish.label} · {pattern.label}
@@ -752,16 +934,16 @@ export const ThreeAssetViewport: React.FC<ThreeAssetViewportProps> = ({
 
       {/* Ultra-compact, collapsible bottom control dock + floating Custom RAL/HEX Palette Popover */}
       <div
-        className={`absolute bottom-3 left-1/2 -translate-x-1/2 z-10 w-[calc(100%-24px)] max-w-[1120px] flex flex-col items-center ${
+        className={`absolute bottom-2.5 sm:bottom-3 left-1/2 -translate-x-1/2 z-10 w-[calc(100%-20px)] sm:w-[calc(100%-24px)] max-w-[1120px] flex flex-col items-center ${
           typeof window !== 'undefined' && window.location.search.includes('capture=1') ? 'hidden' : ''
         }`}
       >
-        {/* Custom RAL / HEX Architectural Color Studio Popover (opens neatly above dock) */}
+        {/* Custom RAL / HEX Architectural Color Studio Popover (opens neatly above dock, scrollable on small phones) */}
         {paletteOpen && !dockCollapsed && (
           <div
             role="dialog"
             aria-label="Özel mimari renk ve doku seçici"
-            className="w-full max-w-[760px] mb-2 bg-white border border-[#D8DCE3] rounded-xl p-3.5 shadow-xl text-[#111318]"
+            className="w-full max-w-[760px] max-h-[300px] sm:max-h-[390px] overflow-y-auto mb-2 bg-white border border-[#D8DCE3] rounded-xl p-3 sm:p-3.5 shadow-xl text-[#111318]"
           >
             <div className="flex items-center justify-between gap-2 pb-2 mb-2.5 border-b border-[#EEF1F5]">
               <div className="flex items-center gap-2">
@@ -1092,10 +1274,17 @@ export const ThreeAssetViewport: React.FC<ThreeAssetViewportProps> = ({
         </button>
 
         {!dockCollapsed && (
-          <div className="w-full bg-white border border-[#D8DCE3] rounded-lg px-2 py-1.5 shadow-md flex flex-wrap lg:flex-nowrap items-center justify-between gap-x-1.5 gap-y-1.5">
-            {/* Compact Swatch Selector + Custom RAL/HEX Color Trigger */}
-            <div className="flex items-center gap-1 min-w-0 flex-wrap lg:flex-nowrap">
-              <div className="flex items-center gap-0.5 flex-wrap lg:flex-nowrap" role="group" aria-label="Kaplama renk seçimi">
+          <div
+            data-testid="viewport-control-dock"
+            className="w-full bg-white border border-[#D8DCE3] rounded-lg px-2 py-1.5 shadow-md flex flex-col lg:flex-row lg:flex-nowrap lg:items-center lg:justify-between gap-1.5"
+          >
+            {/* Row 1 (mobile) / Left section (desktop): Single-line scrollable Swatch Strip + pinned Color Studio button */}
+            <div className="flex items-center gap-1.5 min-w-0 w-full lg:w-auto lg:flex-1">
+              <div
+                className="flex items-center gap-1 overflow-x-auto no-scrollbar flex-nowrap min-w-0 flex-1 py-0.5"
+                role="group"
+                aria-label="Kaplama renk seçimi"
+              >
                 {asset.finishes.map((f) => {
                   const active = !isCustomFinishActive && f.id === finish.id;
                   return (
@@ -1117,40 +1306,40 @@ export const ThreeAssetViewport: React.FC<ThreeAssetViewportProps> = ({
                         style={getSwatchStyle(f)}
                         aria-hidden="true"
                       />
-                      {active && <span className="max-w-[118px] truncate">{f.label}</span>}
+                      {active && <span className="max-w-[96px] sm:max-w-[118px] truncate">{f.label}</span>}
                     </button>
                   );
                 })}
-
-                <button
-                  type="button"
-                  onClick={() => setPaletteOpen((o) => !o)}
-                  aria-expanded={paletteOpen}
-                  aria-label="Özel RAL veya HEX renk ve doku seçici aç"
-                  title="Renk & Doku Stüdyosu (RAL / HEX / PBR)"
-                  className={`inline-flex items-center gap-1 h-7 px-2 rounded-md border text-[11px] font-medium transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
-                    isCustomFinishActive || paletteOpen
-                      ? 'bg-[#1D4ED8] text-white border-[#1D4ED8]'
-                      : 'bg-[#EFF6FF] text-[#1D4ED8] border-[#BFDBFE] hover:bg-[#DBEAFE]'
-                  }`}
-                >
-                  <Palette className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
-                  <span className="max-w-[84px] truncate">
-                    {isCustomFinishActive ? finish.label : 'Renk & Doku'}
-                  </span>
-                </button>
               </div>
+
+              <button
+                type="button"
+                onClick={() => setPaletteOpen((o) => !o)}
+                aria-expanded={paletteOpen}
+                aria-label="Özel RAL veya HEX renk ve doku seçici aç"
+                title="Renk & Doku Stüdyosu (RAL / HEX / PBR)"
+                className={`inline-flex items-center gap-1 h-7 px-2 rounded-md border text-[11px] font-medium transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
+                  isCustomFinishActive || paletteOpen
+                    ? 'bg-[#1D4ED8] text-white border-[#1D4ED8]'
+                    : 'bg-[#EFF6FF] text-[#1D4ED8] border-[#BFDBFE] hover:bg-[#DBEAFE]'
+                }`}
+              >
+                <Palette className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+                <span className="max-w-[84px] truncate">
+                  {isCustomFinishActive ? finish.label : 'Renk & Doku'}
+                </span>
+              </button>
             </div>
 
-            {/* Compact Pattern / Texture Preset Selector */}
+            {/* Compact Pattern / Texture Preset Selector (clean full-row on mobile, inline on desktop) */}
             {asset.patterns.length > 1 && (
-              <div className="flex items-center gap-1 border-l border-[#E5E7EB] pl-1.5 shrink-0">
+              <div className="flex items-center lg:border-l lg:border-[#E5E7EB] lg:pl-1.5 w-full lg:w-auto shrink-0">
                 <select
                   id="viewport-pattern-select"
                   aria-label="Doku ve desen seçimi"
                   value={pattern.id}
                   onChange={(e) => onSelectPattern(e.target.value as PatternId)}
-                  className="h-7 max-w-[126px] pl-1.5 pr-4 text-[11px] font-medium bg-[#F8F9FA] border border-[#E5E7EB] rounded-md text-[#09090B] focus:outline-none focus:border-[#1D4ED8] cursor-pointer"
+                  className="h-7 w-full lg:w-auto lg:max-w-[144px] pl-2 pr-6 text-[11px] font-medium bg-[#F8F9FA] border border-[#E5E7EB] rounded-md text-[#09090B] focus:outline-none focus:border-[#1D4ED8] cursor-pointer"
                 >
                   {asset.patterns.map((p) => (
                     <option key={p.id} value={p.id}>
@@ -1161,87 +1350,90 @@ export const ThreeAssetViewport: React.FC<ThreeAssetViewportProps> = ({
               </div>
             )}
 
-            {/* Compact Camera Presets + Grid/Wireframe Icons */}
-            <div className="flex items-center gap-1 lg:border-l lg:border-[#E4E7EC] lg:pl-1.5 shrink-0">
-              <div className="inline-flex items-center bg-[#F1F3F6] p-0.5 rounded-md">
-                {(Object.keys(CAMERA_LABELS) as CameraPreset[]).map((preset) => (
-                  <button
-                    key={preset}
-                    type="button"
-                    onClick={() => handleCameraPreset(preset)}
-                    className={`px-1.5 py-1 text-[11px] font-medium rounded transition-colors cursor-pointer whitespace-nowrap ${
-                      cameraPreset === preset
-                        ? 'bg-white text-[#111318] shadow-xs'
-                        : 'text-[#525866] hover:text-[#111318]'
-                    }`}
-                  >
-                    {CAMERA_LABELS[preset]}
-                  </button>
-                ))}
+            {/* Bottom row (mobile) / Right section (desktop): Camera Presets + Grid/Wireframe + Exports */}
+            <div className="flex items-center justify-between lg:justify-end gap-1.5 w-full lg:w-auto lg:shrink-0">
+              {/* Compact Camera Presets + Grid/Wireframe Icons */}
+              <div className="flex items-center gap-1 lg:border-l lg:border-[#E4E7EC] lg:pl-1.5 shrink-0">
+                <div className="inline-flex items-center bg-[#F1F3F6] p-0.5 rounded-md">
+                  {(Object.keys(CAMERA_LABELS) as CameraPreset[]).map((preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() => handleCameraPreset(preset)}
+                      className={`px-1.5 py-1 text-[11px] font-medium rounded transition-colors cursor-pointer whitespace-nowrap ${
+                        cameraPreset === preset
+                          ? 'bg-white text-[#111318] shadow-xs'
+                          : 'text-[#525866] hover:text-[#111318]'
+                      }`}
+                    >
+                      {CAMERA_LABELS[preset]}
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setShowGrid((g) => !g)}
+                  aria-pressed={showGrid}
+                  aria-label="Metrik ızgarayı aç veya kapat"
+                  title="Metrik Izgara"
+                  className={`h-7 w-7 inline-flex items-center justify-center rounded-md border transition-colors cursor-pointer shrink-0 ${
+                    showGrid
+                      ? 'bg-[#EFF4FF] border-[#1E40AF] text-[#1E40AF]'
+                      : 'bg-white border-[#E4E7EC] text-[#525866]'
+                  }`}
+                >
+                  <Grid3x3 className="w-3.5 h-3.5" aria-hidden="true" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setWireframe((w) => !w)}
+                  aria-pressed={wireframe}
+                  aria-label="Tel kafes görünümünü aç veya kapat"
+                  title="Tel Kafes (Wireframe)"
+                  className={`h-7 w-7 inline-flex items-center justify-center rounded-md border transition-colors cursor-pointer shrink-0 ${
+                    wireframe
+                      ? 'bg-[#EFF4FF] border-[#1E40AF] text-[#1E40AF]'
+                      : 'bg-white border-[#E4E7EC] text-[#525866]'
+                  }`}
+                >
+                  <Box className="w-3.5 h-3.5" aria-hidden="true" />
+                </button>
               </div>
 
-              <button
-                type="button"
-                onClick={() => setShowGrid((g) => !g)}
-                aria-pressed={showGrid}
-                aria-label="Metrik ızgarayı aç veya kapat"
-                title="Metrik Izgara"
-                className={`h-7 w-7 inline-flex items-center justify-center rounded-md border transition-colors cursor-pointer shrink-0 ${
-                  showGrid
-                    ? 'bg-[#EFF4FF] border-[#1E40AF] text-[#1E40AF]'
-                    : 'bg-white border-[#E4E7EC] text-[#525866]'
-                }`}
-              >
-                <Grid3x3 className="w-3.5 h-3.5" aria-hidden="true" />
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setWireframe((w) => !w)}
-                aria-pressed={wireframe}
-                aria-label="Tel kafes görünümünü aç veya kapat"
-                title="Tel Kafes (Wireframe)"
-                className={`h-7 w-7 inline-flex items-center justify-center rounded-md border transition-colors cursor-pointer shrink-0 ${
-                  wireframe
-                    ? 'bg-[#EFF4FF] border-[#1E40AF] text-[#1E40AF]'
-                    : 'bg-white border-[#E4E7EC] text-[#525866]'
-                }`}
-              >
-                <Box className="w-3.5 h-3.5" aria-hidden="true" />
-              </button>
-            </div>
-
-            {/* Direct Blender Exports (.GLB / .PY / .BLEND) */}
-            <div className="flex items-center gap-1 lg:border-l lg:border-[#E4E7EC] lg:pl-1.5 ml-auto shrink-0">
-              <button
-                type="button"
-                onClick={handleExportGlb}
-                disabled={exportingGlb || isModelPending}
-                className="inline-flex items-center gap-1 h-7 px-2.5 text-[11px] font-medium text-white bg-[#1E40AF] hover:bg-[#1E3A8A] disabled:opacity-60 rounded-md transition-colors cursor-pointer whitespace-nowrap shrink-0"
-              >
-                <Download className="w-3 h-3" aria-hidden="true" />
-                <span>{exportingGlb ? 'Hazırlanıyor...' : '.GLB'}</span>
-              </button>
-              <button
-                type="button"
-                onClick={onDownloadPython}
-                className="inline-flex items-center gap-1 h-7 px-2.5 text-[11px] font-medium text-[#111318] bg-[#F1F3F6] hover:bg-[#E4E7EC] rounded-md transition-colors cursor-pointer whitespace-nowrap shrink-0"
-              >
-                <Download className="w-3 h-3" aria-hidden="true" />
-                <span>.PY</span>
-              </button>
-              {blendUrl && (
-                <a
-                  href={blendUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 h-7 px-2.5 text-[11px] font-medium text-[#111318] bg-[#FEF3C7] hover:bg-[#FDE68A] border border-[#F59E0B]/30 rounded-md transition-colors whitespace-nowrap shrink-0"
-                  title="Orijinal Blender .blend dosyasını indir"
+              {/* Direct Blender Exports (.GLB / .PY / .BLEND) */}
+              <div className="flex items-center gap-1 lg:border-l lg:border-[#E4E7EC] lg:pl-1.5 shrink-0">
+                <button
+                  type="button"
+                  onClick={handleExportGlb}
+                  disabled={exportingGlb || isModelPending}
+                  className="inline-flex items-center gap-1 h-7 px-2.5 text-[11px] font-medium text-white bg-[#1E40AF] hover:bg-[#1E3A8A] disabled:opacity-60 rounded-md transition-colors cursor-pointer whitespace-nowrap shrink-0"
                 >
-                  <ExternalLink className="w-3 h-3" aria-hidden="true" />
-                  <span>.BLEND</span>
-                </a>
-              )}
+                  <Download className="w-3 h-3" aria-hidden="true" />
+                  <span>{exportingGlb ? 'Hazırlanıyor...' : '.GLB'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={onDownloadPython}
+                  className="inline-flex items-center gap-1 h-7 px-2 sm:px-2.5 text-[11px] font-medium text-[#111318] bg-[#F1F3F6] hover:bg-[#E4E7EC] rounded-md transition-colors cursor-pointer whitespace-nowrap shrink-0"
+                >
+                  <Download className="w-3 h-3" aria-hidden="true" />
+                  <span>.PY</span>
+                </button>
+                {blendUrl && (
+                  <a
+                    href={blendUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 h-7 px-2 sm:px-2.5 text-[11px] font-medium text-[#111318] bg-[#FEF3C7] hover:bg-[#FDE68A] border border-[#F59E0B]/30 rounded-md transition-colors whitespace-nowrap shrink-0"
+                    title="Orijinal Blender .blend dosyasını indir"
+                  >
+                    <ExternalLink className="w-3 h-3" aria-hidden="true" />
+                    <span>.BLEND</span>
+                  </a>
+                )}
+              </div>
             </div>
           </div>
         )}

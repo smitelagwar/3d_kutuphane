@@ -70,11 +70,24 @@ sharedLoader.register((parser) => ({
 }));
 
 /**
- * Resolves ABO and Hugging Face proxy paths directly to their CORS-enabled CDN origins
- * so 30–65 MB high-resolution GLBs stream directly to the browser without hitting Cloud Run's
- * 32 MiB proxy response limit or incurring an extra server hop.
+ * Resolves external GLB asset paths to our server-side GLB optimizer endpoint
+ * (which fast-redirects compact <=4 MB models to CDN and compresses heavy 10–65 MB
+ * 4K-PNG models down to ~0.7–2.5 MB with disk caching).
  */
 export function resolveDirectGlbUrl(rawUrl: string): string {
+  const khronosMatch = rawUrl.match(
+    /^https:\/\/raw\.githubusercontent\.com\/KhronosGroup\/glTF-Sample-Assets\/main\/Models\/([a-zA-Z0-9_-]{2,80})\/glTF-Binary\/\1\.glb$/,
+  );
+  if (khronosMatch) {
+    return `/api/v1/khronos/glb/${khronosMatch[1]}`;
+  }
+  return rawUrl;
+}
+
+/**
+ * Direct CORS-enabled CDN fallback URL if the local server optimizer endpoint is unavailable.
+ */
+export function resolveCdnFallbackUrl(rawUrl: string): string {
   const aboMatch = rawUrl.match(/^\/api\/v1\/abo\/glb\/([0-9a-zA-Z])\/([A-Z0-9_-]{4,28}\.glb)$/i);
   if (aboMatch) {
     return `https://amazon-berkeley-objects.s3.amazonaws.com/3dmodels/original/${aboMatch[1]}/${aboMatch[2]}`;
@@ -1897,24 +1910,36 @@ export async function loadExternalArchitecturalModel(
     throw new Error('Bu varlık için dış GLTF/GLB adresi tanımlı değil.');
   }
 
-  const gltfUrl = resolveDirectGlbUrl(rawGltfUrl);
+  const primaryUrl = resolveDirectGlbUrl(rawGltfUrl);
+  const fallbackUrl = resolveCdnFallbackUrl(rawGltfUrl);
 
-  const gltf = await new Promise<{ scene: THREE.Group }>((resolve, reject) => {
-    if (signal?.aborted) {
-      reject(new DOMException('Yükleme iptal edildi.', 'AbortError'));
-      return;
+  const loadFromUrl = (url: string) =>
+    new Promise<{ scene: THREE.Group }>((resolve, reject) => {
+      if (signal?.aborted) {
+        reject(new DOMException('Yükleme iptal edildi.', 'AbortError'));
+        return;
+      }
+      sharedLoader.load(
+        url,
+        (loaded) => resolve(loaded),
+        (evt) => {
+          if (!signal?.aborted && options.onProgress && evt.loaded > 0) {
+            options.onProgress(evt.loaded, evt.total || 0);
+          }
+        },
+        (err) => reject(err instanceof Error ? err : new Error('3D model dosyası yüklenemedi.')),
+      );
+    });
+
+  let gltf: { scene: THREE.Group };
+  try {
+    gltf = await loadFromUrl(primaryUrl);
+  } catch (primaryErr) {
+    if (signal?.aborted || fallbackUrl === primaryUrl) {
+      throw primaryErr;
     }
-    sharedLoader.load(
-      gltfUrl,
-      (loaded) => resolve(loaded),
-      (evt) => {
-        if (!signal?.aborted && options.onProgress && evt.loaded > 0) {
-          options.onProgress(evt.loaded, evt.total || 0);
-        }
-      },
-      (err) => reject(err instanceof Error ? err : new Error('3D model dosyası yüklenemedi.')),
-    );
-  });
+    gltf = await loadFromUrl(fallbackUrl);
+  }
 
   if (signal?.aborted) {
     disposeObjectTree(gltf.scene);
